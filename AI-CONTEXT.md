@@ -178,6 +178,7 @@ Para redeployar después de un cambio: `azd up`. Para borrar todo: `azd down`.
 | `LocalDB is not supported on this platform` al publicar | El generador de OpenAPI ejecuta `Program.cs` en el build Linux | Ya corregido: la inicialización de la base se saltea cuando el proceso es `GetDocument.Insider` |
 | La base publicada no tiene una columna/tabla nueva | Faltó generar la migración | `dotnet ef migrations add <Nombre> --project src/Infrastructure --startup-project src/Web --output-dir Data/Migrations`, commitear y `azd up`; la app la aplica al arrancar |
 | Primera request lenta | Container Apps escala a cero | Normal; o configurar `minReplicas: 1` (cuesta dinero) |
+| Se borró un recurso a mano (p. ej. la base) y `azd up` no lo recrea | azd compara con el estado guardado y no ve cambios en el Bicep | `azd provision --no-state` fuerza el redeploy completo; después reiniciar la revisión (`az containerapp revision restart`) para que la app aplique migraciones |
 
 ---
 
@@ -188,6 +189,7 @@ Para redeployar después de un cambio: `azd up`. Para borrar todo: `azd down`.
 - **Registro de usuarios** (`/register`) crea usuarios sin roles. Un administrador se los asigna desde Users.
 - **Git**: la solución todavía no tiene repositorio. Crearlo antes de seguir (`git init`, `.gitignore` ya existe).
 - `Category` tiene `Description` y `Amount`. Ampliar según el dominio real.
+- **Regla de esquema**: todo cambio de base va en una migración incremental nueva. La base publicada NO se borra ni se regenera `InitialCreate`, salvo pedido explícito del dueño del proyecto.
 
 ---
 
