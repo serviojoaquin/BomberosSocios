@@ -1,0 +1,85 @@
+<hgroup>
+  <h1>Categories</h1>
+  <p>Membership categories and their monthly amount.</p>
+</hgroup>
+
+@if (!categories()) {
+  <span aria-busy="true">Loading&hellip;</span>
+} @else {
+  <div class="todo-panel-header">
+    <h2>All categories</h2>
+    @if (canCreate$ | async) {
+      <button class="icon-btn" aria-label="New category" (click)="showNewDialog()"><lucide-icon name="plus" [size]="20" [strokeWidth]="2" /></button>
+    }
+  </div>
+
+  <table aria-label="Categories">
+    <thead>
+      <tr>
+        <th>Description</th>
+        <th>Amount</th>
+        @if (canAct$ | async) {
+          <th></th>
+        }
+      </tr>
+    </thead>
+    <tbody>
+      @for (category of categories(); track category.id) {
+        <tr>
+          <td>{{ category.description }}</td>
+          <td>{{ category.amount | currency }}</td>
+          @if (canAct$ | async) {
+            <td style="text-align: end; white-space: nowrap">
+              @if (canEdit$ | async) {
+                <button class="icon-btn" aria-label="Edit" (click)="showEditDialog(category)"><lucide-icon name="pencil" [size]="18" [strokeWidth]="2" /></button>
+              }
+              @if (canDelete$ | async) {
+                <button class="icon-btn" aria-label="Delete" (click)="confirmDelete(category)"><lucide-icon name="trash-2" [size]="18" [strokeWidth]="2" /></button>
+              }
+            </td>
+          }
+        </tr>
+      } @empty {
+        <tr>
+          <td colspan="3">No categories yet.</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}
+
+<dialog #editDialog>
+  <article>
+    <header>
+      <h3>{{ editor.id ? 'Edit Category' : 'New Category' }}</h3>
+      <button rel="prev" aria-label="Close" (click)="closeEditDialog()"></button>
+    </header>
+    <label for="description">Description</label>
+    <input type="text" id="description" placeholder="Category description&hellip;" [(ngModel)]="editor.description"
+      [attr.aria-invalid]="editorError() ? 'true' : null"
+      (keyup.enter)="save()" maxlength="200" />
+    @if (editorError()) {
+      <small>{{ editorError() }}</small>
+    }
+    <label for="amount">Amount</label>
+    <input type="number" id="amount" min="0" step="0.01" [(ngModel)]="editor.amount" (keyup.enter)="save()" />
+    <footer>
+      <button class="secondary" (click)="closeEditDialog()">Cancel</button>
+      <button (click)="save()">{{ editor.id ? 'Update' : 'Create' }}</button>
+    </footer>
+  </article>
+</dialog>
+
+<dialog #deleteDialog>
+  <article>
+    <header>
+      <h3>Delete "{{ selected()?.description }}"?</h3>
+      <button rel="prev" aria-label="Close" (click)="closeDeleteDialog()"></button>
+    </header>
+    <p>This action cannot be undone.</p>
+    <footer>
+      <button class="secondary" (click)="closeDeleteDialog()">Cancel</button>
+      <button class="danger" (click)="deleteConfirmed()">Delete</button>
+    </footer>
+  </article>
+</dialog>

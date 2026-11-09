@@ -1,0 +1,53 @@
+<hgroup>
+  <h1>Users</h1>
+  <p>Registered users and their roles. Changes apply the next time the user logs in.</p>
+</hgroup>
+
+@if (!users()) {
+  <span aria-busy="true">Loading&hellip;</span>
+} @else {
+  <table aria-label="Users">
+    <thead>
+      <tr>
+        <th>User</th>
+        <th>Roles</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (user of users(); track user.id) {
+        <tr>
+          <td>{{ user.userName }}</td>
+          <td>{{ user.roles.length ? user.roles.join(', ') : 'None' }}</td>
+          <td style="text-align: end; white-space: nowrap">
+            <button class="icon-btn" aria-label="Edit roles" (click)="showEditDialog(user)"><lucide-icon name="pencil" [size]="18" [strokeWidth]="2" /></button>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}
+
+<dialog #editDialog>
+  <article>
+    <header>
+      <h3>Roles for {{ editor.userName }}</h3>
+      <button rel="prev" aria-label="Close" (click)="closeEditDialog()"></button>
+    </header>
+    <fieldset>
+      @for (role of availableRoles(); track role) {
+        <label>
+          <input type="checkbox" [checked]="hasRole(role)" (change)="toggleRole(role, $any($event.target).checked)" />
+          {{ role }}
+        </label>
+      }
+    </fieldset>
+    @if (editorError()) {
+      <small class="error">{{ editorError() }}</small>
+    }
+    <footer>
+      <button class="secondary" (click)="closeEditDialog()">Cancel</button>
+      <button (click)="save()">Update</button>
+    </footer>
+  </article>
+</dialog>

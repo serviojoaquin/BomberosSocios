@@ -1,0 +1,90 @@
+<hgroup>
+  <h1>Roles</h1>
+  <p>Roles and the permissions they grant. Changes apply the next time a user logs in.</p>
+</hgroup>
+
+@if (!roles()) {
+  <span aria-busy="true">Loading&hellip;</span>
+} @else {
+  <div class="todo-panel-header">
+    <h2>All roles</h2>
+    <button class="icon-btn" aria-label="New role" (click)="showNewDialog()"><lucide-icon name="plus" [size]="20" [strokeWidth]="2" /></button>
+  </div>
+
+  <table aria-label="Roles">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Permissions</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (role of roles(); track role.id) {
+        <tr>
+          <td>
+            {{ role.name }}
+            @if (role.isSystem) {
+              <small> (system)</small>
+            }
+          </td>
+          <td>{{ permissionNames(role) }}</td>
+          <td style="text-align: end; white-space: nowrap">
+            @if (!isAdministrator(role)) {
+              <button class="icon-btn" aria-label="Edit" (click)="showEditDialog(role)"><lucide-icon name="pencil" [size]="18" [strokeWidth]="2" /></button>
+            }
+            @if (!role.isSystem) {
+              <button class="icon-btn" aria-label="Delete" (click)="confirmDelete(role)"><lucide-icon name="trash-2" [size]="18" [strokeWidth]="2" /></button>
+            }
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}
+
+<dialog #editDialog>
+  <article>
+    <header>
+      <h3>{{ editor.id ? 'Edit Role' : 'New Role' }}</h3>
+      <button rel="prev" aria-label="Close" (click)="closeEditDialog()"></button>
+    </header>
+    <label for="roleName">Name</label>
+    <input type="text" id="roleName" placeholder="Role name&hellip;" [(ngModel)]="editor.name"
+      [disabled]="editor.isSystem === true"
+      [attr.aria-invalid]="editorError() ? 'true' : null"
+      (keyup.enter)="save()" maxlength="50" />
+    @if (editorError()) {
+      <small>{{ editorError() }}</small>
+    }
+    <fieldset>
+      <legend>Permissions</legend>
+      @for (permission of availablePermissions(); track permission.id) {
+        <label>
+          <input type="checkbox"
+            [checked]="has(editor.permissions, permission.id)"
+            (change)="togglePermission(permission.id, $any($event.target).checked)" />
+          {{ permission.name }}
+        </label>
+      }
+    </fieldset>
+    <footer>
+      <button class="secondary" (click)="closeEditDialog()">Cancel</button>
+      <button (click)="save()">{{ editor.id ? 'Update' : 'Create' }}</button>
+    </footer>
+  </article>
+</dialog>
+
+<dialog #deleteDialog>
+  <article>
+    <header>
+      <h3>Delete "{{ selected()?.name }}"?</h3>
+      <button rel="prev" aria-label="Close" (click)="closeDeleteDialog()"></button>
+    </header>
+    <p>This action cannot be undone.</p>
+    <footer>
+      <button class="secondary" (click)="closeDeleteDialog()">Cancel</button>
+      <button class="danger" (click)="deleteConfirmed()">Delete</button>
+    </footer>
+  </article>
+</dialog>
