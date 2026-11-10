@@ -1,4 +1,4 @@
-﻿using BaseApp.Application.Common.Models;
+using BaseApp.Application.Common.Models;
 using BaseApp.Domain.Enums;
 
 namespace BaseApp.Application.Common.Interfaces;
@@ -6,6 +6,8 @@ namespace BaseApp.Application.Common.Interfaces;
 public interface IIdentityService
 {
     Task<string?> GetUserNameAsync(string userId);
+
+    Task<string?> GetUserIdByEmailAsync(string email);
 
     Task<bool> IsInRoleAsync(string userId, string role);
 
