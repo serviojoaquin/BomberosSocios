@@ -19,63 +19,13 @@ html {
   --pico-line-height: 1.5;
 }
 
-// ── Header ────────────────────────────────────────────────────────────────────
-:root {
-  --header-height: 4.5rem;
-}
-
-app-nav-menu > header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  width: 100%;
-  max-width: none;
-  height: var(--header-height);
-  padding: 0;
-  margin: 0;
-  z-index: 100;
-  background: color-mix(in srgb, var(--pico-background-color) 85%, transparent);
-  backdrop-filter: blur(8px);
-  border-bottom: 1px solid var(--pico-muted-border-color);
-}
-
-app-nav-menu > header nav {
-  height: 100%;
-  display: flex;
-  align-items: center;
-  width: 100%;
-  margin-inline: auto;
-  padding-inline: var(--pico-block-spacing-horizontal);
-
-  @media (min-width: 576px)  { max-width: 510px;  padding-inline: 0; }
-  @media (min-width: 768px)  { max-width: 700px; }
-  @media (min-width: 1024px) { max-width: 950px; }
-  @media (min-width: 1280px) { max-width: 1200px; }
-  @media (min-width: 1536px) { max-width: 1450px; }
-}
-
-// ── Main content ──────────────────────────────────────────────────────────────
-app-root > main {
-  padding-top: calc(var(--header-height) + var(--pico-block-spacing-vertical) * 2);
-}
-
-// ── Nav brand ─────────────────────────────────────────────────────────────────
-app-nav-menu > header nav > ul:first-child a {
-  font-family: "Outfit", sans-serif;
-  font-size: 1.75rem;
-  font-weight: 700;
-  text-decoration: none;
-  color: var(--pico-contrast);
-}
-
 // ── Login / Register centered layout ──────────────────────────────────────────
-app-root > main:has(> app-login, > app-register) {
+app-root > .app-shell > main:has(> app-login, > app-register) {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
+  min-height: calc(100vh - var(--header-height) - var(--pico-block-spacing-vertical) * 3);
 
   > app-login,
   > app-register {
@@ -463,4 +413,222 @@ div.dt-container table.dataTable thead > tr > th.dt-body-right div.dt-column-hea
 
 div.dt-container {
   --dt-order-header_outline-hover: none;
+}
+
+// ── App layout: sidebar + shell ───────────────────────────────────────────────
+:root {
+  --sidebar-width: 16rem;
+  --sidebar-width-collapsed: 4.25rem;
+  --header-height: 3.75rem;
+}
+
+app-root {
+  display: flex;
+  min-height: 100vh;
+}
+
+app-sidebar {
+  display: contents;
+}
+
+.app-sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  width: var(--sidebar-width);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--pico-card-background-color);
+  border-right: 1px solid var(--pico-muted-border-color);
+  transition: width 0.15s ease;
+  overflow: hidden;
+  z-index: 110;
+
+  &.collapsed {
+    width: var(--sidebar-width-collapsed);
+
+    .app-sidebar-label {
+      display: none;
+    }
+
+    .app-sidebar-brand {
+      justify-content: center;
+
+      > a {
+        display: none;
+      }
+    }
+
+    nav a {
+      justify-content: center;
+    }
+  }
+}
+
+.app-sidebar-brand {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--header-height);
+  padding-inline: 1rem;
+  border-bottom: 1px solid var(--pico-muted-border-color);
+
+  .app-sidebar-collapse {
+    margin: 0;
+    align-self: center;
+  }
+
+  > a {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: "Outfit", sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--pico-contrast);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+}
+
+.app-sidebar nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.75rem 1rem;
+
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  li {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  a {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.55rem 0.75rem;
+    margin-bottom: 0.15rem;
+    border-radius: var(--pico-border-radius);
+    color: var(--pico-color);
+    text-decoration: none;
+    white-space: nowrap;
+
+    &:hover {
+      background: var(--pico-secondary-focus);
+    }
+
+    &.active {
+      background: var(--pico-primary-focus);
+      color: var(--pico-primary);
+    }
+  }
+}
+
+.app-sidebar-section {
+  margin-bottom: 1rem;
+
+  > small {
+    display: block;
+    padding: 0.25rem 0.75rem;
+    margin-bottom: 0.35rem;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--pico-muted-color);
+  }
+}
+
+.app-sidebar-backdrop {
+  display: none;
+}
+
+.app-shell {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  height: var(--header-height);
+  padding-inline: var(--pico-block-spacing-horizontal);
+  background: color-mix(in srgb, var(--pico-background-color) 85%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--pico-muted-border-color);
+
+  a {
+    text-decoration: none;
+  }
+}
+
+.app-header-menu {
+  display: none;
+}
+
+.app-header-spacer {
+  flex: 1;
+}
+
+.app-header-user {
+  color: var(--pico-muted-color);
+  font-size: 0.9rem;
+}
+
+app-root > .app-shell > main {
+  flex: 1;
+  width: 100%;
+  max-width: 1200px;
+  margin-inline: auto;
+  padding: calc(var(--pico-block-spacing-vertical) * 1.5) var(--pico-block-spacing-horizontal);
+}
+
+@media (max-width: 767px) {
+  .app-sidebar {
+    position: fixed;
+    left: 0;
+    transform: translateX(-100%);
+    transition: transform 0.15s ease;
+
+    &.mobile-open {
+      transform: translateX(0);
+    }
+
+    &.collapsed {
+      width: var(--sidebar-width);
+
+      .app-sidebar-label,
+      .app-sidebar-brand > a {
+        display: flex;
+      }
+    }
+
+    .app-sidebar-collapse {
+      display: none;
+    }
+  }
+
+  .app-sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 105;
+  }
+
+  .app-header-menu {
+    display: inline-flex;
+  }
 }

@@ -1,4 +1,7 @@
-<app-nav-menu></app-nav-menu>
-<main>
-  <router-outlet></router-outlet>
-</main>
+<app-sidebar #sidebar></app-sidebar>
+<div class="app-shell">
+  <app-header (menuToggle)="sidebar.toggleMobile()"></app-header>
+  <main>
+    <router-outlet></router-outlet>
+  </main>
+</div>

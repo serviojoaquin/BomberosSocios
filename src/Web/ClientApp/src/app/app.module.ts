@@ -2,11 +2,12 @@ import { APP_ID, NgModule, inject, provideAppInitializer } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { LucideAngularModule, Sun, Moon, Laptop, Plus, Settings, MoreHorizontal, Pencil, Trash2 } from 'lucide-angular';
+import { LucideAngularModule, Sun, Moon, Laptop, Plus, Settings, MoreHorizontal, Pencil, Trash2, House, Hash, CloudSun, ListChecks, Tags, Shield, Users, Layers, Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-angular';
 import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 import { AppComponent } from './app.component';
-import { NavMenuComponent } from './nav-menu/nav-menu.component';
+import { SidebarComponent } from './layout/sidebar.component';
+import { HeaderComponent } from './layout/header.component';
 import { HomeComponent } from './home/home.component';
 import { CounterComponent } from './counter/counter.component';
 import { WeatherComponent } from './weather/weather.component';
@@ -31,7 +32,8 @@ export function getApiBaseUrl(): string {
 @NgModule({
     declarations: [
         AppComponent,
-        NavMenuComponent,
+        SidebarComponent,
+        HeaderComponent,
         HomeComponent,
         CounterComponent,
         WeatherComponent,
@@ -48,7 +50,7 @@ export function getApiBaseUrl(): string {
     imports: [
         BrowserModule,
         FormsModule,
-        LucideAngularModule.pick({ Sun, Moon, Laptop, Plus, Settings, MoreHorizontal, Pencil, Trash2 }),
+        LucideAngularModule.pick({ Sun, Moon, Laptop, Plus, Settings, MoreHorizontal, Pencil, Trash2, House, Hash, CloudSun, ListChecks, Tags, Shield, Users, Layers, Menu, PanelLeftClose, PanelLeftOpen }),
         RouterModule.forRoot([
             { path: '', component: HomeComponent, pathMatch: 'full' },
             { path: 'counter', component: CounterComponent },

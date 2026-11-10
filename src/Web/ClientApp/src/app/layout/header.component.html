@@ -1,0 +1,15 @@
+<header class="app-header">
+  <button type="button" class="icon-btn app-header-menu" aria-label="Open menu" (click)="menuToggle.emit()">
+    <lucide-icon name="menu" [size]="22" [strokeWidth]="2" />
+  </button>
+  <div class="app-header-spacer"></div>
+  @if (currentUser$ | async; as user) {
+    <span class="app-header-user">{{ user.userName }}</span>
+    <a href="#" (click)="logout($event)">Log out</a>
+  } @else {
+    <a [routerLink]="['/login']">Log in</a>
+    <a [routerLink]="['/register']">Register</a>
+  }
+  <span aria-hidden="true" class="nav-separator"></span>
+  <app-theme-toggle />
+</header>

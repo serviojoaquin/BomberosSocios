@@ -51,6 +51,8 @@ BaseApp/
         src/api-authorization/auth.service.ts     usuario actual + hasPermission$()
         src/app/web-api-client.ts                 GENERADO, no editar a mano
         src/app/shared/data-table/              componente <app-data-table> (DataTables 3 encapsulado)
+        src/app/modules.ts                        registro de módulos: título, ruta, ícono, sección, permiso → arma el sidebar
+        src/app/layout/                           sidebar y header del shell
     AppHost/         Aspire: define recursos (SQL, Web) y el target Azure Container Apps.
     ServiceDefaults/ Telemetría, health checks.
   tests/
@@ -130,7 +132,7 @@ Copiar el patrón de `Category`. Orden:
 4. `Application/Xs/Commands/CreateX/CreateX.cs` + `CreateXCommandValidator.cs`, idem Update y Delete. `Application/Xs/Queries/GetXs/GetXs.cs` + `XDto.cs` (con `Mapping : Profile` privado) + `XsVm.cs`.
 5. `Web/Endpoints/Xs.cs` implementando `IEndpointGroup`. El nombre de la clase define la ruta `/api/Xs`; el nombre del método define el `operationId` y por lo tanto el nombre del método en el cliente TS.
 6. `dotnet build src/Web` regenera `wwwroot/openapi/v1.json`; luego `npm run generate-api` en ClientApp regenera `web-api-client.ts`.
-7. Componente Angular en `ClientApp/src/app/xs/` (NgModule, `standalone: false`), declararlo en `app.module.ts`, agregar ruta con `canActivate: [AuthGuard]` y link en `nav-menu.component.html` condicionado por permiso. Las grillas se hacen con `<app-data-table [columns] [data] [actions] exportTitle (action)>`: `columns` con `data/title/render/className`, `actions` con `name/label/icon/visible` filtradas por permiso antes de pasarlas, y `options` opcional con sintaxis nativa de DataTables para casos especiales. Nunca instanciar DataTables fuera de ese componente.
+7. Componente Angular en `ClientApp/src/app/xs/` (NgModule, `standalone: false`), declararlo en `app.module.ts`, agregar ruta con `canActivate: [AuthGuard]` y una entrada en `modules.ts` (título, ruta, ícono Lucide registrado en `app.module.ts`, sección y permiso); el sidebar se arma solo. Las grillas se hacen con `<app-data-table [columns] [data] [actions] exportTitle (action)>`: `columns` con `data/title/render/className`, `actions` con `name/label/icon/visible` filtradas por permiso antes de pasarlas, y `options` opcional con sintaxis nativa de DataTables para casos especiales. Nunca instanciar DataTables fuera de ese componente.
 8. Seed opcional en `TrySeedAsync`.
 9. Generar la migración: `dotnet ef migrations add Add<X> --project src/Infrastructure --startup-project src/Web --output-dir Data/Migrations` (requiere `dotnet tool install -g dotnet-ef`). Revisar el archivo generado antes de seguir. Las migraciones ya aplicadas en algún ambiente no se editan: se agrega una nueva.
 
