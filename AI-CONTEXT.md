@@ -51,6 +51,7 @@ BaseApp/
         src/api-authorization/auth.service.ts     usuario actual + hasPermission$()
         src/app/web-api-client.ts                 GENERADO, no editar a mano
         src/app/shared/data-table/              componente <app-data-table> (DataTables 3 encapsulado)
+        src/app/shared/forms/                   Reactive Forms: <app-field-error>, directiva [appInvalid], FormErrorsService (mapea los 400 del servidor a cada control)
         src/app/branding.ts                       nombre y logo de la app (sidebar y título de pestaña)
         src/app/modules.ts                        registro de módulos: título, ruta, ícono, sección, permiso → arma el sidebar
         src/app/layout/                           sidebar y header del shell
@@ -147,6 +148,7 @@ Convenciones: records para commands/queries, `Guard.Against.NotFound`, `ProjectT
 - Sin comentarios en el código salvo que agreguen algo que el código no dice.
 - Un command/query por archivo junto con su handler. Validators en archivo aparte.
 - Angular: signals para estado, `<dialog>` nativo para modales, clases de Pico (`icon-btn`, `secondary`, `danger`), íconos Lucide registrados en `app.module.ts` (`LucideAngularModule.pick({...})`).
+- Formularios: siempre Reactive Forms (`FormBuilder` + `Validators`), un control por campo con `[appInvalid]` y `<app-field-error>` debajo; `form.markAllAsTouched()` antes de enviar; los 400 del servidor se aplican con `FormErrorsService.apply(error, form)` y los que no tienen campo se muestran como `generalErrors`. Los textos por defecto se traducen proveyendo `FIELD_ERROR_MESSAGES` en `app.module.ts`.
 - Grillas: siempre `<app-data-table>`. Los estilos de DataTables se adaptan a Pico en `styles.scss` mapeando las variables `--dt-*` y `--dtb-*` a tokens `--pico-*`; no sobreescribir reglas de DataTables con `!important`.
 - `TreatWarningsAsErrors` está activo: cualquier warning rompe el build. Las vulnerabilidades de paquetes transitivos se resuelven fijando la versión en `Directory.Packages.props`.
 - Antes de dar algo por hecho: `dotnet build BaseApp.slnx`, `dotnet test tests/Domain.UnitTests`, `dotnet test tests/Application.UnitTests`, `npx ng build` en ClientApp, y probar los endpoints con el usuario correcto (admin y uno sin permisos).

@@ -1,7 +1,9 @@
 import { Component, OnInit, ViewChild, ElementRef, signal } from '@angular/core';
+import { FormBuilder, Validators } from '@angular/forms';
 import { UsersClient, UserDto, UpdateUserRolesCommand, CreateUserCommand, ResetUserPasswordCommand, SetUserEnabledCommand } from '../web-api-client';
 import { AuthService } from 'src/api-authorization/auth.service';
 import { DataTableAction, DataTableActionEvent, DataTableColumn } from '../shared/data-table/data-table.component';
+import { FormErrorsService } from '../shared/forms/form-errors.service';
 
 @Component({
   standalone: false,
@@ -28,15 +30,26 @@ export class UsersComponent implements OnInit {
   ];
   selected = signal<UserDto | null>(null);
   rolesEditor: string[] = [];
-  newUser: { email?: string, password?: string, roles: string[] } = { roles: [] };
-  newPassword = '';
-  error = signal('');
+  newUserRoles: string[] = [];
+  newUserForm = this.fb.group({
+    email: ['', [Validators.required, Validators.email, Validators.maxLength(256)]],
+    password: ['', [Validators.required, Validators.minLength(6)]]
+  });
+  passwordForm = this.fb.group({
+    newPassword: ['', [Validators.required, Validators.minLength(6)]]
+  });
+  generalErrors = signal<string[]>([]);
   newUserOpen = signal(false);
   passwordOpen = signal(false);
 
   private currentUserId: string | null = null;
 
-  constructor(private client: UsersClient, private authService: AuthService) {
+  constructor(
+    private client: UsersClient,
+    private authService: AuthService,
+    private fb: FormBuilder,
+    private formErrors: FormErrorsService
+  ) {
     this.authService.currentUser$.subscribe(user => this.currentUserId = user?.id ?? null);
   }
 
@@ -53,14 +66,14 @@ export class UsersComponent implements OnInit {
   onAction(event: DataTableActionEvent): void {
     const user = event.row as UserDto;
     this.selected.set(user);
-    this.error.set('');
+    this.generalErrors.set([]);
     switch (event.action) {
       case 'roles':
         this.rolesEditor = [...user.roles];
         this.rolesDialogRef.nativeElement.showModal();
         break;
       case 'password':
-        this.newPassword = '';
+        this.passwordForm.reset({ newPassword: '' });
         this.passwordOpen.set(true);
         this.passwordDialogRef.nativeElement.showModal();
         setTimeout(() => document.getElementById('newPassword')?.focus(), 50);
@@ -73,11 +86,12 @@ export class UsersComponent implements OnInit {
   }
 
   showNewUserDialog(): void {
-    this.newUser = { roles: [] };
-    this.error.set('');
+    this.newUserForm.reset({ email: '', password: '' });
+    this.newUserRoles = [];
+    this.generalErrors.set([]);
     this.newUserOpen.set(true);
     this.newUserDialogRef.nativeElement.showModal();
-    setTimeout(() => document.getElementById('newUserEmail')?.focus(), 50);
+    setTimeout(() => document.getElementById('email')?.focus(), 50);
   }
 
   closeDialogs(): void {
@@ -85,7 +99,7 @@ export class UsersComponent implements OnInit {
       ref.nativeElement.close();
     }
     this.selected.set(null);
-    this.error.set('');
+    this.generalErrors.set([]);
     this.newUserOpen.set(false);
     this.passwordOpen.set(false);
   }
@@ -105,27 +119,35 @@ export class UsersComponent implements OnInit {
         this.patch(command.id, { roles: [...command.roles].sort() });
         this.closeDialogs();
       },
-      error: error => this.error.set(this.firstError(error, 'Unable to update the user.'))
+      error: error => this.generalErrors.set([this.formErrors.firstMessage(error, 'Unable to update the user.')])
     });
   }
 
   createUser(): void {
-    const command = { email: this.newUser.email, password: this.newUser.password, roles: this.newUser.roles } as CreateUserCommand;
+    this.newUserForm.markAllAsTouched();
+    if (this.newUserForm.invalid) {
+      return;
+    }
+    const command = { email: this.newUserForm.value.email, password: this.newUserForm.value.password, roles: this.newUserRoles } as CreateUserCommand;
     this.client.createUser(command).subscribe({
       next: id => {
         const created = { id, userName: command.email, email: command.email, isEnabled: true, roles: [...command.roles].sort() } as UserDto;
         this.users.update(us => [...(us ?? []), created]);
         this.closeDialogs();
       },
-      error: error => this.error.set(this.firstError(error, 'Unable to create the user.'))
+      error: error => this.generalErrors.set(this.formErrors.apply(error, this.newUserForm).general)
     });
   }
 
   resetPassword(): void {
-    const command = { id: this.selected()!.id, newPassword: this.newPassword } as ResetUserPasswordCommand;
+    this.passwordForm.markAllAsTouched();
+    if (this.passwordForm.invalid) {
+      return;
+    }
+    const command = { id: this.selected()!.id, newPassword: this.passwordForm.value.newPassword } as ResetUserPasswordCommand;
     this.client.resetUserPassword(command.id, command).subscribe({
       next: () => this.closeDialogs(),
-      error: error => this.error.set(this.firstError(error, 'Unable to reset the password.'))
+      error: error => this.generalErrors.set(this.formErrors.apply(error, this.passwordForm).general)
     });
   }
 
@@ -137,7 +159,7 @@ export class UsersComponent implements OnInit {
         this.patch(command.id, { isEnabled: command.enabled });
         this.closeDialogs();
       },
-      error: error => this.error.set(this.firstError(error, 'Unable to update the user.'))
+      error: error => this.generalErrors.set([this.formErrors.firstMessage(error, 'Unable to update the user.')])
     });
   }
 
@@ -147,15 +169,5 @@ export class UsersComponent implements OnInit {
 
   private escape(value: unknown): string {
     return String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  }
-
-  private firstError(error: any, fallback: string): string {
-    try {
-      const errors = JSON.parse(error.response).errors;
-      const first = errors && Object.values(errors)[0] as string[];
-      return first?.[0] ?? fallback;
-    } catch {
-      return fallback;
-    }
   }
 }

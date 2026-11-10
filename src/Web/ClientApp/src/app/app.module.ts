@@ -1,6 +1,6 @@
 import { APP_ID, NgModule, inject, provideAppInitializer } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { LucideAngularModule, Sun, Moon, Laptop, Plus, Settings, MoreHorizontal, Pencil, Trash2, House, Hash, CloudSun, ListChecks, Tags, Box, Shield, Users, Layers, Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-angular';
 import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
@@ -16,6 +16,8 @@ import { SampleItemsComponent } from './sample-items/sample-items.component';
 import { RolesComponent } from './roles/roles.component';
 import { UsersComponent } from './users/users.component';
 import { DataTableComponent } from './shared/data-table/data-table.component';
+import { FieldErrorComponent } from './shared/forms/field-error.component';
+import { InvalidDirective } from './shared/forms/invalid.directive';
 import { ThemeToggleComponent } from './theme-toggle/theme-toggle.component';
 import { API_BASE_URL } from './web-api-client';
 import { AuthorizeInterceptor } from 'src/api-authorization/authorize.interceptor';
@@ -42,6 +44,8 @@ export function getApiBaseUrl(): string {
         RolesComponent,
         UsersComponent,
         DataTableComponent,
+        FieldErrorComponent,
+        InvalidDirective,
         ThemeToggleComponent,
         LoginComponent,
         RegisterComponent
@@ -50,6 +54,7 @@ export function getApiBaseUrl(): string {
     imports: [
         BrowserModule,
         FormsModule,
+        ReactiveFormsModule,
         LucideAngularModule.pick({ Sun, Moon, Laptop, Plus, Settings, MoreHorizontal, Pencil, Trash2, House, Hash, CloudSun, ListChecks, Tags, Box, Shield, Users, Layers, Menu, PanelLeftClose, PanelLeftOpen }),
         RouterModule.forRoot([
             { path: '', component: HomeComponent, pathMatch: 'full' },

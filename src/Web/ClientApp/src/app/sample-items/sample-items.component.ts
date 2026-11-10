@@ -1,8 +1,10 @@
 import { Component, OnInit, ViewChild, ElementRef, signal } from '@angular/core';
+import { FormBuilder, Validators } from '@angular/forms';
 import { SampleItemsClient, SampleItemDto, CreateSampleItemCommand, UpdateSampleItemCommand } from '../web-api-client';
 import { AuthService } from 'src/api-authorization/auth.service';
 import { Permissions } from '../permissions';
 import { DataTableAction, DataTableActionEvent, DataTableColumn } from '../shared/data-table/data-table.component';
+import { FormErrorsService } from '../shared/forms/form-errors.service';
 
 @Component({
   standalone: false,
@@ -23,14 +25,24 @@ export class SampleItemsComponent implements OnInit {
     ...(this.authService.hasPermission(Permissions.EditSampleItems) ? [{ name: 'edit', label: 'Edit', icon: 'pencil' } as DataTableAction] : []),
     ...(this.authService.hasPermission(Permissions.DeleteSampleItems) ? [{ name: 'delete', label: 'Delete', icon: 'trash' } as DataTableAction] : [])
   ];
-  editor: { id?: number, description?: string, amount?: number } = {};
-  editorError = signal('');
+  form = this.fb.group({
+    id: [0],
+    description: ['', [Validators.required, Validators.maxLength(200)]],
+    amount: [0, [Validators.required, Validators.min(0)]]
+  });
+  generalErrors = signal<string[]>([]);
   selected = signal<SampleItemDto | null>(null);
 
   constructor(
     private client: SampleItemsClient,
-    private authService: AuthService
+    private authService: AuthService,
+    private fb: FormBuilder,
+    private formErrors: FormErrorsService
   ) {}
+
+  get isEditing(): boolean {
+    return (this.form.value.id ?? 0) > 0;
+  }
 
   ngOnInit(): void {
     this.client.getSampleItems().subscribe({
@@ -49,27 +61,25 @@ export class SampleItemsComponent implements OnInit {
   }
 
   showNewDialog(): void {
-    this.editor = { amount: 0 };
-    this.editorError.set('');
-    this.editDialogRef.nativeElement.showModal();
-    setTimeout(() => document.getElementById('description')?.focus(), 50);
+    this.openEditor({ id: 0, description: '', amount: 0 });
   }
 
   showEditDialog(sampleItem: SampleItemDto): void {
-    this.editor = { id: sampleItem.id, description: sampleItem.description, amount: sampleItem.amount };
-    this.editorError.set('');
-    this.editDialogRef.nativeElement.showModal();
-    setTimeout(() => document.getElementById('description')?.focus(), 50);
+    this.openEditor({ id: sampleItem.id, description: sampleItem.description, amount: sampleItem.amount });
   }
 
   closeEditDialog(): void {
     this.editDialogRef.nativeElement.close();
-    this.editor = {};
-    this.editorError.set('');
+    this.form.reset({ id: 0, description: '', amount: 0 });
+    this.generalErrors.set([]);
   }
 
   save(): void {
-    if (this.editor.id) {
+    this.form.markAllAsTouched();
+    if (this.form.invalid) {
+      return;
+    }
+    if (this.isEditing) {
       this.update();
     } else {
       this.create();
@@ -90,50 +100,49 @@ export class SampleItemsComponent implements OnInit {
     const id = this.selected()!.id;
     this.client.deleteSampleItem(id).subscribe({
       next: () => {
-        this.sampleItems.update(cs => cs!.filter(c => c.id !== id));
+        this.sampleItems.update(items => items!.filter(i => i.id !== id));
         this.closeDeleteDialog();
       },
-      error: error => console.error(error)
+      error: error => {
+        this.closeDeleteDialog();
+        alert(this.formErrors.firstMessage(error, 'Unable to delete the sample item.'));
+      }
     });
   }
 
+  private openEditor(value: { id: number, description: string, amount: number }): void {
+    this.form.reset(value);
+    this.generalErrors.set([]);
+    this.editDialogRef.nativeElement.showModal();
+    setTimeout(() => document.getElementById('description')?.focus(), 50);
+  }
+
   private create(): void {
-    const command = { description: this.editor.description, amount: this.editor.amount ?? 0 } as CreateSampleItemCommand;
+    const command = { description: this.form.value.description, amount: Number(this.form.value.amount) } as CreateSampleItemCommand;
     this.client.createSampleItem(command).subscribe({
       next: id => {
         const created = { id, description: command.description, amount: command.amount } as SampleItemDto;
-        this.sampleItems.update(cs => [...cs!, created]);
+        this.sampleItems.update(items => [...(items ?? []), created]);
         this.closeEditDialog();
       },
-      error: error => this.handleValidationError(error)
+      error: error => this.generalErrors.set(this.formErrors.apply(error, this.form).general)
     });
   }
 
   private update(): void {
-    const command = { id: this.editor.id, description: this.editor.description, amount: this.editor.amount ?? 0 } as UpdateSampleItemCommand;
+    const command = { id: this.form.value.id, description: this.form.value.description, amount: Number(this.form.value.amount) } as UpdateSampleItemCommand;
     this.client.updateSampleItem(command.id, command).subscribe({
       next: () => {
-        this.sampleItems.update(cs => cs!.map(c => c.id === command.id
-          ? { ...c, description: command.description, amount: command.amount } as SampleItemDto
-          : c));
+        this.sampleItems.update(items => items!.map(i => i.id === command.id
+          ? { ...i, description: command.description, amount: command.amount } as SampleItemDto
+          : i));
         this.closeEditDialog();
       },
-      error: error => this.handleValidationError(error)
+      error: error => this.generalErrors.set(this.formErrors.apply(error, this.form).general)
     });
   }
 
   private formatAmount(value: number): string {
     return new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD' }).format(value ?? 0);
-  }
-
-  private handleValidationError(error: any): void {
-    try {
-      const errors = JSON.parse(error.response).errors;
-      const first = errors && Object.values(errors)[0] as string[];
-      this.editorError.set(first?.[0] ?? 'Unable to save the sample item.');
-    } catch {
-      this.editorError.set('Unable to save the sample item.');
-    }
-    setTimeout(() => document.getElementById('description')?.focus(), 50);
   }
 }

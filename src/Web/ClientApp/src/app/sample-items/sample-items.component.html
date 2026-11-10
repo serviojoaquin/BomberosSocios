@@ -20,22 +20,25 @@
 <dialog #editDialog>
   <article>
     <header>
-      <h3>{{ editor.id ? 'Edit sample item' : 'New sample item' }}</h3>
+      <h3>{{ isEditing ? 'Edit sample item' : 'New sample item' }}</h3>
       <button rel="prev" aria-label="Close" (click)="closeEditDialog()"></button>
     </header>
-    <label for="description">Description</label>
-    <input type="text" id="description" placeholder="Sample item description&hellip;" [(ngModel)]="editor.description"
-      [attr.aria-invalid]="editorError() ? 'true' : null"
-      (keyup.enter)="save()" maxlength="200" />
-    @if (editorError()) {
-      <small>{{ editorError() }}</small>
-    }
-    <label for="amount">Amount</label>
-    <input type="number" id="amount" min="0" step="0.01" [(ngModel)]="editor.amount" (keyup.enter)="save()" />
-    <footer>
-      <button class="secondary" (click)="closeEditDialog()">Cancel</button>
-      <button (click)="save()">{{ editor.id ? 'Update' : 'Create' }}</button>
-    </footer>
+    <form [formGroup]="form" (ngSubmit)="save()" novalidate>
+      <label for="description">Description</label>
+      <input type="text" id="description" formControlName="description" [appInvalid]="form.get('description')"
+        placeholder="Sample item description&hellip;" maxlength="200" />
+      <app-field-error [control]="form.get('description')" />
+      <label for="amount">Amount</label>
+      <input type="number" id="amount" formControlName="amount" [appInvalid]="form.get('amount')" min="0" step="0.01" />
+      <app-field-error [control]="form.get('amount')" />
+      @for (message of generalErrors(); track message) {
+        <small class="field-error">{{ message }}</small>
+      }
+      <footer>
+        <button type="button" class="secondary" (click)="closeEditDialog()">Cancel</button>
+        <button type="submit">{{ isEditing ? 'Update' : 'Create' }}</button>
+      </footer>
+    </form>
   </article>
 </dialog>
 

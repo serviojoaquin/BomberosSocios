@@ -18,32 +18,32 @@
 <dialog #editDialog>
   <article>
     <header>
-      <h3>{{ editor.id ? 'Edit Role' : 'New Role' }}</h3>
+      <h3>{{ isEditing ? 'Edit Role' : 'New Role' }}</h3>
       <button rel="prev" aria-label="Close" (click)="closeEditDialog()"></button>
     </header>
-    <label for="roleName">Name</label>
-    <input type="text" id="roleName" placeholder="Role name&hellip;" [(ngModel)]="editor.name"
-      [disabled]="editor.isSystem === true"
-      [attr.aria-invalid]="editorError() ? 'true' : null"
-      (keyup.enter)="save()" maxlength="50" />
-    @if (editorError()) {
-      <small>{{ editorError() }}</small>
-    }
-    <fieldset>
-      <legend>Permissions</legend>
-      @for (permission of availablePermissions(); track permission.id) {
-        <label>
-          <input type="checkbox"
-            [checked]="has(editor.permissions, permission.id)"
-            (change)="togglePermission(permission.id, $any($event.target).checked)" />
-          {{ permission.name }}
-        </label>
+    <form [formGroup]="form" (ngSubmit)="save()" novalidate>
+      <label for="name">Name</label>
+      <input type="text" id="name" formControlName="name" [appInvalid]="form.get('name')" placeholder="Role name&hellip;" maxlength="50" />
+      <app-field-error [control]="form.get('name')" />
+      <fieldset>
+        <legend>Permissions</legend>
+        @for (permission of availablePermissions(); track permission.id) {
+          <label>
+            <input type="checkbox"
+              [checked]="has(permission.id)"
+              (change)="togglePermission(permission.id, $any($event.target).checked)" />
+            {{ permission.name }}
+          </label>
+        }
+      </fieldset>
+      @for (message of generalErrors(); track message) {
+        <small class="field-error">{{ message }}</small>
       }
-    </fieldset>
-    <footer>
-      <button class="secondary" (click)="closeEditDialog()">Cancel</button>
-      <button (click)="save()">{{ editor.id ? 'Update' : 'Create' }}</button>
-    </footer>
+      <footer>
+        <button type="button" class="secondary" (click)="closeEditDialog()">Cancel</button>
+        <button type="submit">{{ isEditing ? 'Update' : 'Create' }}</button>
+      </footer>
+    </form>
   </article>
 </dialog>
 
