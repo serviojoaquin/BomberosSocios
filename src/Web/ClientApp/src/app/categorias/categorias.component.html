@@ -1,0 +1,63 @@
+<hgroup>
+  <h1>Categorías</h1>
+  <p>Categorías de socios y el importe de la cuota de cada mes.</p>
+</hgroup>
+
+<div class="todo-panel-header">
+  <h2>Todas las categorías</h2>
+  @if (puedeCrear) {
+    <button class="icon-btn" aria-label="Nueva categoría" (click)="showNewDialog()"><lucide-icon name="plus" [size]="20" [strokeWidth]="2" /></button>
+  }
+</div>
+
+<app-data-table
+  [columns]="columns"
+  [data]="categorias()"
+  [actions]="actions"
+  exportTitle="Categorías"
+  (action)="onAction($event)" />
+
+<dialog #editDialog>
+  <article class="dialog-wide">
+    <header>
+      <h3>{{ editor.id ? 'Modificar categoría' : 'Nueva categoría' }}</h3>
+      <button rel="prev" aria-label="Cerrar" (click)="closeEditDialog()"></button>
+    </header>
+    <label for="descripcion">Descripción</label>
+    <input type="text" id="descripcion" placeholder="Descripción de la categoría&hellip;" [(ngModel)]="editor.descripcion"
+      [attr.aria-invalid]="editorError() ? 'true' : null" maxlength="200" />
+    @if (editorError()) {
+      <small>{{ editorError() }}</small>
+    }
+    <div class="todo-panel-header">
+      <h4>Importes mensuales</h4>
+      <button type="button" class="secondary" (click)="copiarEneroATodos()">Copiar enero a todos</button>
+    </div>
+    <div class="importes-grid">
+      @for (mes of meses; track mes; let i = $index) {
+        <label>
+          {{ mes }}
+          <input type="number" min="0" step="0.01" [(ngModel)]="editor.importes[i]" />
+        </label>
+      }
+    </div>
+    <footer>
+      <button class="secondary" (click)="closeEditDialog()">Cancelar</button>
+      <button (click)="save()">{{ editor.id ? 'Guardar' : 'Crear' }}</button>
+    </footer>
+  </article>
+</dialog>
+
+<dialog #deleteDialog>
+  <article>
+    <header>
+      <h3>¿Eliminar "{{ selected()?.descripcion }}"?</h3>
+      <button rel="prev" aria-label="Cerrar" (click)="closeDeleteDialog()"></button>
+    </header>
+    <p>Esta acción no se puede deshacer.</p>
+    <footer>
+      <button class="secondary" (click)="closeDeleteDialog()">Cancelar</button>
+      <button class="danger" (click)="deleteConfirmed()">Eliminar</button>
+    </footer>
+  </article>
+</dialog>

@@ -10,5 +10,7 @@ public interface IApplicationDbContext
 
     DbSet<SampleItem> SampleItems { get; }
 
+    DbSet<Categoria> Categorias { get; }
+
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

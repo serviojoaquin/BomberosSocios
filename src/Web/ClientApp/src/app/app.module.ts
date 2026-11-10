@@ -13,6 +13,7 @@ import { CounterComponent } from './counter/counter.component';
 import { WeatherComponent } from './weather/weather.component';
 import { TasksComponent } from './todo/todo.component';
 import { SampleItemsComponent } from './sample-items/sample-items.component';
+import { CategoriasComponent } from './categorias/categorias.component';
 import { RolesComponent } from './roles/roles.component';
 import { UsersComponent } from './users/users.component';
 import { DataTableComponent } from './shared/data-table/data-table.component';
@@ -39,6 +40,7 @@ export function getApiBaseUrl(): string {
         WeatherComponent,
         TasksComponent,
         SampleItemsComponent,
+        CategoriasComponent,
         RolesComponent,
         UsersComponent,
         DataTableComponent,
@@ -57,6 +59,7 @@ export function getApiBaseUrl(): string {
             { path: 'weather', component: WeatherComponent, canActivate: [AuthGuard] },
             { path: 'todo', component: TasksComponent, canActivate: [AuthGuard] },
             { path: 'sample-items', component: SampleItemsComponent, canActivate: [AuthGuard] },
+            { path: 'categorias', component: CategoriasComponent, canActivate: [AuthGuard] },
             { path: 'roles', component: RolesComponent, canActivate: [AuthGuard] },
             { path: 'users', component: UsersComponent, canActivate: [AuthGuard] },
             { path: 'login', component: LoginComponent },

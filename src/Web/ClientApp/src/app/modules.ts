@@ -16,5 +16,6 @@ export const APP_MODULES: AppModule[] = [
   { title: 'Tasks', path: '/todo', icon: 'list-checks', section: 'Samples', requiresAuth: true },
   { title: 'Sample items', path: '/sample-items', icon: 'box', section: 'Samples', permission: Permissions.ViewSampleItems },
   { title: 'Roles', path: '/roles', icon: 'shield', section: 'Security', permission: Permissions.ManageSecurity },
+  { title: 'Categorías', path: '/categorias', icon: 'tags', section: 'Socios', permission: Permissions.VerCategorias },
   { title: 'Users', path: '/users', icon: 'users', section: 'Security', permission: Permissions.ManageSecurity }
 ];

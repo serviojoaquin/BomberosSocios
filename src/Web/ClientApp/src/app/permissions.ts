@@ -5,6 +5,10 @@ export enum Permissions {
   EditSampleItems = 4,
   DeleteSampleItems = 8,
   ManageSecurity = 16,
+  VerCategorias = 32,
+  CrearCategorias = 64,
+  EditarCategorias = 128,
+  EliminarCategorias = 256,
   All = -1
 }
 

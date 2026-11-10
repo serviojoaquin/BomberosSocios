@@ -17,6 +17,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
 
     public DbSet<SampleItem> SampleItems => Set<SampleItem>();
 
+    public DbSet<Categoria> Categorias => Set<Categoria>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

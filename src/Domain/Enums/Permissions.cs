@@ -22,5 +22,17 @@ public enum Permissions
     [Description("Manage security")]
     ManageSecurity = 16,
 
+    [Description("Ver categorías")]
+    VerCategorias = 32,
+
+    [Description("Crear categorías")]
+    CrearCategorias = 64,
+
+    [Description("Editar categorías")]
+    EditarCategorias = 128,
+
+    [Description("Eliminar categorías")]
+    EliminarCategorias = 256,
+
     All = ~None
 }
