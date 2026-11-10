@@ -5,5 +5,5 @@ export interface Branding {
 
 export const BRANDING: Branding = {
   name: 'Bomberos Socios',
-  logoUrl: 'assets/logo.svg'
+  logoUrl: 'assets/logo.png'
 };
