@@ -632,3 +632,10 @@ app-root > .app-shell > main {
     display: inline-flex;
   }
 }
+
+.app-sidebar-logo {
+  height: 1.75rem;
+  width: auto;
+  max-width: 2.5rem;
+  object-fit: contain;
+}

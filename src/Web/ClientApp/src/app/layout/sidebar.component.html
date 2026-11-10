@@ -1,8 +1,12 @@
 <aside class="app-sidebar" [class.collapsed]="collapsed()" [class.mobile-open]="mobileOpen()">
   <div class="app-sidebar-brand">
     <a [routerLink]="['/']" (click)="closeMobile()">
-      <lucide-icon name="layers" [size]="24" [strokeWidth]="2" />
-      <span class="app-sidebar-label">BaseApp</span>
+      @if (branding.logoUrl) {
+        <img class="app-sidebar-logo" [src]="branding.logoUrl" [alt]="branding.name" />
+      } @else {
+        <lucide-icon name="layers" [size]="24" [strokeWidth]="2" />
+      }
+      <span class="app-sidebar-label">{{ branding.name }}</span>
     </a>
     <button type="button" class="icon-btn app-sidebar-collapse" (click)="toggleCollapsed()" [attr.aria-label]="collapsed() ? 'Expand menu' : 'Collapse menu'">
       <lucide-icon [name]="collapsed() ? 'panel-left-open' : 'panel-left-close'" [size]="20" [strokeWidth]="2" />
