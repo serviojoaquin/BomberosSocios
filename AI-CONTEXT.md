@@ -30,9 +30,9 @@ BaseApp/
     Domain/          Entidades, enums, constantes. Sin dependencias.
       Enums/Permissions.cs        enum [Flags] con los permisos del sistema
       Constants/Roles.cs          nombres de roles seedeados
-      Entities/Category.cs        entidad de ejemplo
+      Entities/SampleItem.cs        entidad de ejemplo
     Application/     Casos de uso. Un folder por feature: Commands/ y Queries/.
-      Categories/    CRUD de ejemplo (Create/Update/Delete + GetCategories)
+      SampleItems/    CRUD de ejemplo (Create/Update/Delete + GetSampleItems)
       Roles/         CRUD de roles con permisos
       Users/         GetCurrentUser, GetUsers, UpdateUserRoles
       Common/Security/AuthorizeAttribute.cs      [Authorize(Permissions = ...)]
@@ -95,7 +95,7 @@ Usuarios seedeados:
 | Usuario | Password | Rol | Permisos |
 |---|---|---|---|
 | administrator@localhost | Administrator1! | Administrator | Todos |
-| viewer@localhost | Viewer1! | Viewer | View categories |
+| viewer@localhost | Viewer1! | Viewer | View sampleItems |
 
 Docs de la API: http://localhost:5279/scalar
 
@@ -103,7 +103,7 @@ Docs de la API: http://localhost:5279/scalar
 
 ## 4. Sistema de permisos
 
-- `Permissions` es un enum `[Flags]` en Domain. Cada bit es un permiso: `ViewCategories=1, CreateCategories=2, EditCategories=4, DeleteCategories=8, ManageSecurity=16`. `All = ~None`.
+- `Permissions` es un enum `[Flags]` en Domain. Cada bit es un permiso: `ViewSampleItems=1, CreateSampleItems=2, EditSampleItems=4, DeleteSampleItems=8, ManageSecurity=16`. `All = ~None`.
 - Cada rol (`ApplicationRole`) guarda un entero con la suma de sus permisos. Un usuario tiene el OR de los permisos de todos sus roles.
 - Al loguearse, `ApplicationUserClaimsPrincipalFactory` pone ese entero en el claim `permissions` de la cookie. **Los cambios de permisos o roles aplican en el próximo login** del usuario afectado. Decisión tomada a propósito.
 - Backend, dos capas:
@@ -124,7 +124,7 @@ Docs de la API: http://localhost:5279/scalar
 
 ## 5. Cómo agregar una entidad con CRUD
 
-Copiar el patrón de `Category`. Orden:
+Copiar el patrón de `SampleItem`. Orden:
 
 1. `Domain/Entities/X.cs` heredando `BaseAuditableEntity`.
 2. `Infrastructure/Data/Configurations/XConfiguration.cs` (longitudes, precisión decimal).
@@ -192,7 +192,7 @@ Para redeployar después de un cambio: `azd up`. Para borrar todo: `azd down`.
 - **MediatR 14** es de Lucky Penny Software: gratis para desarrollo y empresas con facturación menor a 5M USD, muestra un warning de licencia en consola. Alternativa si molesta: bajar a MediatR 12.x o reemplazar por un dispatcher propio.
 - **Usuarios**: la pantalla Users (permiso `ManageSecurity`) permite crear usuarios con password inicial y roles, cambiar roles, resetear password y habilitar/deshabilitar (lockout de Identity; un usuario deshabilitado no puede loguearse y su sesión se corta en la siguiente request). El `/register` público sigue existiendo y crea usuarios sin roles.
 - **Git**: la solución todavía no tiene repositorio. Crearlo antes de seguir (`git init`, `.gitignore` ya existe).
-- `Category` tiene `Description` y `Amount`. Ampliar según el dominio real.
+- `SampleItem` tiene `Description` y `Amount`. Ampliar según el dominio real.
 - **Regla de esquema**: todo cambio de base va en una migración incremental nueva. La base publicada NO se borra ni se regenera `InitialCreate`, salvo pedido explícito del dueño del proyecto.
 
 ---
@@ -202,7 +202,7 @@ Para redeployar después de un cambio: `azd up`. Para borrar todo: `azd down`.
 Cuando trabajes sobre esta solución:
 
 1. Leé este documento completo antes de tocar código.
-2. Respetá la estructura de capas y el patrón de `Categories` para cualquier feature nueva.
+2. Respetá la estructura de capas y el patrón de `SampleItems` para cualquier feature nueva.
 3. Todo cambio en el backend que afecte la API implica rebuild + `npm run generate-api`.
 4. Todo cambio de permisos implica tocar `Permissions.cs` y `permissions.ts` a la vez.
 5. Compilá y probá con usuario administrador y con usuario sin permisos antes de reportar algo como terminado.

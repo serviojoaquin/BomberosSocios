@@ -53,7 +53,7 @@ namespace BaseApp.Infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Categories",
+                name: "SampleItems",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -67,7 +67,7 @@ namespace BaseApp.Infrastructure.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Categories", x => x.Id);
+                    table.PrimaryKey("PK_SampleItems", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -285,7 +285,7 @@ namespace BaseApp.Infrastructure.Data.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "Categories");
+                name: "SampleItems");
 
             migrationBuilder.DropTable(
                 name: "TodoItems");

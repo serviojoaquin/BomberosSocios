@@ -68,7 +68,7 @@ public class ApplicationDbContextInitialiser
     public async Task TrySeedAsync()
     {
         await EnsureRoleAsync(Roles.Administrator, Permissions.All);
-        await EnsureRoleAsync(Roles.Viewer, Permissions.ViewCategories);
+        await EnsureRoleAsync(Roles.Viewer, Permissions.ViewSampleItems);
 
         await EnsureUserAsync("administrator@localhost", "Administrator1!", Roles.Administrator);
         await EnsureUserAsync("viewer@localhost", "Viewer1!", Roles.Viewer);
@@ -91,12 +91,12 @@ public class ApplicationDbContextInitialiser
             await _context.SaveChangesAsync();
         }
 
-        if (!_context.Categories.Any())
+        if (!_context.SampleItems.Any())
         {
-            _context.Categories.AddRange(
-                new Category { Description = "Standard", Amount = 1500m },
-                new Category { Description = "Premium", Amount = 3000m },
-                new Category { Description = "Student", Amount = 800m });
+            _context.SampleItems.AddRange(
+                new SampleItem { Description = "Standard", Amount = 1500m },
+                new SampleItem { Description = "Premium", Amount = 3000m },
+                new SampleItem { Description = "Student", Amount = 800m });
 
             await _context.SaveChangesAsync();
         }

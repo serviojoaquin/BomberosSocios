@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace BaseApp.Infrastructure.Data.Configurations;
 
-public class CategoryConfiguration : IEntityTypeConfiguration<Category>
+public class SampleItemConfiguration : IEntityTypeConfiguration<SampleItem>
 {
-    public void Configure(EntityTypeBuilder<Category> builder)
+    public void Configure(EntityTypeBuilder<SampleItem> builder)
     {
         builder.Property(c => c.Description)
             .HasMaxLength(200)

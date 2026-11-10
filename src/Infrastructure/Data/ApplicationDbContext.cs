@@ -15,7 +15,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
 
     public DbSet<TodoItem> TodoItems => Set<TodoItem>();
 
-    public DbSet<Category> Categories => Set<Category>();
+    public DbSet<SampleItem> SampleItems => Set<SampleItem>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

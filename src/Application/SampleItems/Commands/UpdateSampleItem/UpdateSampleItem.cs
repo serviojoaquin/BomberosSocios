@@ -2,10 +2,10 @@ using BaseApp.Application.Common.Interfaces;
 using BaseApp.Application.Common.Security;
 using BaseApp.Domain.Enums;
 
-namespace BaseApp.Application.Categories.Commands.UpdateCategory;
+namespace BaseApp.Application.SampleItems.Commands.UpdateSampleItem;
 
-[Authorize(Permissions = Permissions.EditCategories)]
-public record UpdateCategoryCommand : IRequest
+[Authorize(Permissions = Permissions.EditSampleItems)]
+public record UpdateSampleItemCommand : IRequest
 {
     public int Id { get; init; }
 
@@ -14,18 +14,18 @@ public record UpdateCategoryCommand : IRequest
     public decimal Amount { get; init; }
 }
 
-public class UpdateCategoryCommandHandler : IRequestHandler<UpdateCategoryCommand>
+public class UpdateSampleItemCommandHandler : IRequestHandler<UpdateSampleItemCommand>
 {
     private readonly IApplicationDbContext _context;
 
-    public UpdateCategoryCommandHandler(IApplicationDbContext context)
+    public UpdateSampleItemCommandHandler(IApplicationDbContext context)
     {
         _context = context;
     }
 
-    public async Task Handle(UpdateCategoryCommand request, CancellationToken cancellationToken)
+    public async Task Handle(UpdateSampleItemCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _context.Categories
+        var entity = await _context.SampleItems
             .FindAsync([request.Id], cancellationToken);
 
         Guard.Against.NotFound(request.Id, entity);

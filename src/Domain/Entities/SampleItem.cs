@@ -1,6 +1,6 @@
 namespace BaseApp.Domain.Entities;
 
-public class Category : BaseAuditableEntity
+public class SampleItem : BaseAuditableEntity
 {
     public string Description { get; set; } = string.Empty;
 

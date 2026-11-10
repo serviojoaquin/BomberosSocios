@@ -1,30 +1,30 @@
 <hgroup>
-  <h1>Categories</h1>
-  <p>Membership categories and their monthly amount.</p>
+  <h1>Sample items</h1>
+  <p>A sample entity with the full CRUD pattern to copy for new features.</p>
 </hgroup>
 
 <div class="todo-panel-header">
-  <h2>All categories</h2>
+  <h2>All sample items</h2>
   @if (canCreate) {
-    <button class="icon-btn" aria-label="New category" (click)="showNewDialog()"><lucide-icon name="plus" [size]="20" [strokeWidth]="2" /></button>
+    <button class="icon-btn" aria-label="New sample item" (click)="showNewDialog()"><lucide-icon name="plus" [size]="20" [strokeWidth]="2" /></button>
   }
 </div>
 
 <app-data-table
   [columns]="columns"
-  [data]="categories()"
+  [data]="sampleItems()"
   [actions]="actions"
-  exportTitle="Categories"
+  exportTitle="Sample items"
   (action)="onAction($event)" />
 
 <dialog #editDialog>
   <article>
     <header>
-      <h3>{{ editor.id ? 'Edit Category' : 'New Category' }}</h3>
+      <h3>{{ editor.id ? 'Edit sample item' : 'New sample item' }}</h3>
       <button rel="prev" aria-label="Close" (click)="closeEditDialog()"></button>
     </header>
     <label for="description">Description</label>
-    <input type="text" id="description" placeholder="Category description&hellip;" [(ngModel)]="editor.description"
+    <input type="text" id="description" placeholder="Sample item description&hellip;" [(ngModel)]="editor.description"
       [attr.aria-invalid]="editorError() ? 'true' : null"
       (keyup.enter)="save()" maxlength="200" />
     @if (editorError()) {

@@ -1,9 +1,9 @@
 export enum Permissions {
   None = 0,
-  ViewCategories = 1,
-  CreateCategories = 2,
-  EditCategories = 4,
-  DeleteCategories = 8,
+  ViewSampleItems = 1,
+  CreateSampleItems = 2,
+  EditSampleItems = 4,
+  DeleteSampleItems = 8,
   ManageSecurity = 16,
   All = -1
 }

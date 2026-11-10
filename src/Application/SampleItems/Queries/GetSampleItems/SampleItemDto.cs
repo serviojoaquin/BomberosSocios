@@ -1,8 +1,8 @@
 using BaseApp.Domain.Entities;
 
-namespace BaseApp.Application.Categories.Queries.GetCategories;
+namespace BaseApp.Application.SampleItems.Queries.GetSampleItems;
 
-public class CategoryDto
+public class SampleItemDto
 {
     public int Id { get; init; }
 
@@ -14,7 +14,7 @@ public class CategoryDto
     {
         public Mapping()
         {
-            CreateMap<Category, CategoryDto>();
+            CreateMap<SampleItem, SampleItemDto>();
         }
     }
 }

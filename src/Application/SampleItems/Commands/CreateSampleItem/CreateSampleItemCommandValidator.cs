@@ -1,12 +1,12 @@
 using BaseApp.Application.Common.Interfaces;
 
-namespace BaseApp.Application.Categories.Commands.UpdateCategory;
+namespace BaseApp.Application.SampleItems.Commands.CreateSampleItem;
 
-public class UpdateCategoryCommandValidator : AbstractValidator<UpdateCategoryCommand>
+public class CreateSampleItemCommandValidator : AbstractValidator<CreateSampleItemCommand>
 {
     private readonly IApplicationDbContext _context;
 
-    public UpdateCategoryCommandValidator(IApplicationDbContext context)
+    public CreateSampleItemCommandValidator(IApplicationDbContext context)
     {
         _context = context;
 
@@ -21,10 +21,9 @@ public class UpdateCategoryCommandValidator : AbstractValidator<UpdateCategoryCo
             .GreaterThanOrEqualTo(0);
     }
 
-    public async Task<bool> BeUniqueDescription(UpdateCategoryCommand model, string? description, CancellationToken cancellationToken)
+    public async Task<bool> BeUniqueDescription(string? description, CancellationToken cancellationToken)
     {
-        return !await _context.Categories
-            .Where(c => c.Id != model.Id)
+        return !await _context.SampleItems
             .AnyAsync(c => c.Description == description, cancellationToken);
     }
 }

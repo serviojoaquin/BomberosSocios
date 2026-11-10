@@ -22,7 +22,7 @@ namespace BaseApp.Infrastructure.Data.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("BaseApp.Domain.Entities.Category", b =>
+            modelBuilder.Entity("BaseApp.Domain.Entities.SampleItem", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -53,7 +53,7 @@ namespace BaseApp.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories");
+                    b.ToTable("SampleItems");
                 });
 
             modelBuilder.Entity("BaseApp.Domain.Entities.TodoItem", b =>
