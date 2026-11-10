@@ -355,3 +355,112 @@ button.danger,
 .error {
   color: var(--pico-del-color);
 }
+
+// ── DataTables ───────────────────────────────────────────────────────────────
+:root[data-theme="dark"] table.dataTable,
+:root:not([data-theme="light"]) table.dataTable {
+  color: inherit;
+}
+
+div.dt-container {
+  margin-block-end: var(--pico-spacing);
+
+  .dt-search input,
+  .dt-length select {
+    margin-bottom: 0;
+    width: auto;
+    display: inline-block;
+  }
+
+  .dt-search input[type="search"] {
+    padding: var(--pico-form-element-spacing-vertical) var(--pico-form-element-spacing-horizontal);
+    padding-inline-start: calc(var(--pico-form-element-spacing-horizontal) + 1.75rem);
+    --pico-border-radius: inherit;
+    border-radius: var(--pico-border-radius);
+  }
+
+  table.dataTable {
+    margin-block-end: var(--pico-spacing);
+
+    td.dt-actions {
+      text-align: end;
+      white-space: nowrap;
+      padding-top: 0;
+      padding-bottom: 0;
+      vertical-align: middle;
+
+      .icon-btn {
+        vertical-align: middle;
+        margin: 0;
+      }
+    }
+  }
+}
+
+div.dt-container table.dataTable thead th {
+  [role="button"],
+  span.dt-column-order,
+  span.dt-column-title {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    margin: 0;
+    line-height: inherit;
+    font: inherit;
+    color: inherit;
+  }
+}
+
+div.dt-container {
+  --dt-control_color: var(--pico-color);
+  --dt-paging-button_padding: 0.3rem 0.7rem;
+  --dt-paging-button_border-radius: var(--pico-border-radius);
+  --dt-paging-button_color-disabled: var(--pico-muted-color);
+  --dt-paging-button_background-current: var(--pico-primary-background);
+  --dt-paging-button_border-current: 1px solid var(--pico-primary-border);
+  --dt-paging-button_color-current: var(--pico-primary-inverse);
+  --dt-paging-button_background-current-hover: var(--pico-primary-hover-background);
+  --dt-paging-button_border-current-hover: 1px solid var(--pico-primary-hover-background);
+  --dt-paging-button_color-current-hover: var(--pico-primary-inverse);
+  --dt-paging-button_background-hover: var(--pico-secondary-focus);
+  --dt-paging-button_color-hover: var(--pico-color);
+  --dtb-button_background: var(--pico-primary-background);
+  --dtb-button_border: 1px solid var(--pico-primary-border);
+  --dtb-button_color: var(--pico-primary-inverse);
+  --dtb-button_background-hover: var(--pico-primary-hover-background);
+  --dtb-button_border-hover: 1px solid var(--pico-primary-hover-background);
+  --dtb-button_color-hover: var(--pico-primary-inverse);
+  --dtb-button_background-active: var(--pico-primary-hover-background);
+  --dtb-button_border-active: 1px solid var(--pico-primary-hover-background);
+  --dtb-button_color-active: var(--pico-primary-inverse);
+  --dtb-button_background-active-hover: var(--pico-primary-hover-background);
+  --dtb-button_border-active-hover: 1px solid var(--pico-primary-hover-background);
+  --dtb-button_color-active-hover: var(--pico-primary-inverse);
+
+  .dt-paging .dt-paging-button {
+    width: auto;
+    font-size: 0.9rem;
+  }
+
+  .dt-buttons .dt-button {
+    width: auto;
+    padding: 0.35rem 0.9rem;
+    margin-inline-end: 0.35rem;
+    font-size: 0.85rem;
+    border-radius: var(--pico-border-radius);
+  }
+}
+
+div.dt-container table.dataTable thead > tr > th div.dt-column-header {
+  flex-direction: row;
+}
+
+div.dt-container table.dataTable thead > tr > th.dt-type-numeric div.dt-column-header .dt-column-title,
+div.dt-container table.dataTable thead > tr > th.dt-body-right div.dt-column-header .dt-column-title {
+  text-align: start;
+}
+
+div.dt-container {
+  --dt-order-header_outline-hover: none;
+}

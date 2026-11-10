@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef, signal } from '@angular/core';
 import { UsersClient, UserDto, UpdateUserRolesCommand } from '../web-api-client';
+import { DataTableAction, DataTableActionEvent, DataTableColumn } from '../shared/data-table/data-table.component';
 
 @Component({
   standalone: false,
@@ -11,6 +12,13 @@ export class UsersComponent implements OnInit {
 
   users = signal<UserDto[] | null>(null);
   availableRoles = signal<string[]>([]);
+  columns: DataTableColumn[] = [
+    { data: 'userName', title: 'User' },
+    { data: 'roles', title: 'Roles', render: (value: string[]) => this.escape(value?.length ? value.join(', ') : 'None') }
+  ];
+  actions: DataTableAction[] = [
+    { name: 'edit', label: 'Edit roles', icon: 'pencil' }
+  ];
   editor: { id?: string, userName?: string, roles: string[] } = { roles: [] };
   editorError = signal('');
 
@@ -19,11 +27,17 @@ export class UsersComponent implements OnInit {
   ngOnInit(): void {
     this.client.getUsers().subscribe({
       next: result => {
-        this.users.set(result.users);
         this.availableRoles.set(result.availableRoles);
+        this.users.set(result.users);
       },
       error: error => console.error(error)
     });
+  }
+
+  onAction(event: DataTableActionEvent): void {
+    if (event.action === 'edit') {
+      this.showEditDialog(event.row as UserDto);
+    }
   }
 
   showEditDialog(user: UserDto): void {
@@ -67,5 +81,9 @@ export class UsersComponent implements OnInit {
         }
       }
     });
+  }
+
+  private escape(value: unknown): string {
+    return String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
 }

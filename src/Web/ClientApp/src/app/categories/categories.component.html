@@ -3,50 +3,19 @@
   <p>Membership categories and their monthly amount.</p>
 </hgroup>
 
-@if (!categories()) {
-  <span aria-busy="true">Loading&hellip;</span>
-} @else {
-  <div class="todo-panel-header">
-    <h2>All categories</h2>
-    @if (canCreate$ | async) {
-      <button class="icon-btn" aria-label="New category" (click)="showNewDialog()"><lucide-icon name="plus" [size]="20" [strokeWidth]="2" /></button>
-    }
-  </div>
+<div class="todo-panel-header">
+  <h2>All categories</h2>
+  @if (canCreate) {
+    <button class="icon-btn" aria-label="New category" (click)="showNewDialog()"><lucide-icon name="plus" [size]="20" [strokeWidth]="2" /></button>
+  }
+</div>
 
-  <table aria-label="Categories">
-    <thead>
-      <tr>
-        <th>Description</th>
-        <th>Amount</th>
-        @if (canAct$ | async) {
-          <th></th>
-        }
-      </tr>
-    </thead>
-    <tbody>
-      @for (category of categories(); track category.id) {
-        <tr>
-          <td>{{ category.description }}</td>
-          <td>{{ category.amount | currency }}</td>
-          @if (canAct$ | async) {
-            <td style="text-align: end; white-space: nowrap">
-              @if (canEdit$ | async) {
-                <button class="icon-btn" aria-label="Edit" (click)="showEditDialog(category)"><lucide-icon name="pencil" [size]="18" [strokeWidth]="2" /></button>
-              }
-              @if (canDelete$ | async) {
-                <button class="icon-btn" aria-label="Delete" (click)="confirmDelete(category)"><lucide-icon name="trash-2" [size]="18" [strokeWidth]="2" /></button>
-              }
-            </td>
-          }
-        </tr>
-      } @empty {
-        <tr>
-          <td colspan="3">No categories yet.</td>
-        </tr>
-      }
-    </tbody>
-  </table>
-}
+<app-data-table
+  [columns]="columns"
+  [data]="categories()"
+  [actions]="actions"
+  exportTitle="Categories"
+  (action)="onAction($event)" />
 
 <dialog #editDialog>
   <article>

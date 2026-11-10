@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef, signal } from '@angular/core';
 import { RolesClient, RoleDto, PermissionDto, CreateRoleCommand, UpdateRoleCommand } from '../web-api-client';
 import { hasPermission } from '../permissions';
+import { DataTableAction, DataTableActionEvent, DataTableColumn } from '../shared/data-table/data-table.component';
 
 @Component({
   standalone: false,
@@ -13,6 +14,14 @@ export class RolesComponent implements OnInit {
 
   roles = signal<RoleDto[] | null>(null);
   availablePermissions = signal<PermissionDto[]>([]);
+  columns: DataTableColumn[] = [
+    { data: 'name', title: 'Name', render: (value, type, row: RoleDto) => type === 'display' ? this.escape(value) + (row.isSystem ? ' <small>(system)</small>' : '') : value },
+    { data: 'permissions', title: 'Permissions', render: (_value, type, row: RoleDto) => type === 'display' ? this.escape(this.permissionNames(row)) : this.permissionNames(row) }
+  ];
+  actions: DataTableAction[] = [
+    { name: 'edit', label: 'Edit', icon: 'pencil', visible: (row: RoleDto) => !this.isAdministrator(row) },
+    { name: 'delete', label: 'Delete', icon: 'trash', visible: (row: RoleDto) => !row.isSystem }
+  ];
   editor: { id?: string, name?: string, isSystem?: boolean, permissions: number } = { permissions: 0 };
   editorError = signal('');
   selected = signal<RoleDto | null>(null);
@@ -22,11 +31,20 @@ export class RolesComponent implements OnInit {
   ngOnInit(): void {
     this.client.getRoles().subscribe({
       next: result => {
-        this.roles.set(result.roles);
         this.availablePermissions.set(result.availablePermissions);
+        this.roles.set(result.roles);
       },
       error: error => console.error(error)
     });
+  }
+
+  onAction(event: DataTableActionEvent): void {
+    const role = event.row as RoleDto;
+    if (event.action === 'edit') {
+      this.showEditDialog(role);
+    } else if (event.action === 'delete') {
+      this.confirmDelete(role);
+    }
   }
 
   has(granted: number, permission: number): boolean {
@@ -109,7 +127,7 @@ export class RolesComponent implements OnInit {
     this.client.createRole(command).subscribe({
       next: id => {
         const created = { id, name: command.name, permissions: command.permissions, isSystem: false } as RoleDto;
-        this.roles.update(rs => this.sorted([...rs!, created]));
+        this.roles.update(rs => [...rs!, created]);
         this.closeEditDialog();
       },
       error: error => this.editorError.set(this.firstError(error, 'Unable to save the role.'))
@@ -120,17 +138,17 @@ export class RolesComponent implements OnInit {
     const command = { id: this.editor.id, name: this.editor.name, permissions: this.editor.permissions } as UpdateRoleCommand;
     this.client.updateRole(command.id, command).subscribe({
       next: () => {
-        this.roles.update(rs => this.sorted(rs!.map(r => r.id === command.id
+        this.roles.update(rs => rs!.map(r => r.id === command.id
           ? { ...r, name: command.name, permissions: command.permissions } as RoleDto
-          : r)));
+          : r));
         this.closeEditDialog();
       },
       error: error => this.editorError.set(this.firstError(error, 'Unable to save the role.'))
     });
   }
 
-  private sorted(roles: RoleDto[]): RoleDto[] {
-    return [...roles].sort((a, b) => a.name.localeCompare(b.name));
+  private escape(value: unknown): string {
+    return String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
 
   private firstError(error: any, fallback: string): string {

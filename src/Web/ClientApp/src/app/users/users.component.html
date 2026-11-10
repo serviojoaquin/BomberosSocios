@@ -3,30 +3,12 @@
   <p>Registered users and their roles. Changes apply the next time the user logs in.</p>
 </hgroup>
 
-@if (!users()) {
-  <span aria-busy="true">Loading&hellip;</span>
-} @else {
-  <table aria-label="Users">
-    <thead>
-      <tr>
-        <th>User</th>
-        <th>Roles</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      @for (user of users(); track user.id) {
-        <tr>
-          <td>{{ user.userName }}</td>
-          <td>{{ user.roles.length ? user.roles.join(', ') : 'None' }}</td>
-          <td style="text-align: end; white-space: nowrap">
-            <button class="icon-btn" aria-label="Edit roles" (click)="showEditDialog(user)"><lucide-icon name="pencil" [size]="18" [strokeWidth]="2" /></button>
-          </td>
-        </tr>
-      }
-    </tbody>
-  </table>
-}
+<app-data-table
+  [columns]="columns"
+  [data]="users()"
+  [actions]="actions"
+  exportTitle="Users"
+  (action)="onAction($event)" />
 
 <dialog #editDialog>
   <article>

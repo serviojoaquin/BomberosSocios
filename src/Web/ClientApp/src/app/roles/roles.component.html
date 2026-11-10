@@ -3,45 +3,17 @@
   <p>Roles and the permissions they grant. Changes apply the next time a user logs in.</p>
 </hgroup>
 
-@if (!roles()) {
-  <span aria-busy="true">Loading&hellip;</span>
-} @else {
-  <div class="todo-panel-header">
-    <h2>All roles</h2>
-    <button class="icon-btn" aria-label="New role" (click)="showNewDialog()"><lucide-icon name="plus" [size]="20" [strokeWidth]="2" /></button>
-  </div>
+<div class="todo-panel-header">
+  <h2>All roles</h2>
+  <button class="icon-btn" aria-label="New role" (click)="showNewDialog()"><lucide-icon name="plus" [size]="20" [strokeWidth]="2" /></button>
+</div>
 
-  <table aria-label="Roles">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Permissions</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      @for (role of roles(); track role.id) {
-        <tr>
-          <td>
-            {{ role.name }}
-            @if (role.isSystem) {
-              <small> (system)</small>
-            }
-          </td>
-          <td>{{ permissionNames(role) }}</td>
-          <td style="text-align: end; white-space: nowrap">
-            @if (!isAdministrator(role)) {
-              <button class="icon-btn" aria-label="Edit" (click)="showEditDialog(role)"><lucide-icon name="pencil" [size]="18" [strokeWidth]="2" /></button>
-            }
-            @if (!role.isSystem) {
-              <button class="icon-btn" aria-label="Delete" (click)="confirmDelete(role)"><lucide-icon name="trash-2" [size]="18" [strokeWidth]="2" /></button>
-            }
-          </td>
-        </tr>
-      }
-    </tbody>
-  </table>
-}
+<app-data-table
+  [columns]="columns"
+  [data]="roles()"
+  [actions]="actions"
+  exportTitle="Roles"
+  (action)="onAction($event)" />
 
 <dialog #editDialog>
   <article>

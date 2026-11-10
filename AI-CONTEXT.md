@@ -50,6 +50,7 @@ BaseApp/
         src/app/permissions.ts                    espejo TS del enum Permissions
         src/api-authorization/auth.service.ts     usuario actual + hasPermission$()
         src/app/web-api-client.ts                 GENERADO, no editar a mano
+        src/app/shared/data-table/              componente <app-data-table> (DataTables 3 encapsulado)
     AppHost/         Aspire: define recursos (SQL, Web) y el target Azure Container Apps.
     ServiceDefaults/ Telemetría, health checks.
   tests/
@@ -129,7 +130,7 @@ Copiar el patrón de `Category`. Orden:
 4. `Application/Xs/Commands/CreateX/CreateX.cs` + `CreateXCommandValidator.cs`, idem Update y Delete. `Application/Xs/Queries/GetXs/GetXs.cs` + `XDto.cs` (con `Mapping : Profile` privado) + `XsVm.cs`.
 5. `Web/Endpoints/Xs.cs` implementando `IEndpointGroup`. El nombre de la clase define la ruta `/api/Xs`; el nombre del método define el `operationId` y por lo tanto el nombre del método en el cliente TS.
 6. `dotnet build src/Web` regenera `wwwroot/openapi/v1.json`; luego `npm run generate-api` en ClientApp regenera `web-api-client.ts`.
-7. Componente Angular en `ClientApp/src/app/xs/` (NgModule, `standalone: false`), declararlo en `app.module.ts`, agregar ruta con `canActivate: [AuthGuard]` y link en `nav-menu.component.html` condicionado por permiso.
+7. Componente Angular en `ClientApp/src/app/xs/` (NgModule, `standalone: false`), declararlo en `app.module.ts`, agregar ruta con `canActivate: [AuthGuard]` y link en `nav-menu.component.html` condicionado por permiso. Las grillas se hacen con `<app-data-table [columns] [data] [actions] exportTitle (action)>`: `columns` con `data/title/render/className`, `actions` con `name/label/icon/visible` filtradas por permiso antes de pasarlas, y `options` opcional con sintaxis nativa de DataTables para casos especiales. Nunca instanciar DataTables fuera de ese componente.
 8. Seed opcional en `TrySeedAsync`.
 9. Generar la migración: `dotnet ef migrations add Add<X> --project src/Infrastructure --startup-project src/Web --output-dir Data/Migrations` (requiere `dotnet tool install -g dotnet-ef`). Revisar el archivo generado antes de seguir. Las migraciones ya aplicadas en algún ambiente no se editan: se agrega una nueva.
 
@@ -143,6 +144,7 @@ Convenciones: records para commands/queries, `Guard.Against.NotFound`, `ProjectT
 - Sin comentarios en el código salvo que agreguen algo que el código no dice.
 - Un command/query por archivo junto con su handler. Validators en archivo aparte.
 - Angular: signals para estado, `<dialog>` nativo para modales, clases de Pico (`icon-btn`, `secondary`, `danger`), íconos Lucide registrados en `app.module.ts` (`LucideAngularModule.pick({...})`).
+- Grillas: siempre `<app-data-table>`. Los estilos de DataTables se adaptan a Pico en `styles.scss` mapeando las variables `--dt-*` y `--dtb-*` a tokens `--pico-*`; no sobreescribir reglas de DataTables con `!important`.
 - `TreatWarningsAsErrors` está activo: cualquier warning rompe el build. Las vulnerabilidades de paquetes transitivos se resuelven fijando la versión en `Directory.Packages.props`.
 - Antes de dar algo por hecho: `dotnet build BaseApp.slnx`, `dotnet test tests/Domain.UnitTests`, `dotnet test tests/Application.UnitTests`, `npx ng build` en ClientApp, y probar los endpoints con el usuario correcto (admin y uno sin permisos).
 

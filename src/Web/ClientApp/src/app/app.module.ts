@@ -14,6 +14,7 @@ import { TasksComponent } from './todo/todo.component';
 import { CategoriesComponent } from './categories/categories.component';
 import { RolesComponent } from './roles/roles.component';
 import { UsersComponent } from './users/users.component';
+import { DataTableComponent } from './shared/data-table/data-table.component';
 import { ThemeToggleComponent } from './theme-toggle/theme-toggle.component';
 import { API_BASE_URL } from './web-api-client';
 import { AuthorizeInterceptor } from 'src/api-authorization/authorize.interceptor';
@@ -38,6 +39,7 @@ export function getApiBaseUrl(): string {
         CategoriesComponent,
         RolesComponent,
         UsersComponent,
+        DataTableComponent,
         ThemeToggleComponent,
         LoginComponent,
         RegisterComponent

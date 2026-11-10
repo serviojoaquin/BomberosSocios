@@ -2,8 +2,7 @@ import { Component, OnInit, ViewChild, ElementRef, signal } from '@angular/core'
 import { CategoriesClient, CategoryDto, CreateCategoryCommand, UpdateCategoryCommand } from '../web-api-client';
 import { AuthService } from 'src/api-authorization/auth.service';
 import { Permissions } from '../permissions';
-import { combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { DataTableAction, DataTableActionEvent, DataTableColumn } from '../shared/data-table/data-table.component';
 
 @Component({
   standalone: false,
@@ -15,10 +14,15 @@ export class CategoriesComponent implements OnInit {
   @ViewChild('deleteDialog') deleteDialogRef: ElementRef<HTMLDialogElement>;
 
   categories = signal<CategoryDto[] | null>(null);
-  canCreate$ = this.authService.hasPermission$(Permissions.CreateCategories);
-  canEdit$ = this.authService.hasPermission$(Permissions.EditCategories);
-  canDelete$ = this.authService.hasPermission$(Permissions.DeleteCategories);
-  canAct$ = combineLatest([this.canEdit$, this.canDelete$]).pipe(map(([e, d]) => e || d));
+  canCreate = this.authService.hasPermission(Permissions.CreateCategories);
+  columns: DataTableColumn[] = [
+    { data: 'description', title: 'Description' },
+    { data: 'amount', title: 'Amount', className: 'dt-body-right', render: (value, type) => type === 'display' ? this.formatAmount(value) : value }
+  ];
+  actions: DataTableAction[] = [
+    ...(this.authService.hasPermission(Permissions.EditCategories) ? [{ name: 'edit', label: 'Edit', icon: 'pencil' } as DataTableAction] : []),
+    ...(this.authService.hasPermission(Permissions.DeleteCategories) ? [{ name: 'delete', label: 'Delete', icon: 'trash' } as DataTableAction] : [])
+  ];
   editor: { id?: number, description?: string, amount?: number } = {};
   editorError = signal('');
   selected = signal<CategoryDto | null>(null);
@@ -33,6 +37,15 @@ export class CategoriesComponent implements OnInit {
       next: result => this.categories.set(result.categories),
       error: error => console.error(error)
     });
+  }
+
+  onAction(event: DataTableActionEvent): void {
+    const category = event.row as CategoryDto;
+    if (event.action === 'edit') {
+      this.showEditDialog(category);
+    } else if (event.action === 'delete') {
+      this.confirmDelete(category);
+    }
   }
 
   showNewDialog(): void {
@@ -89,7 +102,7 @@ export class CategoriesComponent implements OnInit {
     this.client.createCategory(command).subscribe({
       next: id => {
         const created = { id, description: command.description, amount: command.amount } as CategoryDto;
-        this.categories.update(cs => this.sorted([...cs!, created]));
+        this.categories.update(cs => [...cs!, created]);
         this.closeEditDialog();
       },
       error: error => this.handleValidationError(error)
@@ -100,17 +113,17 @@ export class CategoriesComponent implements OnInit {
     const command = { id: this.editor.id, description: this.editor.description, amount: this.editor.amount ?? 0 } as UpdateCategoryCommand;
     this.client.updateCategory(command.id, command).subscribe({
       next: () => {
-        this.categories.update(cs => this.sorted(cs!.map(c => c.id === command.id
+        this.categories.update(cs => cs!.map(c => c.id === command.id
           ? { ...c, description: command.description, amount: command.amount } as CategoryDto
-          : c)));
+          : c));
         this.closeEditDialog();
       },
       error: error => this.handleValidationError(error)
     });
   }
 
-  private sorted(categories: CategoryDto[]): CategoryDto[] {
-    return [...categories].sort((a, b) => a.description.localeCompare(b.description));
+  private formatAmount(value: number): string {
+    return new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD' }).format(value ?? 0);
   }
 
   private handleValidationError(error: any): void {
