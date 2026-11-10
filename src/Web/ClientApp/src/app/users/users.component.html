@@ -3,6 +3,11 @@
   <p>Registered users and their roles. Changes apply the next time the user logs in.</p>
 </hgroup>
 
+<div class="todo-panel-header">
+  <h2>All users</h2>
+  <button class="icon-btn" aria-label="New user" (click)="showNewUserDialog()"><lucide-icon name="plus" [size]="20" [strokeWidth]="2" /></button>
+</div>
+
 <app-data-table
   [columns]="columns"
   [data]="users()"
@@ -10,26 +15,104 @@
   exportTitle="Users"
   (action)="onAction($event)" />
 
-<dialog #editDialog>
+<dialog #newUserDialog>
   <article>
+    @if (newUserOpen()) {
     <header>
-      <h3>Roles for {{ editor.userName }}</h3>
-      <button rel="prev" aria-label="Close" (click)="closeEditDialog()"></button>
+      <h3>New User</h3>
+      <button rel="prev" aria-label="Close" (click)="closeDialogs()"></button>
     </header>
+    <label for="newUserEmail">Email</label>
+    <input type="email" id="newUserEmail" autocomplete="off" placeholder="user@example.com" [(ngModel)]="newUser.email"
+      [attr.aria-invalid]="error() ? 'true' : null" maxlength="256" />
+    <label for="newUserPassword">Initial password</label>
+    <input type="password" id="newUserPassword" autocomplete="new-password" [(ngModel)]="newUser.password" (keyup.enter)="createUser()" />
+    @if (error()) {
+      <small class="error">{{ error() }}</small>
+    }
     <fieldset>
+      <legend>Roles</legend>
       @for (role of availableRoles(); track role) {
         <label>
-          <input type="checkbox" [checked]="hasRole(role)" (change)="toggleRole(role, $any($event.target).checked)" />
+          <input type="checkbox" [checked]="hasRole(newUser.roles, role)"
+            (change)="newUser.roles = toggleRole(newUser.roles, role, $any($event.target).checked)" />
           {{ role }}
         </label>
       }
     </fieldset>
-    @if (editorError()) {
-      <small class="error">{{ editorError() }}</small>
+    <footer>
+      <button class="secondary" (click)="closeDialogs()">Cancel</button>
+      <button (click)="createUser()">Create</button>
+    </footer>
+    }
+  </article>
+</dialog>
+
+<dialog #rolesDialog>
+  <article>
+    <header>
+      <h3>Roles for {{ selected()?.userName }}</h3>
+      <button rel="prev" aria-label="Close" (click)="closeDialogs()"></button>
+    </header>
+    <fieldset>
+      @for (role of availableRoles(); track role) {
+        <label>
+          <input type="checkbox" [checked]="hasRole(rolesEditor, role)"
+            (change)="rolesEditor = toggleRole(rolesEditor, role, $any($event.target).checked)" />
+          {{ role }}
+        </label>
+      }
+    </fieldset>
+    @if (error()) {
+      <small class="error">{{ error() }}</small>
     }
     <footer>
-      <button class="secondary" (click)="closeEditDialog()">Cancel</button>
-      <button (click)="save()">Update</button>
+      <button class="secondary" (click)="closeDialogs()">Cancel</button>
+      <button (click)="saveRoles()">Update</button>
+    </footer>
+  </article>
+</dialog>
+
+<dialog #passwordDialog>
+  <article>
+    @if (passwordOpen()) {
+    <header>
+      <h3>Reset password for {{ selected()?.userName }}</h3>
+      <button rel="prev" aria-label="Close" (click)="closeDialogs()"></button>
+    </header>
+    <label for="newPassword">New password</label>
+    <input type="password" id="newPassword" autocomplete="new-password" [(ngModel)]="newPassword"
+      [attr.aria-invalid]="error() ? 'true' : null" (keyup.enter)="resetPassword()" />
+    @if (error()) {
+      <small class="error">{{ error() }}</small>
+    }
+    <footer>
+      <button class="secondary" (click)="closeDialogs()">Cancel</button>
+      <button (click)="resetPassword()">Reset</button>
+    </footer>
+    }
+  </article>
+</dialog>
+
+<dialog #enabledDialog>
+  <article>
+    <header>
+      <h3>{{ selected()?.isEnabled ? 'Disable' : 'Enable' }} {{ selected()?.userName }}?</h3>
+      <button rel="prev" aria-label="Close" (click)="closeDialogs()"></button>
+    </header>
+    <p>
+      @if (selected()?.isEnabled) {
+        The user will not be able to log in and any open session will be closed.
+      } @else {
+        The user will be able to log in again.
+      }
+    </p>
+    @if (error()) {
+      <small class="error">{{ error() }}</small>
+    }
+    <footer>
+      <button class="secondary" (click)="closeDialogs()">Cancel</button>
+      <button [class.danger]="selected()?.isEnabled" (click)="setEnabled()">{{ selected()?.isEnabled ? 'Disable' : 'Enable' }}</button>
     </footer>
   </article>
 </dialog>

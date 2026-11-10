@@ -26,4 +26,8 @@ public interface IIdentityService
     Task<IReadOnlyCollection<UserDto>> GetUsersAsync();
 
     Task<Result> UpdateUserRolesAsync(string userId, IReadOnlyCollection<string> roles);
+
+    Task<Result> SetUserPasswordAsync(string userId, string newPassword);
+
+    Task<Result> SetUserEnabledAsync(string userId, bool enabled);
 }

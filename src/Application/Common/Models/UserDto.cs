@@ -8,5 +8,7 @@ public class UserDto
 
     public string? Email { get; init; }
 
+    public bool IsEnabled { get; init; }
+
     public IReadOnlyCollection<string> Roles { get; init; } = [];
 }

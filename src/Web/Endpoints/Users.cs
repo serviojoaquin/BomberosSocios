@@ -1,4 +1,7 @@
-﻿using BaseApp.Application.Users.Commands.UpdateUserRoles;
+﻿using BaseApp.Application.Users.Commands.CreateUser;
+using BaseApp.Application.Users.Commands.ResetUserPassword;
+using BaseApp.Application.Users.Commands.SetUserEnabled;
+using BaseApp.Application.Users.Commands.UpdateUserRoles;
 using BaseApp.Application.Users.Queries.GetCurrentUser;
 using BaseApp.Application.Users.Queries.GetUsers;
 using BaseApp.Domain.Enums;
@@ -19,6 +22,9 @@ public class Users : IEndpointGroup
         groupBuilder.MapGet(GetCurrentUser, "me").RequireAuthorization();
         groupBuilder.MapGet(GetUsers).RequirePermission(Permissions.ManageSecurity);
         groupBuilder.MapPut(UpdateUserRoles, "{id}/roles").RequirePermission(Permissions.ManageSecurity);
+        groupBuilder.MapPost(CreateUser).RequirePermission(Permissions.ManageSecurity);
+        groupBuilder.MapPut(ResetUserPassword, "{id}/password").RequirePermission(Permissions.ManageSecurity);
+        groupBuilder.MapPut(SetUserEnabled, "{id}/enabled").RequirePermission(Permissions.ManageSecurity);
     }
 
     [EndpointSummary("Get current user")]
@@ -42,6 +48,37 @@ public class Users : IEndpointGroup
     [EndpointSummary("Update the Roles of a User")]
     [EndpointDescription("Replaces the roles assigned to the specified user. Changes apply on the next login.")]
     public static async Task<Results<NoContent, BadRequest>> UpdateUserRoles(ISender sender, string id, UpdateUserRolesCommand command)
+    {
+        if (id != command.Id) return TypedResults.BadRequest();
+
+        await sender.Send(command);
+
+        return TypedResults.NoContent();
+    }
+
+    [EndpointSummary("Create a User")]
+    [EndpointDescription("Creates a user with an initial password and optional roles. Returns the ID of the created user.")]
+    public static async Task<Created<string>> CreateUser(ISender sender, CreateUserCommand command)
+    {
+        var id = await sender.Send(command);
+
+        return TypedResults.Created($"/{nameof(Users)}/{id}", id);
+    }
+
+    [EndpointSummary("Reset the password of a User")]
+    [EndpointDescription("Sets a new password for the specified user.")]
+    public static async Task<Results<NoContent, BadRequest>> ResetUserPassword(ISender sender, string id, ResetUserPasswordCommand command)
+    {
+        if (id != command.Id) return TypedResults.BadRequest();
+
+        await sender.Send(command);
+
+        return TypedResults.NoContent();
+    }
+
+    [EndpointSummary("Enable or disable a User")]
+    [EndpointDescription("Disabled users cannot log in and their existing sessions are invalidated.")]
+    public static async Task<Results<NoContent, BadRequest>> SetUserEnabled(ISender sender, string id, SetUserEnabledCommand command)
     {
         if (id != command.Id) return TypedResults.BadRequest();
 

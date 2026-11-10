@@ -190,7 +190,7 @@ Para redeployar después de un cambio: `azd up`. Para borrar todo: `azd down`.
 
 - **Tests funcionales y de aceptación** no se corrieron (necesitan Docker). Los unitarios pasan.
 - **MediatR 14** es de Lucky Penny Software: gratis para desarrollo y empresas con facturación menor a 5M USD, muestra un warning de licencia en consola. Alternativa si molesta: bajar a MediatR 12.x o reemplazar por un dispatcher propio.
-- **Registro de usuarios** (`/register`) crea usuarios sin roles. Un administrador se los asigna desde Users.
+- **Usuarios**: la pantalla Users (permiso `ManageSecurity`) permite crear usuarios con password inicial y roles, cambiar roles, resetear password y habilitar/deshabilitar (lockout de Identity; un usuario deshabilitado no puede loguearse y su sesión se corta en la siguiente request). El `/register` público sigue existiendo y crea usuarios sin roles.
 - **Git**: la solución todavía no tiene repositorio. Crearlo antes de seguir (`git init`, `.gitignore` ya existe).
 - `Category` tiene `Description` y `Amount`. Ampliar según el dominio real.
 - **Regla de esquema**: todo cambio de base va en una migración incremental nueva. La base publicada NO se borra ni se regenera `InitialCreate`, salvo pedido explícito del dueño del proyecto.

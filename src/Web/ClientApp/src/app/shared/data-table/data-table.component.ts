@@ -30,7 +30,7 @@ export interface DataTableColumn {
 export interface DataTableAction {
   name: string;
   label: string;
-  icon: 'pencil' | 'trash' | 'eye' | 'key' | 'user-check' | 'user-x';
+  icon: 'pencil' | 'trash' | 'eye' | 'key' | 'ban' | 'circle-check';
   visible?: (row: any) => boolean;
 }
 
@@ -44,8 +44,8 @@ const ICONS: Record<DataTableAction['icon'], string> = {
   trash: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>',
   eye: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg>',
   key: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4"/><path d="m21 2-9.6 9.6"/><circle cx="7.5" cy="15.5" r="5.5"/></svg>',
-  'user-check': '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>',
-  'user-x': '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="17" x2="22" y1="8" y2="13"/><line x1="22" x2="17" y1="8" y2="13"/></svg>'
+  ban: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></svg>',
+  'circle-check': '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>'
 };
 
 function escapeHtml(value: unknown): string {
@@ -83,6 +83,16 @@ export class DataTableComponent implements AfterViewInit, OnChanges, OnDestroy {
       return;
     }
     this.table = new DataTable(this.tableRef.nativeElement, this.buildOptions());
+    this.tableRef.nativeElement.closest('.dt-container')
+      ?.querySelectorAll<HTMLInputElement>('.dt-search input')
+      .forEach(input => {
+        input.setAttribute('autocomplete', 'off');
+        input.setAttribute('name', 'dt-search-' + Math.random().toString(36).slice(2));
+        input.setAttribute('readonly', '');
+        const unlock = () => input.removeAttribute('readonly');
+        input.addEventListener('focus', unlock);
+        input.addEventListener('pointerdown', unlock);
+      });
     this.tableRef.nativeElement.addEventListener('click', this.onClick);
   }
 

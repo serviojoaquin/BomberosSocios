@@ -179,11 +179,49 @@ public class IdentityService : IIdentityService
                 Id = user.Id,
                 UserName = user.UserName,
                 Email = user.Email,
+                IsEnabled = !(user.LockoutEnabled && user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTimeOffset.UtcNow),
                 Roles = roles.OrderBy(r => r).ToList()
             });
         }
 
         return result;
+    }
+
+    public async Task<Result> SetUserPasswordAsync(string userId, string newPassword)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+
+        if (user is null)
+        {
+            return Result.Failure([$"User '{userId}' was not found."]);
+        }
+
+        var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+        var result = await _userManager.ResetPasswordAsync(user, token, newPassword);
+
+        return result.ToApplicationResult();
+    }
+
+    public async Task<Result> SetUserEnabledAsync(string userId, bool enabled)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+
+        if (user is null)
+        {
+            return Result.Failure([$"User '{userId}' was not found."]);
+        }
+
+        await _userManager.SetLockoutEnabledAsync(user, true);
+
+        var result = await _userManager.SetLockoutEndDateAsync(user, enabled ? null : DateTimeOffset.MaxValue);
+
+        if (result.Succeeded && !enabled)
+        {
+            await _userManager.UpdateSecurityStampAsync(user);
+        }
+
+        return result.ToApplicationResult();
     }
 
     public async Task<Result> UpdateUserRolesAsync(string userId, IReadOnlyCollection<string> roles)

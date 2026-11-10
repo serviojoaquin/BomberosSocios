@@ -42,6 +42,9 @@ public static class DependencyInjection
 
         builder.Services.AddAuthorizationBuilder();
 
+        builder.Services.Configure<SecurityStampValidatorOptions>(options =>
+            options.ValidationInterval = TimeSpan.Zero);
+
         builder.Services
             .AddIdentityCore<ApplicationUser>()
             .AddRoles<ApplicationRole>()
