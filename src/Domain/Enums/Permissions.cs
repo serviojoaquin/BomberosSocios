@@ -34,5 +34,17 @@ public enum Permissions
     [Description("Eliminar categorías")]
     EliminarCategorias = 256,
 
+    [Description("Ver cobradores")]
+    VerCobradores = 512,
+
+    [Description("Crear cobradores")]
+    CrearCobradores = 1024,
+
+    [Description("Editar cobradores")]
+    EditarCobradores = 2048,
+
+    [Description("Eliminar cobradores")]
+    EliminarCobradores = 4096,
+
     All = ~None
 }

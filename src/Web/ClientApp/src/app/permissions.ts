@@ -9,6 +9,10 @@ export enum Permissions {
   CrearCategorias = 64,
   EditarCategorias = 128,
   EliminarCategorias = 256,
+  VerCobradores = 512,
+  CrearCobradores = 1024,
+  EditarCobradores = 2048,
+  EliminarCobradores = 4096,
   All = -1
 }
 

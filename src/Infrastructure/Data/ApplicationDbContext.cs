@@ -19,6 +19,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
 
     public DbSet<Categoria> Categorias => Set<Categoria>();
 
+    public DbSet<Cobrador> Cobradores => Set<Cobrador>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

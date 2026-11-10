@@ -12,5 +12,7 @@ public interface IApplicationDbContext
 
     DbSet<Categoria> Categorias { get; }
 
+    DbSet<Cobrador> Cobradores { get; }
+
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

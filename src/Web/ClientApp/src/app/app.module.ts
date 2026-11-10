@@ -2,18 +2,15 @@ import { APP_ID, NgModule, inject, provideAppInitializer } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { LucideAngularModule, Sun, Moon, Laptop, Plus, Settings, MoreHorizontal, Pencil, Trash2, House, Hash, CloudSun, ListChecks, Tags, Box, Shield, Users, Layers, Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-angular';
+import { LucideAngularModule, Sun, Moon, Laptop, Plus, Settings, MoreHorizontal, Pencil, Trash2, House, Hash, CloudSun, ListChecks, Tags, Box, Wallet, Shield, Users, Layers, Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-angular';
 import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 import { AppComponent } from './app.component';
 import { SidebarComponent } from './layout/sidebar.component';
 import { HeaderComponent } from './layout/header.component';
 import { HomeComponent } from './home/home.component';
-import { CounterComponent } from './counter/counter.component';
-import { WeatherComponent } from './weather/weather.component';
-import { TasksComponent } from './todo/todo.component';
-import { SampleItemsComponent } from './sample-items/sample-items.component';
 import { CategoriasComponent } from './categorias/categorias.component';
+import { CobradoresComponent } from './cobradores/cobradores.component';
 import { RolesComponent } from './roles/roles.component';
 import { UsersComponent } from './users/users.component';
 import { DataTableComponent } from './shared/data-table/data-table.component';
@@ -36,11 +33,8 @@ export function getApiBaseUrl(): string {
         SidebarComponent,
         HeaderComponent,
         HomeComponent,
-        CounterComponent,
-        WeatherComponent,
-        TasksComponent,
-        SampleItemsComponent,
         CategoriasComponent,
+        CobradoresComponent,
         RolesComponent,
         UsersComponent,
         DataTableComponent,
@@ -52,14 +46,11 @@ export function getApiBaseUrl(): string {
     imports: [
         BrowserModule,
         FormsModule,
-        LucideAngularModule.pick({ Sun, Moon, Laptop, Plus, Settings, MoreHorizontal, Pencil, Trash2, House, Hash, CloudSun, ListChecks, Tags, Box, Shield, Users, Layers, Menu, PanelLeftClose, PanelLeftOpen }),
+        LucideAngularModule.pick({ Sun, Moon, Laptop, Plus, Settings, MoreHorizontal, Pencil, Trash2, House, Hash, CloudSun, ListChecks, Tags, Box, Wallet, Shield, Users, Layers, Menu, PanelLeftClose, PanelLeftOpen }),
         RouterModule.forRoot([
             { path: '', component: HomeComponent, pathMatch: 'full' },
-            { path: 'counter', component: CounterComponent },
-            { path: 'weather', component: WeatherComponent, canActivate: [AuthGuard] },
-            { path: 'todo', component: TasksComponent, canActivate: [AuthGuard] },
-            { path: 'sample-items', component: SampleItemsComponent, canActivate: [AuthGuard] },
             { path: 'categorias', component: CategoriasComponent, canActivate: [AuthGuard] },
+            { path: 'cobradores', component: CobradoresComponent, canActivate: [AuthGuard] },
             { path: 'roles', component: RolesComponent, canActivate: [AuthGuard] },
             { path: 'users', component: UsersComponent, canActivate: [AuthGuard] },
             { path: 'login', component: LoginComponent },

@@ -10,12 +10,9 @@ export interface AppModule {
 }
 
 export const APP_MODULES: AppModule[] = [
-  { title: 'Home', path: '/', icon: 'house', section: 'General' },
-  { title: 'Counter', path: '/counter', icon: 'hash', section: 'Samples' },
-  { title: 'Weather', path: '/weather', icon: 'cloud-sun', section: 'Samples', requiresAuth: true },
-  { title: 'Tasks', path: '/todo', icon: 'list-checks', section: 'Samples', requiresAuth: true },
-  { title: 'Sample items', path: '/sample-items', icon: 'box', section: 'Samples', permission: Permissions.ViewSampleItems },
-  { title: 'Roles', path: '/roles', icon: 'shield', section: 'Security', permission: Permissions.ManageSecurity },
-  { title: 'Categorías', path: '/categorias', icon: 'tags', section: 'Socios', permission: Permissions.VerCategorias },
-  { title: 'Users', path: '/users', icon: 'users', section: 'Security', permission: Permissions.ManageSecurity }
+  { title: 'Inicio', path: '/', icon: 'house', section: 'General' },
+  { title: 'Categorías', path: '/categorias', icon: 'tags', section: 'Negocio', permission: Permissions.VerCategorias },
+  { title: 'Cobradores', path: '/cobradores', icon: 'wallet', section: 'Negocio', permission: Permissions.VerCobradores },
+  { title: 'Roles', path: '/roles', icon: 'shield', section: 'Seguridad', permission: Permissions.ManageSecurity },
+  { title: 'Usuarios', path: '/users', icon: 'users', section: 'Seguridad', permission: Permissions.ManageSecurity }
 ];
