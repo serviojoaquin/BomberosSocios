@@ -28,6 +28,13 @@ public class CobradorConfiguration : IEntityTypeConfiguration<Cobrador>
         builder.Property(c => c.Comision)
             .HasPrecision(5, 2);
 
+        builder.Property(c => c.UsuarioId)
+            .HasMaxLength(450);
+
+        builder.HasIndex(c => c.UsuarioId)
+            .IsUnique()
+            .HasFilter("[UsuarioId] IS NOT NULL");
+
         builder.Ignore(c => c.NombreCompleto);
     }
 }

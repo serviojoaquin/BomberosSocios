@@ -59,6 +59,28 @@
   </article>
 </dialog>
 
+<dialog #usuarioDialog>
+  <article>
+    @if (usuarioOpen()) {
+    <header>
+      <h3>Crear usuario para {{ selected()?.apellido }}, {{ selected()?.nombre }}</h3>
+      <button rel="prev" aria-label="Cerrar" (click)="closeUsuarioDialog()"></button>
+    </header>
+    <p>Se crea el usuario <strong>{{ selected()?.email }}</strong> con el rol Cobrador. Si ya existe un usuario con ese email, se le asigna el rol.</p>
+    <label for="passwordCobrador">Contraseña inicial</label>
+    <input type="password" id="passwordCobrador" autocomplete="new-password" [(ngModel)]="passwordCobrador"
+      [attr.aria-invalid]="editorError() ? 'true' : null" (keyup.enter)="crearUsuario()" />
+    @if (editorError()) {
+      <small class="error">{{ editorError() }}</small>
+    }
+    <footer>
+      <button class="secondary" (click)="closeUsuarioDialog()">Cancelar</button>
+      <button (click)="crearUsuario()">Crear usuario</button>
+    </footer>
+    }
+  </article>
+</dialog>
+
 <dialog #deleteDialog>
   <article>
     <header>

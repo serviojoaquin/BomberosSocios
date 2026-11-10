@@ -14,5 +14,7 @@ public class Cobrador : BaseAuditableEntity
 
     public decimal? Comision { get; set; }
 
+    public string? UsuarioId { get; set; }
+
     public string NombreCompleto => $"{Apellido}, {Nombre}";
 }

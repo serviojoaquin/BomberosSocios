@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef, signal } from '@angular/core';
-import { CobradoresClient, CobradorDto, CreateCobradorCommand, UpdateCobradorCommand } from '../web-api-client';
+import { CobradoresClient, CobradorDto, CreateCobradorCommand, UpdateCobradorCommand, CrearUsuarioCobradorCommand } from '../web-api-client';
 import { AuthService } from 'src/api-authorization/auth.service';
 import { Permissions } from '../permissions';
 import { DataTableAction, DataTableActionEvent, DataTableColumn } from '../shared/data-table/data-table.component';
@@ -14,6 +14,7 @@ type CobradorEditor = { id?: number, nombre?: string, apellido?: string, telefon
 export class CobradoresComponent implements OnInit {
   @ViewChild('editDialog') editDialogRef: ElementRef<HTMLDialogElement>;
   @ViewChild('deleteDialog') deleteDialogRef: ElementRef<HTMLDialogElement>;
+  @ViewChild('usuarioDialog') usuarioDialogRef: ElementRef<HTMLDialogElement>;
 
   cobradores = signal<CobradorDto[] | null>(null);
   puedeCrear = this.authService.hasPermission(Permissions.CrearCobradores);
@@ -23,15 +24,19 @@ export class CobradoresComponent implements OnInit {
     { data: 'telefono', title: 'Teléfono' },
     { data: 'celular', title: 'Celular' },
     { data: 'email', title: 'Email' },
-    { data: 'comision', title: 'Comisión', className: 'dt-body-right', render: (value: number | null, type: string) => type === 'display' ? (value === null || value === undefined ? '' : `${value} %`) : (value ?? '') } as DataTableColumn
+    { data: 'comision', title: 'Comisión', className: 'dt-body-right', render: (value: number | null, type: string) => type === 'display' ? (value === null || value === undefined ? '' : `${value} %`) : (value ?? '') } as DataTableColumn,
+    { data: 'tieneUsuario', title: 'Usuario', render: (value: boolean) => value ? 'Sí' : 'No' }
   ];
   actions: DataTableAction[] = [
     ...(this.authService.hasPermission(Permissions.EditarCobradores) ? [{ name: 'edit', label: 'Modificar', icon: 'pencil' } as DataTableAction] : []),
+    ...(this.authService.hasPermission(Permissions.ManageSecurity) ? [{ name: 'usuario', label: 'Crear usuario', icon: 'key', visible: (row: CobradorDto) => !row.tieneUsuario } as DataTableAction] : []),
     ...(this.authService.hasPermission(Permissions.EliminarCobradores) ? [{ name: 'delete', label: 'Eliminar', icon: 'trash' } as DataTableAction] : [])
   ];
   editor: CobradorEditor = {};
   editorError = signal('');
   selected = signal<CobradorDto | null>(null);
+  usuarioOpen = signal(false);
+  passwordCobrador = '';
 
   constructor(
     private client: CobradoresClient,
@@ -51,6 +56,8 @@ export class CobradoresComponent implements OnInit {
       this.showEditDialog(cobrador);
     } else if (event.action === 'delete') {
       this.confirmDelete(cobrador);
+    } else if (event.action === 'usuario') {
+      this.showUsuarioDialog(cobrador);
     }
   }
 
@@ -72,6 +79,36 @@ export class CobradoresComponent implements OnInit {
     this.editDialogRef.nativeElement.close();
     this.editor = {};
     this.editorError.set('');
+  }
+
+  showUsuarioDialog(cobrador: CobradorDto): void {
+    this.selected.set(cobrador);
+    this.passwordCobrador = '';
+    this.editorError.set(cobrador.email ? '' : 'El cobrador no tiene email cargado; es necesario para crear el usuario.');
+    this.usuarioOpen.set(true);
+    this.usuarioDialogRef.nativeElement.showModal();
+    setTimeout(() => document.getElementById('passwordCobrador')?.focus(), 50);
+  }
+
+  closeUsuarioDialog(): void {
+    this.usuarioDialogRef.nativeElement.close();
+    this.usuarioOpen.set(false);
+    this.selected.set(null);
+    this.editorError.set('');
+  }
+
+  crearUsuario(): void {
+    if (!this.selected()?.email) {
+      return;
+    }
+    const command = { id: this.selected()!.id, password: this.passwordCobrador } as CrearUsuarioCobradorCommand;
+    this.client.crearUsuarioCobrador(command.id, command).subscribe({
+      next: () => {
+        this.cobradores.update(cs => cs!.map(c => c.id === command.id ? { ...c, tieneUsuario: true } as CobradorDto : c));
+        this.closeUsuarioDialog();
+      },
+      error: error => this.editorError.set(this.firstError(error, 'No se pudo crear el usuario.'))
+    });
   }
 
   save(): void {
@@ -121,7 +158,7 @@ export class CobradoresComponent implements OnInit {
     const command = this.payload() as CreateCobradorCommand;
     this.client.createCobrador(command).subscribe({
       next: id => {
-        const created = { id, ...command } as CobradorDto;
+        const created = { id, ...command, tieneUsuario: false } as CobradorDto;
         this.cobradores.update(cs => [...(cs ?? []), created]);
         this.closeEditDialog();
       },

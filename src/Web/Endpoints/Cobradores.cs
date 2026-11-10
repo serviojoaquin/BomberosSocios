@@ -1,3 +1,4 @@
+using BaseApp.Application.Cobradores.Commands.CrearUsuarioCobrador;
 using BaseApp.Application.Cobradores.Commands.CreateCobrador;
 using BaseApp.Application.Cobradores.Commands.DeleteCobrador;
 using BaseApp.Application.Cobradores.Commands.UpdateCobrador;
@@ -17,6 +18,7 @@ public class Cobradores : IEndpointGroup
         groupBuilder.MapPost(CreateCobrador).RequirePermission(Permissions.CrearCobradores);
         groupBuilder.MapPut(UpdateCobrador, "{id}").RequirePermission(Permissions.EditarCobradores);
         groupBuilder.MapDelete(DeleteCobrador, "{id}").RequirePermission(Permissions.EliminarCobradores);
+        groupBuilder.MapPost(CrearUsuarioCobrador, "{id}/usuario").RequirePermission(Permissions.ManageSecurity);
     }
 
     [EndpointSummary("Listar cobradores")]
@@ -46,6 +48,17 @@ public class Cobradores : IEndpointGroup
         await sender.Send(command);
 
         return TypedResults.NoContent();
+    }
+
+    [EndpointSummary("Crear usuario del cobrador")]
+    [EndpointDescription("Crea el usuario del cobrador con su email y la contraseña inicial indicada, o le asigna el rol Cobrador si ya existe. Devuelve el ID del usuario.")]
+    public static async Task<Results<Created<string>, BadRequest>> CrearUsuarioCobrador(ISender sender, int id, CrearUsuarioCobradorCommand command)
+    {
+        if (id != command.Id) return TypedResults.BadRequest();
+
+        var usuarioId = await sender.Send(command);
+
+        return TypedResults.Created($"/Users/{usuarioId}", usuarioId);
     }
 
     [EndpointSummary("Eliminar cobrador")]

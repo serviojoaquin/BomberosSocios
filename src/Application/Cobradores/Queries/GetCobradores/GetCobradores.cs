@@ -21,11 +21,14 @@ public class CobradorDto
 
     public decimal? Comision { get; init; }
 
+    public bool TieneUsuario { get; init; }
+
     private class Mapping : Profile
     {
         public Mapping()
         {
-            CreateMap<Cobrador, CobradorDto>();
+            CreateMap<Cobrador, CobradorDto>()
+                .ForMember(d => d.TieneUsuario, opt => opt.MapFrom(s => s.UsuarioId != null));
         }
     }
 }

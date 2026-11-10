@@ -69,6 +69,7 @@ public class ApplicationDbContextInitialiser
     {
         await EnsureRoleAsync(Roles.Administrator, Permissions.All);
         await EnsureRoleAsync(Roles.Viewer, Permissions.ViewSampleItems);
+        await EnsureRoleAsync(Roles.Cobrador, Permissions.VerCategorias | Permissions.VerCobradores);
 
         await EnsureUserAsync("administrator@localhost", "Administrator1!", Roles.Administrator);
         await EnsureUserAsync("viewer@localhost", "Viewer1!", Roles.Viewer);
