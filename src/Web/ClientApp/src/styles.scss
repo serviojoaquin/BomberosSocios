@@ -648,6 +648,17 @@ small.field-error {
   color: var(--pico-del-color);
 }
 
-dialog article form footer {
+dialog article form > footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: calc(var(--pico-spacing) * 0.5);
   margin-top: var(--pico-spacing);
+  padding: 0;
+  background: transparent;
+  border: none;
+
+  button {
+    width: auto;
+    margin-bottom: 0;
+  }
 }
