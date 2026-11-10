@@ -1,8 +1,10 @@
 import { Component, OnInit, ViewChild, ElementRef, signal } from '@angular/core';
+import { FormArray, FormBuilder, FormControl, Validators } from '@angular/forms';
 import { CategoriasClient, CategoriaDto, CreateCategoriaCommand, UpdateCategoriaCommand } from '../web-api-client';
 import { AuthService } from 'src/api-authorization/auth.service';
 import { Permissions } from '../permissions';
 import { DataTableAction, DataTableActionEvent, DataTableColumn } from '../shared/data-table/data-table.component';
+import { FormErrorsService } from '../shared/forms/form-errors.service';
 
 export const MESES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 const MESES_CORTOS = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
@@ -32,14 +34,28 @@ export class CategoriasComponent implements OnInit {
     ...(this.authService.hasPermission(Permissions.EditarCategorias) ? [{ name: 'edit', label: 'Modificar', icon: 'pencil' } as DataTableAction] : []),
     ...(this.authService.hasPermission(Permissions.EliminarCategorias) ? [{ name: 'delete', label: 'Eliminar', icon: 'trash' } as DataTableAction] : [])
   ];
-  editor: { id?: number, descripcion?: string, importes: number[] } = { importes: this.importesVacios() };
-  editorError = signal('');
+  form = this.fb.group({
+    id: [0],
+    descripcion: ['', [Validators.required, Validators.maxLength(200)]],
+    importes: this.fb.array(MESES.map(() => this.fb.control<number>(0, [Validators.required, Validators.min(0)])))
+  });
+  generalErrors = signal<string[]>([]);
   selected = signal<CategoriaDto | null>(null);
 
   constructor(
     private client: CategoriasClient,
-    private authService: AuthService
+    private authService: AuthService,
+    private fb: FormBuilder,
+    private formErrors: FormErrorsService
   ) {}
+
+  get isEditing(): boolean {
+    return (this.form.value.id ?? 0) > 0;
+  }
+
+  get importes(): FormArray<FormControl<number | null>> {
+    return this.form.get('importes') as FormArray<FormControl<number | null>>;
+  }
 
   ngOnInit(): void {
     this.client.getCategorias().subscribe({
@@ -58,31 +74,29 @@ export class CategoriasComponent implements OnInit {
   }
 
   showNewDialog(): void {
-    this.editor = { importes: this.importesVacios() };
-    this.editorError.set('');
-    this.editDialogRef.nativeElement.showModal();
-    setTimeout(() => document.getElementById('descripcion')?.focus(), 50);
+    this.openEditor({ id: 0, descripcion: '', importes: MESES.map(() => 0) });
   }
 
   showEditDialog(categoria: CategoriaDto): void {
-    this.editor = { id: categoria.id, descripcion: categoria.descripcion, importes: [...categoria.importes] };
-    this.editorError.set('');
-    this.editDialogRef.nativeElement.showModal();
-    setTimeout(() => document.getElementById('descripcion')?.focus(), 50);
+    this.openEditor({ id: categoria.id, descripcion: categoria.descripcion, importes: [...categoria.importes] });
   }
 
   closeEditDialog(): void {
     this.editDialogRef.nativeElement.close();
-    this.editor = { importes: this.importesVacios() };
-    this.editorError.set('');
+    this.generalErrors.set([]);
   }
 
   copiarEneroATodos(): void {
-    this.editor.importes = this.editor.importes.map(() => this.editor.importes[0] ?? 0);
+    const enero = Number(this.importes.at(0).value) || 0;
+    this.importes.controls.forEach(c => c.setValue(enero));
   }
 
   save(): void {
-    if (this.editor.id) {
+    this.form.markAllAsTouched();
+    if (this.form.invalid) {
+      return;
+    }
+    if (this.isEditing) {
       this.update();
     } else {
       this.create();
@@ -108,25 +122,39 @@ export class CategoriasComponent implements OnInit {
       },
       error: error => {
         this.closeDeleteDialog();
-        alert(this.firstError(error, 'No se pudo eliminar la categoría.'));
+        alert(this.formErrors.firstMessage(error, 'No se pudo eliminar la categoría.'));
       }
     });
   }
 
+  private openEditor(value: { id: number, descripcion: string, importes: number[] }): void {
+    this.form.reset(value);
+    this.generalErrors.set([]);
+    this.editDialogRef.nativeElement.showModal();
+    setTimeout(() => document.getElementById('descripcion')?.focus(), 50);
+  }
+
+  private payload() {
+    return {
+      descripcion: this.form.value.descripcion,
+      importes: this.importes.controls.map(c => Number(c.value) || 0)
+    };
+  }
+
   private create(): void {
-    const command = { descripcion: this.editor.descripcion, importes: this.editor.importes.map(i => Number(i) || 0) } as CreateCategoriaCommand;
+    const command = this.payload() as CreateCategoriaCommand;
     this.client.createCategoria(command).subscribe({
       next: id => {
         const created = { id, descripcion: command.descripcion, importes: command.importes } as CategoriaDto;
         this.categorias.update(cs => [...(cs ?? []), created]);
         this.closeEditDialog();
       },
-      error: error => this.editorError.set(this.firstError(error, 'No se pudo guardar la categoría.'))
+      error: error => this.generalErrors.set(this.formErrors.apply(error, this.form).general)
     });
   }
 
   private update(): void {
-    const command = { id: this.editor.id, descripcion: this.editor.descripcion, importes: this.editor.importes.map(i => Number(i) || 0) } as UpdateCategoriaCommand;
+    const command = { id: this.form.value.id, ...this.payload() } as UpdateCategoriaCommand;
     this.client.updateCategoria(command.id, command).subscribe({
       next: () => {
         this.categorias.update(cs => cs!.map(c => c.id === command.id
@@ -134,25 +162,11 @@ export class CategoriasComponent implements OnInit {
           : c));
         this.closeEditDialog();
       },
-      error: error => this.editorError.set(this.firstError(error, 'No se pudo guardar la categoría.'))
+      error: error => this.generalErrors.set(this.formErrors.apply(error, this.form).general)
     });
-  }
-
-  private importesVacios(): number[] {
-    return MESES.map(() => 0);
   }
 
   private formatImporte(value: number): string {
     return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 2 }).format(value ?? 0);
-  }
-
-  private firstError(error: any, fallback: string): string {
-    try {
-      const errors = JSON.parse(error.response).errors;
-      const first = errors && Object.values(errors)[0] as string[];
-      return first?.[0] ?? fallback;
-    } catch {
-      return fallback;
-    }
   }
 }

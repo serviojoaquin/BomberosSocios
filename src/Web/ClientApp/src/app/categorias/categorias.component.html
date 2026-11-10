@@ -20,31 +20,35 @@
 <dialog #editDialog>
   <article class="dialog-wide">
     <header>
-      <h3>{{ editor.id ? 'Modificar categoría' : 'Nueva categoría' }}</h3>
+      <h3>{{ isEditing ? 'Modificar categoría' : 'Nueva categoría' }}</h3>
       <button rel="prev" aria-label="Cerrar" (click)="closeEditDialog()"></button>
     </header>
-    <label for="descripcion">Descripción</label>
-    <input type="text" id="descripcion" placeholder="Descripción de la categoría&hellip;" [(ngModel)]="editor.descripcion"
-      [attr.aria-invalid]="editorError() ? 'true' : null" maxlength="200" />
-    @if (editorError()) {
-      <small>{{ editorError() }}</small>
-    }
-    <div class="todo-panel-header">
-      <h4>Importes mensuales</h4>
-      <button type="button" class="secondary" (click)="copiarEneroATodos()">Copiar enero a todos</button>
-    </div>
-    <div class="importes-grid">
-      @for (mes of meses; track mes; let i = $index) {
-        <label>
-          {{ mes }}
-          <input type="number" min="0" step="0.01" [(ngModel)]="editor.importes[i]" />
-        </label>
+    <form [formGroup]="form" (ngSubmit)="save()" novalidate>
+      <label for="descripcion">Descripción</label>
+      <input type="text" id="descripcion" formControlName="descripcion" [appInvalid]="form.get('descripcion')"
+        placeholder="Descripción de la categoría&hellip;" maxlength="200" />
+      <app-field-error [control]="form.get('descripcion')" />
+      <div class="todo-panel-header">
+        <h4>Importes mensuales</h4>
+        <button type="button" class="secondary" (click)="copiarEneroATodos()">Copiar enero a todos</button>
+      </div>
+      <div class="importes-grid" formArrayName="importes">
+        @for (mes of meses; track mes; let i = $index) {
+          <label>
+            {{ mes }}
+            <input type="number" [id]="'importe' + i" [formControlName]="i" [appInvalid]="importes.at(i)" min="0" step="0.01" />
+            <app-field-error [control]="importes.at(i)" />
+          </label>
+        }
+      </div>
+      @for (message of generalErrors(); track message) {
+        <small class="field-error">{{ message }}</small>
       }
-    </div>
-    <footer>
-      <button class="secondary" (click)="closeEditDialog()">Cancelar</button>
-      <button (click)="save()">{{ editor.id ? 'Guardar' : 'Crear' }}</button>
-    </footer>
+      <footer>
+        <button type="button" class="secondary" (click)="closeEditDialog()">Cancelar</button>
+        <button type="submit">{{ isEditing ? 'Guardar' : 'Crear' }}</button>
+      </footer>
+    </form>
   </article>
 </dialog>
 

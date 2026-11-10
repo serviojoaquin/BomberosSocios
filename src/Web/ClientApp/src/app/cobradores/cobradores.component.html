@@ -20,42 +20,50 @@
 <dialog #editDialog>
   <article class="dialog-wide">
     <header>
-      <h3>{{ editor.id ? 'Modificar cobrador' : 'Nuevo cobrador' }}</h3>
+      <h3>{{ isEditing ? 'Modificar cobrador' : 'Nuevo cobrador' }}</h3>
       <button rel="prev" aria-label="Cerrar" (click)="closeEditDialog()"></button>
     </header>
-    <div class="form-grid">
-      <label>
-        Apellido
-        <input type="text" id="apellido" [(ngModel)]="editor.apellido" maxlength="200" [attr.aria-invalid]="editorError() ? 'true' : null" />
-      </label>
-      <label>
-        Nombre
-        <input type="text" id="nombre" [(ngModel)]="editor.nombre" maxlength="200" />
-      </label>
-      <label>
-        Email
-        <input type="email" id="email" [(ngModel)]="editor.email" maxlength="200" autocomplete="off" />
-      </label>
-      <label>
-        Comisión (%)
-        <input type="number" id="comision" min="0" max="100" step="0.01" [(ngModel)]="editor.comision" />
-      </label>
-      <label>
-        Teléfono
-        <input type="text" id="telefono" [(ngModel)]="editor.telefono" maxlength="50" />
-      </label>
-      <label>
-        Celular
-        <input type="text" id="celular" [(ngModel)]="editor.celular" maxlength="50" />
-      </label>
-    </div>
-    @if (editorError()) {
-      <small class="error">{{ editorError() }}</small>
-    }
-    <footer>
-      <button class="secondary" (click)="closeEditDialog()">Cancelar</button>
-      <button (click)="save()">{{ editor.id ? 'Guardar' : 'Crear' }}</button>
-    </footer>
+    <form [formGroup]="form" (ngSubmit)="save()" novalidate>
+      <div class="form-grid">
+        <label>
+          Apellido
+          <input type="text" id="apellido" formControlName="apellido" [appInvalid]="form.get('apellido')" maxlength="200" />
+          <app-field-error [control]="form.get('apellido')" />
+        </label>
+        <label>
+          Nombre
+          <input type="text" id="nombre" formControlName="nombre" [appInvalid]="form.get('nombre')" maxlength="200" />
+          <app-field-error [control]="form.get('nombre')" />
+        </label>
+        <label>
+          Email
+          <input type="email" id="email" formControlName="email" [appInvalid]="form.get('email')" maxlength="200" autocomplete="off" />
+          <app-field-error [control]="form.get('email')" />
+        </label>
+        <label>
+          Comisión (%)
+          <input type="number" id="comision" formControlName="comision" [appInvalid]="form.get('comision')" min="0" max="100" step="0.01" />
+          <app-field-error [control]="form.get('comision')" />
+        </label>
+        <label>
+          Teléfono
+          <input type="text" id="telefono" formControlName="telefono" [appInvalid]="form.get('telefono')" maxlength="50" />
+          <app-field-error [control]="form.get('telefono')" />
+        </label>
+        <label>
+          Celular
+          <input type="text" id="celular" formControlName="celular" [appInvalid]="form.get('celular')" maxlength="50" />
+          <app-field-error [control]="form.get('celular')" />
+        </label>
+      </div>
+      @for (message of generalErrors(); track message) {
+        <small class="field-error">{{ message }}</small>
+      }
+      <footer>
+        <button type="button" class="secondary" (click)="closeEditDialog()">Cancelar</button>
+        <button type="submit">{{ isEditing ? 'Guardar' : 'Crear' }}</button>
+      </footer>
+    </form>
   </article>
 </dialog>
 
@@ -67,16 +75,18 @@
       <button rel="prev" aria-label="Cerrar" (click)="closeUsuarioDialog()"></button>
     </header>
     <p>Se crea el usuario <strong>{{ selected()?.email }}</strong> con el rol Cobrador. Si ya existe un usuario con ese email, se le asigna el rol.</p>
-    <label for="passwordCobrador">Contraseña inicial</label>
-    <input type="password" id="passwordCobrador" autocomplete="new-password" [(ngModel)]="passwordCobrador"
-      [attr.aria-invalid]="editorError() ? 'true' : null" (keyup.enter)="crearUsuario()" />
-    @if (editorError()) {
-      <small class="error">{{ editorError() }}</small>
-    }
-    <footer>
-      <button class="secondary" (click)="closeUsuarioDialog()">Cancelar</button>
-      <button (click)="crearUsuario()">Crear usuario</button>
-    </footer>
+    <form [formGroup]="usuarioForm" (ngSubmit)="crearUsuario()" novalidate>
+      <label for="password">Contraseña inicial</label>
+      <input type="password" id="password" formControlName="password" [appInvalid]="usuarioForm.get('password')" autocomplete="new-password" />
+      <app-field-error [control]="usuarioForm.get('password')" />
+      @for (message of generalErrors(); track message) {
+        <small class="field-error">{{ message }}</small>
+      }
+      <footer>
+        <button type="button" class="secondary" (click)="closeUsuarioDialog()">Cancelar</button>
+        <button type="submit">Crear usuario</button>
+      </footer>
+    </form>
     }
   </article>
 </dialog>

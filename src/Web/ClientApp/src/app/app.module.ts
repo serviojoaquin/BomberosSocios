@@ -1,6 +1,6 @@
 import { APP_ID, NgModule, inject, provideAppInitializer } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { LucideAngularModule, Sun, Moon, Laptop, Plus, Settings, MoreHorizontal, Pencil, Trash2, House, Hash, CloudSun, ListChecks, Tags, Box, Wallet, Shield, Users, Layers, Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-angular';
 import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
@@ -14,6 +14,10 @@ import { CobradoresComponent } from './cobradores/cobradores.component';
 import { RolesComponent } from './roles/roles.component';
 import { UsersComponent } from './users/users.component';
 import { DataTableComponent } from './shared/data-table/data-table.component';
+import { FieldErrorComponent } from './shared/forms/field-error.component';
+import { InvalidDirective } from './shared/forms/invalid.directive';
+import { FIELD_ERROR_MESSAGES } from './shared/forms/field-error.component';
+import { MENSAJES_VALIDACION } from './mensajes-validacion';
 import { ThemeToggleComponent } from './theme-toggle/theme-toggle.component';
 import { API_BASE_URL } from './web-api-client';
 import { AuthorizeInterceptor } from 'src/api-authorization/authorize.interceptor';
@@ -38,6 +42,8 @@ export function getApiBaseUrl(): string {
         RolesComponent,
         UsersComponent,
         DataTableComponent,
+        FieldErrorComponent,
+        InvalidDirective,
         ThemeToggleComponent,
         LoginComponent,
         RegisterComponent
@@ -46,6 +52,7 @@ export function getApiBaseUrl(): string {
     imports: [
         BrowserModule,
         FormsModule,
+        ReactiveFormsModule,
         LucideAngularModule.pick({ Sun, Moon, Laptop, Plus, Settings, MoreHorizontal, Pencil, Trash2, House, Hash, CloudSun, ListChecks, Tags, Box, Wallet, Shield, Users, Layers, Menu, PanelLeftClose, PanelLeftOpen }),
         RouterModule.forRoot([
             { path: '', component: HomeComponent, pathMatch: 'full' },
@@ -61,6 +68,7 @@ export function getApiBaseUrl(): string {
         { provide: APP_ID, useValue: 'ng-cli-universal' },
         { provide: HTTP_INTERCEPTORS, useClass: AuthorizeInterceptor, multi: true },
         { provide: API_BASE_URL, useFactory: getApiBaseUrl, deps: [] },
+        { provide: FIELD_ERROR_MESSAGES, useValue: MENSAJES_VALIDACION },
         provideAppInitializer(() => inject(AuthService).initialize()),
         provideHttpClient(withInterceptorsFromDi())
     ]

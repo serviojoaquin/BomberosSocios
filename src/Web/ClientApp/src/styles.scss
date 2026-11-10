@@ -665,3 +665,15 @@ dialog article.dialog-wide {
   border-radius: 50%;
   object-fit: cover;
 }
+
+// ── Forms ─────────────────────────────────────────────────────────────────────
+small.field-error {
+  display: block;
+  margin-top: calc(var(--pico-spacing) * -0.75);
+  margin-bottom: var(--pico-spacing);
+  color: var(--pico-del-color);
+}
+
+dialog article form footer {
+  margin-top: var(--pico-spacing);
+}

@@ -22,28 +22,31 @@
       <h3>New User</h3>
       <button rel="prev" aria-label="Close" (click)="closeDialogs()"></button>
     </header>
-    <label for="newUserEmail">Email</label>
-    <input type="email" id="newUserEmail" autocomplete="off" placeholder="user@example.com" [(ngModel)]="newUser.email"
-      [attr.aria-invalid]="error() ? 'true' : null" maxlength="256" />
-    <label for="newUserPassword">Initial password</label>
-    <input type="password" id="newUserPassword" autocomplete="new-password" [(ngModel)]="newUser.password" (keyup.enter)="createUser()" />
-    @if (error()) {
-      <small class="error">{{ error() }}</small>
-    }
-    <fieldset>
-      <legend>Roles</legend>
-      @for (role of availableRoles(); track role) {
-        <label>
-          <input type="checkbox" [checked]="hasRole(newUser.roles, role)"
-            (change)="newUser.roles = toggleRole(newUser.roles, role, $any($event.target).checked)" />
-          {{ role }}
-        </label>
+    <form [formGroup]="newUserForm" (ngSubmit)="createUser()" novalidate>
+      <label for="email">Email</label>
+      <input type="email" id="email" formControlName="email" [appInvalid]="newUserForm.get('email')" autocomplete="off" placeholder="user@example.com" maxlength="256" />
+      <app-field-error [control]="newUserForm.get('email')" />
+      <label for="password">Initial password</label>
+      <input type="password" id="password" formControlName="password" [appInvalid]="newUserForm.get('password')" autocomplete="new-password" />
+      <app-field-error [control]="newUserForm.get('password')" />
+      <fieldset>
+        <legend>Roles</legend>
+        @for (role of availableRoles(); track role) {
+          <label>
+            <input type="checkbox" [checked]="hasRole(newUserRoles, role)"
+              (change)="newUserRoles = toggleRole(newUserRoles, role, $any($event.target).checked)" />
+            {{ role }}
+          </label>
+        }
+      </fieldset>
+      @for (message of generalErrors(); track message) {
+        <small class="field-error">{{ message }}</small>
       }
-    </fieldset>
-    <footer>
-      <button class="secondary" (click)="closeDialogs()">Cancel</button>
-      <button (click)="createUser()">Create</button>
-    </footer>
+      <footer>
+        <button type="button" class="secondary" (click)="closeDialogs()">Cancel</button>
+        <button type="submit">Create</button>
+      </footer>
+    </form>
     }
   </article>
 </dialog>
@@ -63,8 +66,8 @@
         </label>
       }
     </fieldset>
-    @if (error()) {
-      <small class="error">{{ error() }}</small>
+    @for (message of generalErrors(); track message) {
+      <small class="field-error">{{ message }}</small>
     }
     <footer>
       <button class="secondary" (click)="closeDialogs()">Cancel</button>
@@ -80,16 +83,18 @@
       <h3>Reset password for {{ selected()?.userName }}</h3>
       <button rel="prev" aria-label="Close" (click)="closeDialogs()"></button>
     </header>
-    <label for="newPassword">New password</label>
-    <input type="password" id="newPassword" autocomplete="new-password" [(ngModel)]="newPassword"
-      [attr.aria-invalid]="error() ? 'true' : null" (keyup.enter)="resetPassword()" />
-    @if (error()) {
-      <small class="error">{{ error() }}</small>
-    }
-    <footer>
-      <button class="secondary" (click)="closeDialogs()">Cancel</button>
-      <button (click)="resetPassword()">Reset</button>
-    </footer>
+    <form [formGroup]="passwordForm" (ngSubmit)="resetPassword()" novalidate>
+      <label for="newPassword">New password</label>
+      <input type="password" id="newPassword" formControlName="newPassword" [appInvalid]="passwordForm.get('newPassword')" autocomplete="new-password" />
+      <app-field-error [control]="passwordForm.get('newPassword')" />
+      @for (message of generalErrors(); track message) {
+        <small class="field-error">{{ message }}</small>
+      }
+      <footer>
+        <button type="button" class="secondary" (click)="closeDialogs()">Cancel</button>
+        <button type="submit">Reset</button>
+      </footer>
+    </form>
     }
   </article>
 </dialog>
@@ -107,8 +112,8 @@
         The user will be able to log in again.
       }
     </p>
-    @if (error()) {
-      <small class="error">{{ error() }}</small>
+    @for (message of generalErrors(); track message) {
+      <small class="field-error">{{ message }}</small>
     }
     <footer>
       <button class="secondary" (click)="closeDialogs()">Cancel</button>

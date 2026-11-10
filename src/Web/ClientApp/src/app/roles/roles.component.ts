@@ -1,7 +1,9 @@
 import { Component, OnInit, ViewChild, ElementRef, signal } from '@angular/core';
+import { FormBuilder, Validators } from '@angular/forms';
 import { RolesClient, RoleDto, PermissionDto, CreateRoleCommand, UpdateRoleCommand } from '../web-api-client';
 import { hasPermission } from '../permissions';
 import { DataTableAction, DataTableActionEvent, DataTableColumn } from '../shared/data-table/data-table.component';
+import { FormErrorsService } from '../shared/forms/form-errors.service';
 
 @Component({
   standalone: false,
@@ -22,11 +24,24 @@ export class RolesComponent implements OnInit {
     { name: 'edit', label: 'Edit', icon: 'pencil', visible: (row: RoleDto) => !this.isAdministrator(row) },
     { name: 'delete', label: 'Delete', icon: 'trash', visible: (row: RoleDto) => !row.isSystem }
   ];
-  editor: { id?: string, name?: string, isSystem?: boolean, permissions: number } = { permissions: 0 };
-  editorError = signal('');
+  form = this.fb.group({
+    id: [''],
+    name: ['', [Validators.required, Validators.maxLength(50)]],
+    isSystem: [false],
+    permissions: [0]
+  });
+  generalErrors = signal<string[]>([]);
   selected = signal<RoleDto | null>(null);
 
-  constructor(private client: RolesClient) {}
+  constructor(
+    private client: RolesClient,
+    private fb: FormBuilder,
+    private formErrors: FormErrorsService
+  ) {}
+
+  get isEditing(): boolean {
+    return !!this.form.value.id;
+  }
 
   ngOnInit(): void {
     this.client.getRoles().subscribe({
@@ -47,8 +62,8 @@ export class RolesComponent implements OnInit {
     }
   }
 
-  has(granted: number, permission: number): boolean {
-    return hasPermission(granted, permission);
+  has(permission: number): boolean {
+    return hasPermission(this.form.value.permissions ?? 0, permission);
   }
 
   permissionNames(role: RoleDto): string {
@@ -66,32 +81,31 @@ export class RolesComponent implements OnInit {
   }
 
   showNewDialog(): void {
-    this.editor = { permissions: 0 };
-    this.editorError.set('');
-    this.editDialogRef.nativeElement.showModal();
-    setTimeout(() => document.getElementById('roleName')?.focus(), 50);
+    this.openEditor({ id: '', name: '', isSystem: false, permissions: 0 });
   }
 
   showEditDialog(role: RoleDto): void {
-    this.editor = { id: role.id, name: role.name, isSystem: role.isSystem, permissions: role.permissions };
-    this.editorError.set('');
-    this.editDialogRef.nativeElement.showModal();
+    this.openEditor({ id: role.id, name: role.name, isSystem: role.isSystem, permissions: role.permissions });
   }
 
   closeEditDialog(): void {
     this.editDialogRef.nativeElement.close();
-    this.editor = { permissions: 0 };
-    this.editorError.set('');
+    this.form.reset({ id: '', name: '', isSystem: false, permissions: 0 });
+    this.form.get('name')!.enable();
+    this.generalErrors.set([]);
   }
 
   togglePermission(permission: number, checked: boolean): void {
-    this.editor.permissions = checked
-      ? this.editor.permissions | permission
-      : this.editor.permissions & ~permission;
+    const current = this.form.value.permissions ?? 0;
+    this.form.patchValue({ permissions: checked ? current | permission : current & ~permission });
   }
 
   save(): void {
-    if (this.editor.id) {
+    this.form.markAllAsTouched();
+    if (this.form.invalid) {
+      return;
+    }
+    if (this.isEditing) {
       this.update();
     } else {
       this.create();
@@ -117,25 +131,39 @@ export class RolesComponent implements OnInit {
       },
       error: error => {
         this.closeDeleteDialog();
-        alert(this.firstError(error, 'Unable to delete the role.'));
+        alert(this.formErrors.firstMessage(error, 'Unable to delete the role.'));
       }
     });
   }
 
+  private openEditor(value: { id: string, name: string, isSystem: boolean, permissions: number }): void {
+    this.form.reset(value);
+    if (value.isSystem) {
+      this.form.get('name')!.disable();
+    } else {
+      this.form.get('name')!.enable();
+    }
+    this.generalErrors.set([]);
+    this.editDialogRef.nativeElement.showModal();
+    setTimeout(() => document.getElementById('name')?.focus(), 50);
+  }
+
   private create(): void {
-    const command = { name: this.editor.name, permissions: this.editor.permissions } as CreateRoleCommand;
+    const value = this.form.getRawValue();
+    const command = { name: value.name, permissions: value.permissions } as CreateRoleCommand;
     this.client.createRole(command).subscribe({
       next: id => {
         const created = { id, name: command.name, permissions: command.permissions, isSystem: false } as RoleDto;
-        this.roles.update(rs => [...rs!, created]);
+        this.roles.update(rs => [...(rs ?? []), created]);
         this.closeEditDialog();
       },
-      error: error => this.editorError.set(this.firstError(error, 'Unable to save the role.'))
+      error: error => this.generalErrors.set(this.formErrors.apply(error, this.form).general)
     });
   }
 
   private update(): void {
-    const command = { id: this.editor.id, name: this.editor.name, permissions: this.editor.permissions } as UpdateRoleCommand;
+    const value = this.form.getRawValue();
+    const command = { id: value.id, name: value.name, permissions: value.permissions } as UpdateRoleCommand;
     this.client.updateRole(command.id, command).subscribe({
       next: () => {
         this.roles.update(rs => rs!.map(r => r.id === command.id
@@ -143,21 +171,11 @@ export class RolesComponent implements OnInit {
           : r));
         this.closeEditDialog();
       },
-      error: error => this.editorError.set(this.firstError(error, 'Unable to save the role.'))
+      error: error => this.generalErrors.set(this.formErrors.apply(error, this.form).general)
     });
   }
 
   private escape(value: unknown): string {
     return String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  }
-
-  private firstError(error: any, fallback: string): string {
-    try {
-      const errors = JSON.parse(error.response).errors;
-      const first = errors && Object.values(errors)[0] as string[];
-      return first?.[0] ?? fallback;
-    } catch {
-      return fallback;
-    }
   }
 }

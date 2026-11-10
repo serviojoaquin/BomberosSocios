@@ -1,10 +1,10 @@
 import { Component, OnInit, ViewChild, ElementRef, signal } from '@angular/core';
+import { FormBuilder, Validators } from '@angular/forms';
 import { CobradoresClient, CobradorDto, CreateCobradorCommand, UpdateCobradorCommand, CrearUsuarioCobradorCommand } from '../web-api-client';
 import { AuthService } from 'src/api-authorization/auth.service';
 import { Permissions } from '../permissions';
 import { DataTableAction, DataTableActionEvent, DataTableColumn } from '../shared/data-table/data-table.component';
-
-type CobradorEditor = { id?: number, nombre?: string, apellido?: string, telefono?: string, celular?: string, email?: string, comision?: number | null };
+import { FormErrorsService } from '../shared/forms/form-errors.service';
 
 @Component({
   standalone: false,
@@ -32,16 +32,32 @@ export class CobradoresComponent implements OnInit {
     ...(this.authService.hasPermission(Permissions.ManageSecurity) ? [{ name: 'usuario', label: 'Crear usuario', icon: 'key', visible: (row: CobradorDto) => !row.tieneUsuario } as DataTableAction] : []),
     ...(this.authService.hasPermission(Permissions.EliminarCobradores) ? [{ name: 'delete', label: 'Eliminar', icon: 'trash' } as DataTableAction] : [])
   ];
-  editor: CobradorEditor = {};
-  editorError = signal('');
+  form = this.fb.group({
+    id: [0],
+    apellido: ['', [Validators.required, Validators.maxLength(200)]],
+    nombre: ['', [Validators.required, Validators.maxLength(200)]],
+    email: ['', [Validators.email, Validators.maxLength(200)]],
+    comision: [null as number | null, [Validators.min(0), Validators.max(100)]],
+    telefono: ['', [Validators.maxLength(50)]],
+    celular: ['', [Validators.maxLength(50)]]
+  });
+  usuarioForm = this.fb.group({
+    password: ['', [Validators.required, Validators.minLength(6)]]
+  });
+  generalErrors = signal<string[]>([]);
   selected = signal<CobradorDto | null>(null);
   usuarioOpen = signal(false);
-  passwordCobrador = '';
 
   constructor(
     private client: CobradoresClient,
-    private authService: AuthService
+    private authService: AuthService,
+    private fb: FormBuilder,
+    private formErrors: FormErrorsService
   ) {}
+
+  get isEditing(): boolean {
+    return (this.form.value.id ?? 0) > 0;
+  }
 
   ngOnInit(): void {
     this.client.getCobradores().subscribe({
@@ -62,57 +78,66 @@ export class CobradoresComponent implements OnInit {
   }
 
   showNewDialog(): void {
-    this.editor = {};
-    this.editorError.set('');
-    this.editDialogRef.nativeElement.showModal();
-    setTimeout(() => document.getElementById('apellido')?.focus(), 50);
+    this.openEditor({ id: 0, apellido: '', nombre: '', email: '', comision: null, telefono: '', celular: '' });
   }
 
   showEditDialog(cobrador: CobradorDto): void {
-    this.editor = { ...cobrador };
-    this.editorError.set('');
-    this.editDialogRef.nativeElement.showModal();
-    setTimeout(() => document.getElementById('apellido')?.focus(), 50);
+    this.openEditor({
+      id: cobrador.id,
+      apellido: cobrador.apellido,
+      nombre: cobrador.nombre,
+      email: cobrador.email ?? '',
+      comision: cobrador.comision ?? null,
+      telefono: cobrador.telefono ?? '',
+      celular: cobrador.celular ?? ''
+    });
   }
 
   closeEditDialog(): void {
     this.editDialogRef.nativeElement.close();
-    this.editor = {};
-    this.editorError.set('');
+    this.generalErrors.set([]);
   }
 
   showUsuarioDialog(cobrador: CobradorDto): void {
     this.selected.set(cobrador);
-    this.passwordCobrador = '';
-    this.editorError.set(cobrador.email ? '' : 'El cobrador no tiene email cargado; es necesario para crear el usuario.');
+    this.usuarioForm.reset({ password: '' });
+    this.generalErrors.set(cobrador.email ? [] : ['El cobrador no tiene email cargado; es necesario para crear el usuario.']);
     this.usuarioOpen.set(true);
     this.usuarioDialogRef.nativeElement.showModal();
-    setTimeout(() => document.getElementById('passwordCobrador')?.focus(), 50);
+    setTimeout(() => document.getElementById('password')?.focus(), 50);
   }
 
   closeUsuarioDialog(): void {
     this.usuarioDialogRef.nativeElement.close();
     this.usuarioOpen.set(false);
     this.selected.set(null);
-    this.editorError.set('');
+    this.generalErrors.set([]);
   }
 
   crearUsuario(): void {
     if (!this.selected()?.email) {
       return;
     }
-    const command = { id: this.selected()!.id, password: this.passwordCobrador } as CrearUsuarioCobradorCommand;
+    this.usuarioForm.markAllAsTouched();
+    if (this.usuarioForm.invalid) {
+      return;
+    }
+    const command = { id: this.selected()!.id, password: this.usuarioForm.value.password } as CrearUsuarioCobradorCommand;
     this.client.crearUsuarioCobrador(command.id, command).subscribe({
       next: () => {
         this.cobradores.update(cs => cs!.map(c => c.id === command.id ? { ...c, tieneUsuario: true } as CobradorDto : c));
         this.closeUsuarioDialog();
       },
-      error: error => this.editorError.set(this.firstError(error, 'No se pudo crear el usuario.'))
+      error: error => this.generalErrors.set(this.formErrors.apply(error, this.usuarioForm).general)
     });
   }
 
   save(): void {
-    if (this.editor.id) {
+    this.form.markAllAsTouched();
+    if (this.form.invalid) {
+      return;
+    }
+    if (this.isEditing) {
       this.update();
     } else {
       this.create();
@@ -138,19 +163,27 @@ export class CobradoresComponent implements OnInit {
       },
       error: error => {
         this.closeDeleteDialog();
-        alert(this.firstError(error, 'No se pudo eliminar el cobrador.'));
+        alert(this.formErrors.firstMessage(error, 'No se pudo eliminar el cobrador.'));
       }
     });
   }
 
+  private openEditor(value: { id: number, apellido: string, nombre: string, email: string, comision: number | null, telefono: string, celular: string }): void {
+    this.form.reset(value);
+    this.generalErrors.set([]);
+    this.editDialogRef.nativeElement.showModal();
+    setTimeout(() => document.getElementById('apellido')?.focus(), 50);
+  }
+
   private payload() {
+    const v = this.form.value;
     return {
-      nombre: this.editor.nombre,
-      apellido: this.editor.apellido,
-      telefono: this.editor.telefono || undefined,
-      celular: this.editor.celular || undefined,
-      email: this.editor.email || undefined,
-      comision: this.editor.comision === null || this.editor.comision === undefined || (this.editor.comision as any) === '' ? undefined : Number(this.editor.comision)
+      nombre: v.nombre,
+      apellido: v.apellido,
+      telefono: v.telefono || undefined,
+      celular: v.celular || undefined,
+      email: v.email || undefined,
+      comision: v.comision === null || v.comision === undefined || (v.comision as any) === '' ? undefined : Number(v.comision)
     };
   }
 
@@ -162,28 +195,18 @@ export class CobradoresComponent implements OnInit {
         this.cobradores.update(cs => [...(cs ?? []), created]);
         this.closeEditDialog();
       },
-      error: error => this.editorError.set(this.firstError(error, 'No se pudo guardar el cobrador.'))
+      error: error => this.generalErrors.set(this.formErrors.apply(error, this.form).general)
     });
   }
 
   private update(): void {
-    const command = { id: this.editor.id, ...this.payload() } as UpdateCobradorCommand;
+    const command = { id: this.form.value.id, ...this.payload() } as UpdateCobradorCommand;
     this.client.updateCobrador(command.id, command).subscribe({
       next: () => {
         this.cobradores.update(cs => cs!.map(c => c.id === command.id ? { ...c, ...command } as CobradorDto : c));
         this.closeEditDialog();
       },
-      error: error => this.editorError.set(this.firstError(error, 'No se pudo guardar el cobrador.'))
+      error: error => this.generalErrors.set(this.formErrors.apply(error, this.form).general)
     });
-  }
-
-  private firstError(error: any, fallback: string): string {
-    try {
-      const errors = JSON.parse(error.response).errors;
-      const first = errors && Object.values(errors)[0] as string[];
-      return first?.[0] ?? fallback;
-    } catch {
-      return fallback;
-    }
   }
 }
