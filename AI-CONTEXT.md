@@ -51,6 +51,7 @@ BaseApp/
         src/api-authorization/auth.service.ts     usuario actual + hasPermission$()
         src/app/web-api-client.ts                 GENERADO, no editar a mano
         src/app/shared/data-table/              componente <app-data-table> (DataTables 3 encapsulado)
+        src/app/branding.ts                       nombre y logo de la app (sidebar y título de pestaña)
         src/app/modules.ts                        registro de módulos: título, ruta, ícono, sección, permiso → arma el sidebar
         src/app/layout/                           sidebar y header del shell
     AppHost/         Aspire: define recursos (SQL, Web) y el target Azure Container Apps.

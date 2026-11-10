@@ -3,6 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { AuthService } from 'src/api-authorization/auth.service';
 import { APP_MODULES, AppModule } from '../modules';
 import { hasPermission } from '../permissions';
+import { BRANDING } from '../branding';
 
 interface SidebarSection {
   name: string;
@@ -19,6 +20,8 @@ const COLLAPSED_KEY = 'sidebarCollapsed';
 export class SidebarComponent {
   private readonly authService = inject(AuthService);
   private readonly currentUser = toSignal(this.authService.currentUser$, { initialValue: null });
+
+  readonly branding = BRANDING;
 
   collapsed = signal(this.readCollapsed());
   mobileOpen = signal(false);

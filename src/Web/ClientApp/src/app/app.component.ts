@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { Title } from '@angular/platform-browser';
+import { BRANDING } from './branding';
 
 @Component({
   standalone: false,
@@ -6,5 +8,7 @@ import { Component } from '@angular/core';
   templateUrl: './app.component.html'
 })
 export class AppComponent {
-  title = 'app';
+  constructor(title: Title) {
+    title.setTitle(BRANDING.name);
+  }
 }
