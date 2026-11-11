@@ -131,6 +131,22 @@ export class DataTableComponent implements AfterViewInit, OnChanges, OnDestroy {
       row.appendChild(cell);
     });
     thead.appendChild(row);
+
+    const sync = () => {
+      this.table.columns().every((index: number) => {
+        const cell = row.children[index] as HTMLElement | undefined;
+        if (cell) {
+          cell.style.display = this.table.column(index).visible() && !this.isResponsiveHidden(index) ? '' : 'none';
+        }
+      });
+    };
+    this.table.on('column-visibility responsive-resize', sync);
+    sync();
+  }
+
+  private isResponsiveHidden(index: number): boolean {
+    const column = this.table.column(index);
+    return typeof column.responsiveHidden === 'function' ? column.responsiveHidden() === false : false;
   }
 
   selectedRows(): any[] {
