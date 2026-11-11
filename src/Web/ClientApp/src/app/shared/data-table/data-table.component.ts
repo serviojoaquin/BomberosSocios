@@ -92,6 +92,7 @@ export class DataTableComponent implements AfterViewInit, OnChanges, OnDestroy {
   private readonly isBrowser: boolean;
   private readonly onClick = (event: Event) => this.handleClick(event);
   private readonly onToggle = (event: Event) => this.handleToggle(event);
+  private readonly onPointerDown = (event: Event) => this.handlePointerDown(event);
   private readonly onDocumentClick = (event: Event) => this.closeMenus(event);
 
   constructor(
@@ -121,6 +122,7 @@ export class DataTableComponent implements AfterViewInit, OnChanges, OnDestroy {
       });
     this.tableRef.nativeElement.addEventListener('click', this.onClick);
     this.tableRef.nativeElement.addEventListener('toggle', this.onToggle, true);
+    this.tableRef.nativeElement.addEventListener('pointerdown', this.onPointerDown);
     document.addEventListener('click', this.onDocumentClick);
     if (this.selectable) {
       this.table.on('select deselect', () => this.selectionChange.emit(this.selectedRows()));
@@ -212,6 +214,7 @@ export class DataTableComponent implements AfterViewInit, OnChanges, OnDestroy {
   ngOnDestroy(): void {
     this.tableRef?.nativeElement.removeEventListener('click', this.onClick);
     this.tableRef?.nativeElement.removeEventListener('toggle', this.onToggle, true);
+    this.tableRef?.nativeElement.removeEventListener('pointerdown', this.onPointerDown);
     document.removeEventListener('click', this.onDocumentClick);
     this.table?.destroy();
     this.table = null;
@@ -299,6 +302,12 @@ export class DataTableComponent implements AfterViewInit, OnChanges, OnDestroy {
     button.closest<HTMLDetailsElement>('details.dt-row-menu')?.removeAttribute('open');
     if (row) {
       this.action.emit({ action: button.dataset['action']!, row });
+    }
+  }
+
+  private handlePointerDown(event: Event): void {
+    if ((event.target as HTMLElement).closest('details.dt-row-menu > summary')) {
+      this.tableRef.nativeElement.closest<HTMLElement>('.dt-layout-table')?.classList.add('dt-menu-open');
     }
   }
 
