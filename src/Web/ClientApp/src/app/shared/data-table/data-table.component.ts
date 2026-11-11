@@ -115,7 +115,8 @@ export class DataTableComponent implements AfterViewInit, OnChanges, OnDestroy {
     this.table.columns().every((index: number) => {
       const column = this.table.column(index);
       const cell = document.createElement('th');
-      if (index < this.columns.length && column.searchable()) {
+      const searchable = this.table.settings()[0].aoColumns[index]?.bSearchable !== false;
+      if (index < this.columns.length && searchable) {
         const input = document.createElement('input');
         input.type = 'search';
         input.setAttribute('autocomplete', 'off');
