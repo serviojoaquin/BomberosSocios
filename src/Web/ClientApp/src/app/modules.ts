@@ -10,12 +10,12 @@ export interface AppModule {
 }
 
 export const APP_MODULES: AppModule[] = [
-  { title: 'Home', path: '/', icon: 'house', section: 'General' },
-  { title: 'Counter', path: '/counter', icon: 'hash', section: 'Samples' },
-  { title: 'Weather', path: '/weather', icon: 'cloud-sun', section: 'Samples', requiresAuth: true },
-  { title: 'Tasks', path: '/todo', icon: 'list-checks', section: 'Samples', requiresAuth: true },
-  { title: 'Sample items', path: '/sample-items', icon: 'box', section: 'Samples', permission: Permissions.ViewSampleItems },
-  { title: 'Roles', path: '/roles', icon: 'shield', section: 'Security', permission: Permissions.ManageSecurity },
-  { title: 'Users', path: '/users', icon: 'users', section: 'Security', permission: Permissions.ManageSecurity },
-  { title: 'Access control', path: '/access-control', icon: 'lock-keyhole', section: 'Security', permission: Permissions.ManageSecurity }
+  { title: 'modules.home', path: '/', icon: 'house', section: 'sections.general' },
+  { title: 'modules.counter', path: '/counter', icon: 'hash', section: 'sections.samples' },
+  { title: 'modules.weather', path: '/weather', icon: 'cloud-sun', section: 'sections.samples', requiresAuth: true },
+  { title: 'modules.tasks', path: '/todo', icon: 'list-checks', section: 'sections.samples', requiresAuth: true },
+  { title: 'modules.sampleItems', path: '/sample-items', icon: 'box', section: 'sections.samples', permission: Permissions.ViewSampleItems },
+  { title: 'modules.roles', path: '/roles', icon: 'shield', section: 'sections.security', permission: Permissions.ManageSecurity },
+  { title: 'modules.users', path: '/users', icon: 'users', section: 'sections.security', permission: Permissions.ManageSecurity },
+  { title: 'modules.accessControl', path: '/access-control', icon: 'lock-keyhole', section: 'sections.security', permission: Permissions.ManageSecurity }
 ];

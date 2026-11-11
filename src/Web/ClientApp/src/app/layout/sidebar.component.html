@@ -8,7 +8,7 @@
       }
       <span class="app-sidebar-label">{{ branding.name }}</span>
     </a>
-    <button type="button" class="icon-btn app-sidebar-collapse" (click)="toggleCollapsed()" [attr.aria-label]="collapsed() ? 'Expand menu' : 'Collapse menu'">
+    <button type="button" class="icon-btn app-sidebar-collapse" (click)="toggleCollapsed()" [attr.aria-label]="(collapsed() ? 'layout.expandMenu' : 'layout.collapseMenu') | translate">
       <lucide-icon [name]="collapsed() ? 'panel-left-open' : 'panel-left-close'" [size]="20" [strokeWidth]="2" />
     </button>
   </div>
@@ -16,16 +16,16 @@
   <nav>
     @for (section of sections(); track section.name) {
       <div class="app-sidebar-section">
-        <small class="app-sidebar-label">{{ section.name }}</small>
+        <small class="app-sidebar-label">{{ section.name | translate }}</small>
         <ul>
           @for (module of section.modules; track module.path) {
             <li>
               <a [routerLink]="[module.path]" [routerLinkActive]="['active']"
                  [routerLinkActiveOptions]="{ exact: module.path === '/' }"
-                 [attr.title]="collapsed() ? module.title : null"
+                 [attr.title]="collapsed() ? (module.title | translate) : null"
                  (click)="closeMobile()">
                 <lucide-icon [name]="module.icon" [size]="20" [strokeWidth]="2" />
-                <span class="app-sidebar-label">{{ module.title }}</span>
+                <span class="app-sidebar-label">{{ module.title | translate }}</span>
               </a>
             </li>
           }

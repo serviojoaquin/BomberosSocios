@@ -3,6 +3,8 @@ import {
   PLATFORM_ID, SimpleChanges, ViewChild, AfterViewInit
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+import { TranslateService } from '@ngx-translate/core';
+import { Subscription } from 'rxjs';
 import DataTable from 'datatables.net-dt';
 import 'datatables.net-buttons-dt';
 import 'datatables.net-buttons/js/buttons.html5.mjs';
@@ -94,10 +96,12 @@ export class DataTableComponent implements AfterViewInit, OnChanges, OnDestroy {
   private readonly onToggle = (event: Event) => this.handleToggle(event);
   private readonly onPointerDown = (event: Event) => this.handlePointerDown(event);
   private readonly onDocumentClick = (event: Event) => this.closeMenus(event);
+  private langSubscription: Subscription | null = null;
 
   constructor(
     @Inject(PLATFORM_ID) platformId: Object,
-    @Optional() @Inject(DATA_TABLE_LANGUAGE) private language: Record<string, any> | null
+    @Optional() @Inject(DATA_TABLE_LANGUAGE) private language: Record<string, any> | null,
+    @Optional() private translate: TranslateService | null
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
   }
@@ -106,6 +110,15 @@ export class DataTableComponent implements AfterViewInit, OnChanges, OnDestroy {
     if (!this.isBrowser) {
       return;
     }
+    this.createTable();
+    this.tableRef.nativeElement.addEventListener('click', this.onClick);
+    this.tableRef.nativeElement.addEventListener('toggle', this.onToggle, true);
+    this.tableRef.nativeElement.addEventListener('pointerdown', this.onPointerDown);
+    document.addEventListener('click', this.onDocumentClick);
+    this.langSubscription = this.translate?.onLangChange.subscribe(() => this.rebuild()) ?? null;
+  }
+
+  private createTable(): void {
     if (this.footer) {
       this.addFooter();
     }
@@ -120,16 +133,30 @@ export class DataTableComponent implements AfterViewInit, OnChanges, OnDestroy {
         input.addEventListener('focus', unlock);
         input.addEventListener('pointerdown', unlock);
       });
-    this.tableRef.nativeElement.addEventListener('click', this.onClick);
-    this.tableRef.nativeElement.addEventListener('toggle', this.onToggle, true);
-    this.tableRef.nativeElement.addEventListener('pointerdown', this.onPointerDown);
-    document.addEventListener('click', this.onDocumentClick);
     if (this.selectable) {
       this.table.on('select deselect', () => this.selectionChange.emit(this.selectedRows()));
     }
     if (this.columnFilters) {
       this.addColumnFilters();
     }
+  }
+
+  private rebuild(): void {
+    if (!this.table) {
+      return;
+    }
+    this.table.destroy();
+    this.table = null;
+    this.tableRef.nativeElement.innerHTML = '';
+    this.createTable();
+  }
+
+  private t(text: string): string {
+    if (!this.translate || !text) {
+      return text;
+    }
+    const translated = this.translate.instant(text);
+    return typeof translated === 'string' ? translated : text;
   }
 
   private addFooter(): void {
@@ -216,6 +243,7 @@ export class DataTableComponent implements AfterViewInit, OnChanges, OnDestroy {
     this.tableRef?.nativeElement.removeEventListener('toggle', this.onToggle, true);
     this.tableRef?.nativeElement.removeEventListener('pointerdown', this.onPointerDown);
     document.removeEventListener('click', this.onDocumentClick);
+    this.langSubscription?.unsubscribe();
     this.table?.destroy();
     this.table = null;
   }
@@ -223,7 +251,7 @@ export class DataTableComponent implements AfterViewInit, OnChanges, OnDestroy {
   private buildOptions(): Record<string, any> {
     const columns: any[] = this.columns.map(c => ({
       data: c.data,
-      title: c.title,
+      title: this.t(c.title),
       render: c.render ?? ((value: unknown) => escapeHtml(value)),
       className: c.className,
       width: c.width,
@@ -254,7 +282,7 @@ export class DataTableComponent implements AfterViewInit, OnChanges, OnDestroy {
       select: this.selectable ? { style: 'multi', selector: 'td:not(.dt-actions)' } : false,
       orderClasses: false,
       order: [[0, 'asc']],
-      language: { search: '', searchPlaceholder: 'Search…', ...(this.language ?? {}) },
+      language: { search: '', searchPlaceholder: 'Search…', ...this.gridLanguage(), ...(this.language ?? {}) },
       layout: {
         topStart: 'search',
         topEnd: 'buttons',
@@ -262,16 +290,25 @@ export class DataTableComponent implements AfterViewInit, OnChanges, OnDestroy {
         bottomEnd: 'paging'
       },
       buttons: [
-        { extend: 'copyHtml5', text: 'Copy', title: this.exportTitle, exportOptions: { columns: ':not(.dt-actions)' } },
-        { extend: 'excelHtml5', text: 'Excel', title: this.exportTitle, exportOptions: { columns: ':not(.dt-actions)' } },
-        { extend: 'pdfHtml5', text: 'PDF', title: this.exportTitle, orientation: 'landscape', pageSize: 'A4', exportOptions: { columns: ':not(.dt-actions)' } },
-        { extend: 'print', text: 'Print', title: this.exportTitle, exportOptions: { columns: ':not(.dt-actions)' } }
+        { extend: 'copyHtml5', text: this.t('dataTable.buttons.copy'), title: this.exportTitle, exportOptions: { columns: ':not(.dt-actions)' } },
+        { extend: 'excelHtml5', text: this.t('dataTable.buttons.excel'), title: this.exportTitle, exportOptions: { columns: ':not(.dt-actions)' } },
+        { extend: 'pdfHtml5', text: this.t('dataTable.buttons.pdf'), title: this.exportTitle, orientation: 'landscape', pageSize: 'A4', exportOptions: { columns: ':not(.dt-actions)' } },
+        { extend: 'print', text: this.t('dataTable.buttons.print'), title: this.exportTitle, exportOptions: { columns: ':not(.dt-actions)' } }
       ]
     };
 
     const merged = { ...defaults, ...this.options };
     this.responsiveEnabled = !!merged['responsive'];
     return merged;
+  }
+
+  private gridLanguage(): Record<string, any> {
+    const value = this.translate?.instant('dataTable');
+    if (!value || typeof value !== 'object') {
+      return {};
+    }
+    const { buttons, ...language } = value as Record<string, any>;
+    return language;
   }
 
   private renderActions(row: any): string {
@@ -283,11 +320,11 @@ export class DataTableComponent implements AfterViewInit, OnChanges, OnDestroy {
           const items = (typeof a.menu === 'function' ? a.menu(row) : a.menu)
             .filter(i => i.visible ? i.visible(row) : true);
           const list = items
-            .map(i => i.divider ? '<li class="dt-row-menu-divider"></li>' : `<li><button type="button" class="dt-action" data-action="${i.name}">${escapeHtml(i.label)}</button></li>`)
+            .map(i => i.divider ? '<li class="dt-row-menu-divider"></li>' : `<li><button type="button" class="dt-action" data-action="${i.name}">${escapeHtml(this.t(i.label))}</button></li>`)
             .join('');
-          return `<details class="dt-row-menu"><summary class="icon-btn" title="${escapeHtml(a.label)}" aria-label="${escapeHtml(a.label)}">${ICONS[a.icon]}</summary><ul>${list}</ul></details>`;
+          return `<details class="dt-row-menu"><summary class="icon-btn" title="${escapeHtml(this.t(a.label))}" aria-label="${escapeHtml(this.t(a.label))}">${ICONS[a.icon]}</summary><ul>${list}</ul></details>`;
         }
-        return `<button type="button" class="icon-btn dt-action" data-action="${a.name}" aria-label="${escapeHtml(a.label)}" title="${escapeHtml(a.label)}"${disabled}>${ICONS[a.icon]}</button>`;
+        return `<button type="button" class="icon-btn dt-action" data-action="${a.name}" aria-label="${escapeHtml(this.t(a.label))}" title="${escapeHtml(this.t(a.label))}"${disabled}>${ICONS[a.icon]}</button>`;
       })
       .join('');
   }

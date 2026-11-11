@@ -1,28 +1,28 @@
 <article>
-  <h2>Register</h2>
+  <h2>{{ 'auth.register' | translate }}</h2>
   @if (error) {
-    <p class="error">{{ error }}</p>
+    <p class="error">{{ error | translate }}</p>
   }
   <form (ngSubmit)="register()">
-    <label for="email">Email</label>
+    <label for="email">{{ 'auth.email' | translate }}</label>
     <input type="email" id="email" name="email" [(ngModel)]="email"
       [attr.aria-invalid]="emailTouched ? !emailValid : null"
       aria-describedby="email-helper"
       autocomplete="username"
       (blur)="emailTouched = true" />
     <small id="email-helper">
-      {{ emailTouched && !emailValid ? 'Please enter a valid email address.' : '' }}
+      {{ emailTouched && !emailValid ? ('auth.emailInvalid' | translate) : '' }}
     </small>
-    <label for="password">Password</label>
+    <label for="password">{{ 'auth.password' | translate }}</label>
     <input type="password" id="password" name="password" [(ngModel)]="password"
       [attr.aria-invalid]="passwordTouched ? !passwordValid : null"
       aria-describedby="password-helper"
       autocomplete="new-password"
       (blur)="passwordTouched = true" />
     <small id="password-helper">
-      {{ passwordTouched && !passwordValid ? 'Password must be at least ' + minPasswordLength + ' characters.' : '' }}
+      {{ passwordTouched && !passwordValid ? ('auth.passwordMin' | translate: { min: minPasswordLength }) : '' }}
     </small>
-    <button type="submit">Register</button>
-    <p style="margin-top: 1rem">Already have an account? <a [routerLink]="['/login']">Log in</a></p>
+    <button type="submit">{{ 'auth.register' | translate }}</button>
+    <p style="margin-top: 1rem">{{ 'auth.haveAccount' | translate }} <a [routerLink]="['/login']">{{ 'auth.logIn' | translate }}</a></p>
   </form>
 </article>

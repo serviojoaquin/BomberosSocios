@@ -3,6 +3,7 @@ import { RolesClient, RoleDto, PermissionDto, UpdateRoleCommand } from '../web-a
 import { addFlag, deleteFlag, hasFlag } from '../shared/flag-enum';
 import { ToastService } from '../shared/toast/toast.service';
 import { FormErrorsService } from '../shared/forms/form-errors.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   standalone: false,
@@ -17,7 +18,8 @@ export class AccessControlComponent implements OnInit {
   constructor(
     private client: RolesClient,
     private toast: ToastService,
-    private formErrors: FormErrorsService
+    private formErrors: FormErrorsService,
+    private translate: TranslateService
   ) {}
 
   ngOnInit(): void {
@@ -27,7 +29,7 @@ export class AccessControlComponent implements OnInit {
         this.permissions.set(result.availablePermissions);
         this.cargado.set(true);
       },
-      error: error => this.toast.show(this.formErrors.firstMessage(error, 'Could not load the roles.'), 'danger')
+      error: error => this.toast.show(this.formErrors.firstMessage(error, this.translate.instant('accessControl.loadError')), 'danger')
     });
   }
 
@@ -47,7 +49,7 @@ export class AccessControlComponent implements OnInit {
       error: error => {
         role.permissions = anterior;
         (event.target as HTMLInputElement).checked = !checked;
-        this.toast.show(this.formErrors.firstMessage(error, 'Could not update the role.'), 'danger');
+        this.toast.show(this.formErrors.firstMessage(error, this.translate.instant('accessControl.updateError')), 'danger');
       }
     });
   }

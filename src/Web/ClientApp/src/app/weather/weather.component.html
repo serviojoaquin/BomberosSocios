@@ -1,20 +1,20 @@
-<h1>Weather</h1>
-<p>This component demonstrates fetching data from the server.</p>
+<h1>{{ 'weather.title' | translate }}</h1>
+<p>{{ 'weather.description' | translate }}</p>
 
 @if (loading) {
-  <span aria-busy="true">Fetching your weather forecast&hellip;</span>
+  <span aria-busy="true">{{ 'weather.fetching' | translate }}</span>
 }
 @if (error) {
   <p class="error">{{ error }}</p>
 }
 @if (!loading && !error) {
-  <table aria-label="Weather forecast">
+  <table [attr.aria-label]="'weather.tableLabel' | translate">
     <thead>
       <tr>
-        <th>Date</th>
-        <th>Temp. (C)</th>
-        <th>Temp. (F)</th>
-        <th>Summary</th>
+        <th>{{ 'weather.date' | translate }}</th>
+        <th>{{ 'weather.tempC' | translate }}</th>
+        <th>{{ 'weather.tempF' | translate }}</th>
+        <th>{{ 'weather.summary' | translate }}</th>
       </tr>
     </thead>
     <tbody>

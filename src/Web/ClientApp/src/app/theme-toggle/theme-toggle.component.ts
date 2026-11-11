@@ -1,5 +1,7 @@
 import { Component, computed } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { ThemeService, Theme } from '../theme.service';
+import { LanguageService } from '../i18n/language.service';
 
 @Component({
   standalone: false,
@@ -7,7 +9,7 @@ import { ThemeService, Theme } from '../theme.service';
   templateUrl: './theme-toggle.component.html'
 })
 export class ThemeToggleComponent {
-  constructor(public themeService: ThemeService) {}
+  constructor(public themeService: ThemeService, private translate: TranslateService, private language: LanguageService) {}
 
   icon = computed(() => {
     switch (this.themeService.theme()) {
@@ -18,10 +20,11 @@ export class ThemeToggleComponent {
   });
 
   label = computed(() => {
+    this.language.current();
     switch (this.themeService.theme()) {
-      case 'light': return 'Light';
-      case 'dark':  return 'Dark';
-      default:      return 'Auto';
+      case 'light': return this.translate.instant('layout.theme.light');
+      case 'dark':  return this.translate.instant('layout.theme.dark');
+      default:      return this.translate.instant('layout.theme.system');
     }
   });
 

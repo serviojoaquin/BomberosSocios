@@ -1,6 +1,7 @@
 import { Component, Inject, InjectionToken, Input, OnChanges, OnDestroy, Optional, signal } from '@angular/core';
 import { AbstractControl, FormGroupDirective } from '@angular/forms';
 import { ControlStateWatcher } from './form-state';
+import { TranslateService } from '@ngx-translate/core';
 
 export type FieldErrorMessages = Record<string, (error: any) => string>;
 
@@ -29,13 +30,16 @@ export class FieldErrorComponent implements OnChanges, OnDestroy {
   readonly message = signal<string | null>(null);
 
   private readonly defaults: FieldErrorMessages;
+  private readonly overrides: FieldErrorMessages;
   private readonly watcher = new ControlStateWatcher(() => this.refresh());
 
   constructor(
     @Optional() @Inject(FIELD_ERROR_MESSAGES) overrides: FieldErrorMessages | null,
-    @Optional() private readonly form: FormGroupDirective | null
+    @Optional() private readonly form: FormGroupDirective | null,
+    @Optional() private readonly translate: TranslateService | null
   ) {
-    this.defaults = { ...DEFAULT_MESSAGES, ...(overrides ?? {}) };
+    this.overrides = overrides ?? {};
+    this.defaults = { ...DEFAULT_MESSAGES, ...this.overrides };
   }
 
   ngOnChanges(): void {
@@ -56,6 +60,13 @@ export class FieldErrorComponent implements OnChanges, OnDestroy {
     if (this.messages[key]) {
       this.message.set(this.messages[key]);
       return;
+    }
+    if (this.translate && !this.overrides[key]) {
+      const translated = this.translate.instant(`validation.${key}`, typeof value === 'object' && value !== null ? value : {});
+      if (typeof translated === 'string' && translated !== `validation.${key}`) {
+        this.message.set(translated);
+        return;
+      }
     }
     const render = this.defaults[key];
     this.message.set(render ? render(value) : 'Invalid value.');

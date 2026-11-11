@@ -1099,3 +1099,109 @@ table.access-control {
     margin: 0;
   }
 }
+
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  margin: 0;
+  padding: 0;
+  border-radius: 50%;
+  background: var(--pico-primary-focus);
+  color: var(--pico-primary);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  list-style: none;
+
+  &::-webkit-details-marker,
+  &::marker,
+  &::after {
+    display: none;
+    content: "";
+  }
+
+  &:hover {
+    background: var(--pico-primary);
+    color: var(--pico-primary-inverse);
+  }
+}
+
+.menu-dropdown {
+  position: relative;
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+  border: 0;
+
+  > ul {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 0.35rem);
+    z-index: 200;
+    min-width: 13rem;
+    margin: 0;
+    padding: 0.35rem 0;
+    list-style: none;
+    background: var(--pico-card-background-color);
+    border: 1px solid var(--pico-muted-border-color);
+    border-radius: var(--pico-border-radius);
+    box-shadow: var(--pico-card-box-shadow);
+    text-align: left;
+
+    li {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    button {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      margin: 0;
+      padding: 0.45rem 1rem;
+      text-align: left;
+      background: transparent !important;
+      border: 0;
+      border-radius: 0;
+      color: var(--pico-color);
+      box-shadow: none !important;
+      font-size: 0.9rem;
+      font-weight: normal;
+
+      &:hover {
+        background: var(--pico-muted-border-color) !important;
+      }
+
+      &.active {
+        color: var(--pico-primary);
+      }
+    }
+  }
+
+  .menu-dropdown-heading {
+    padding: 0.45rem 1rem;
+    font-size: 0.85rem;
+    color: var(--pico-muted-color);
+    white-space: nowrap;
+  }
+
+  .menu-dropdown-label {
+    padding: 0.35rem 1rem 0.1rem;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--pico-muted-color);
+  }
+
+  .menu-dropdown-divider {
+    height: 1px;
+    margin: 0.3rem 0;
+    background: var(--pico-muted-border-color);
+  }
+}

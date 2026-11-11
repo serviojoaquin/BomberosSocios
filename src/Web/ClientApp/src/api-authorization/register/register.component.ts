@@ -33,7 +33,7 @@ export class RegisterComponent {
       await firstValueFrom(this.authService.register(this.email, this.password));
       await this.router.navigate(['/login']);
     } catch {
-      this.error = 'Registration failed. Please try again.';
+      this.error = 'auth.registrationFailed';
       this.cdr.detectChanges();
     }
   }

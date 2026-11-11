@@ -1,15 +1,40 @@
 <header class="app-header">
-  <button type="button" class="icon-btn app-header-menu" aria-label="Open menu" (click)="menuToggle.emit()">
+  <button type="button" class="icon-btn app-header-menu" [attr.aria-label]="'layout.openMenu' | translate" (click)="menuToggle.emit()">
     <lucide-icon name="menu" [size]="22" [strokeWidth]="2" />
   </button>
   <div class="app-header-spacer"></div>
-  @if (currentUser$ | async; as user) {
-    <span class="app-header-user">{{ user.userName }}</span>
-    <a href="#" (click)="logout($event)">Log out</a>
-  } @else {
-    <a [routerLink]="['/login']">Log in</a>
-    <a [routerLink]="['/register']">Register</a>
-  }
-  <span aria-hidden="true" class="nav-separator"></span>
   <app-theme-toggle />
+  <details #accountMenu class="menu-dropdown">
+    <summary class="avatar" [attr.aria-label]="'layout.account' | translate" [attr.title]="currentUser()?.userName ?? ('layout.account' | translate)">
+      @if (initials()) {
+        {{ initials() }}
+      } @else {
+        <lucide-icon name="user" [size]="18" [strokeWidth]="2" />
+      }
+    </summary>
+    <ul>
+      @if (currentUser(); as user) {
+        <li class="menu-dropdown-heading">{{ user.userName }}</li>
+        <li class="menu-dropdown-divider"></li>
+      }
+      <li class="menu-dropdown-label">{{ 'layout.language' | translate }}</li>
+      @for (lang of language.languages; track lang.code) {
+        <li>
+          <button type="button" [class.active]="language.current() === lang.code" (click)="setLanguage(lang.code)">
+            {{ lang.label }}
+            @if (language.current() === lang.code) {
+              <lucide-icon name="check" [size]="16" [strokeWidth]="2" />
+            }
+          </button>
+        </li>
+      }
+      <li class="menu-dropdown-divider"></li>
+      @if (currentUser()) {
+        <li><button type="button" (click)="logout()">{{ 'layout.logOut' | translate }}</button></li>
+      } @else {
+        <li><button type="button" (click)="navigate('/login')">{{ 'layout.logIn' | translate }}</button></li>
+        <li><button type="button" (click)="navigate('/register')">{{ 'layout.register' | translate }}</button></li>
+      }
+    </ul>
+  </details>
 </header>

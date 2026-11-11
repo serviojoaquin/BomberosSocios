@@ -2,8 +2,11 @@ import { APP_ID, NgModule, inject, provideAppInitializer } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { LucideAngularModule, Sun, Moon, Laptop, Plus, Settings, MoreHorizontal, Pencil, Trash2, House, Hash, CloudSun, ListChecks, Tags, Box, Shield, Users, Layers, Menu, PanelLeftClose, PanelLeftOpen, LockKeyhole } from 'lucide-angular';
+import { LucideAngularModule, Sun, Moon, Laptop, Plus, Settings, MoreHorizontal, Pencil, Trash2, House, Hash, CloudSun, ListChecks, Tags, Box, Shield, Users, Layers, Menu, PanelLeftClose, PanelLeftOpen, LockKeyhole, User, Check } from 'lucide-angular';
 import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { TranslatePipe, provideTranslateService } from '@ngx-translate/core';
+import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
+import { LanguageService, DEFAULT_LANGUAGE } from './i18n/language.service';
 
 import { AppComponent } from './app.component';
 import { SidebarComponent } from './layout/sidebar.component';
@@ -61,7 +64,8 @@ export function getApiBaseUrl(): string {
         BrowserModule,
         FormsModule,
         ReactiveFormsModule,
-        LucideAngularModule.pick({ Sun, Moon, Laptop, Plus, Settings, MoreHorizontal, Pencil, Trash2, House, Hash, CloudSun, ListChecks, Tags, Box, Shield, Users, Layers, Menu, PanelLeftClose, PanelLeftOpen, LockKeyhole }),
+        LucideAngularModule.pick({ Sun, Moon, Laptop, Plus, Settings, MoreHorizontal, Pencil, Trash2, House, Hash, CloudSun, ListChecks, Tags, Box, Shield, Users, Layers, Menu, PanelLeftClose, PanelLeftOpen, LockKeyhole, User, Check }),
+        TranslatePipe,
         RouterModule.forRoot([
             { path: '', component: HomeComponent, pathMatch: 'full' },
             { path: 'counter', component: CounterComponent },
@@ -77,8 +81,14 @@ export function getApiBaseUrl(): string {
     ],
     providers: [
         { provide: APP_ID, useValue: 'ng-cli-universal' },
+        provideTranslateService({
+            loader: provideTranslateHttpLoader({ prefix: './assets/i18n/', suffix: '.json' }),
+            fallbackLang: DEFAULT_LANGUAGE,
+            lang: DEFAULT_LANGUAGE
+        }),
         { provide: HTTP_INTERCEPTORS, useClass: AuthorizeInterceptor, multi: true },
         { provide: API_BASE_URL, useFactory: getApiBaseUrl, deps: [] },
+        provideAppInitializer(() => inject(LanguageService).init()),
         provideAppInitializer(() => inject(AuthService).initialize()),
         provideHttpClient(withInterceptorsFromDi())
     ]
