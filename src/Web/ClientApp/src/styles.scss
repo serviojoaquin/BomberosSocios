@@ -1367,3 +1367,7 @@ table.access-control {
     background: var(--pico-muted-border-color);
   }
 }
+
+.app-header > .menu-dropdown {
+  margin-inline-end: 0.75rem;
+}
