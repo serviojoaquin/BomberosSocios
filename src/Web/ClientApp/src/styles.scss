@@ -798,22 +798,22 @@ div.dt-container table.dataTable.hover > tbody > tr.selected > *:hover {
 }
 
 div.dt-container {
-  --dt-row-selected: 117, 64, 191;
-  --dt-row-selected-text: 255, 255, 255;
-  --dt-row-selected-link: 255, 255, 255;
+  --dt_background-selected: 117, 64, 191;
+  --dt_color-selected: 255, 255, 255;
+  --dt_link_color-selected: 255, 255, 255;
 }
 
 :root[data-theme="dark"] div.dt-container,
 :root:not([data-theme="light"]) div.dt-container {
   @media (prefers-color-scheme: dark) {
-    --dt-row-selected: 155, 110, 233;
-    --dt-row-selected-text: 24, 24, 32;
-    --dt-row-selected-link: 24, 24, 32;
+    --dt_background-selected: 155, 110, 233;
+    --dt_color-selected: 24, 24, 32;
+    --dt_link_color-selected: 24, 24, 32;
   }
 }
 
 :root[data-theme="dark"] div.dt-container {
-  --dt-row-selected: 155, 110, 233;
-  --dt-row-selected-text: 24, 24, 32;
-  --dt-row-selected-link: 24, 24, 32;
+  --dt_background-selected: 155, 110, 233;
+  --dt_color-selected: 24, 24, 32;
+  --dt_link_color-selected: 24, 24, 32;
 }
