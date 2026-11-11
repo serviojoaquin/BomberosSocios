@@ -146,7 +146,11 @@ export class DataTableComponent implements AfterViewInit, OnChanges, OnDestroy {
 
   private isResponsiveHidden(index: number): boolean {
     const column = this.table.column(index);
-    return typeof column.responsiveHidden === 'function' ? column.responsiveHidden() === false : false;
+    try {
+      return typeof column.responsiveHidden === 'function' ? column.responsiveHidden() === false : false;
+    } catch {
+      return false;
+    }
   }
 
   selectedRows(): any[] {

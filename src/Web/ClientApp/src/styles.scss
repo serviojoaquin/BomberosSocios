@@ -797,14 +797,17 @@ div.dt-container table.dataTable.hover > tbody > tr.selected > *:hover {
   }
 }
 
-div.dt-container {
+:root {
   --dt_background-selected: 117, 64, 191;
   --dt_color-selected: 255, 255, 255;
   --dt_link_color-selected: 255, 255, 255;
+  --dt-row_background-selected: var(--dt_background-selected);
+  --dt-row-text_color-selected: var(--dt_color-selected);
+  --dt-row-link_color-selected: var(--dt_link_color-selected);
 }
 
-:root[data-theme="dark"] div.dt-container,
-:root:not([data-theme="light"]) div.dt-container {
+:root[data-theme="dark"],
+:root:not([data-theme="light"]) {
   @media (prefers-color-scheme: dark) {
     --dt_background-selected: 155, 110, 233;
     --dt_color-selected: 24, 24, 32;
@@ -812,7 +815,7 @@ div.dt-container {
   }
 }
 
-:root[data-theme="dark"] div.dt-container {
+:root[data-theme="dark"] {
   --dt_background-selected: 155, 110, 233;
   --dt_color-selected: 24, 24, 32;
   --dt_link_color-selected: 24, 24, 32;
