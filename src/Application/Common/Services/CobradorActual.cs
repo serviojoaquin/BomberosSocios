@@ -6,6 +6,8 @@ public class CobradorActual : ICobradorActual
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
+    public const int SinCobrador = -1;
+
     private int? _cobradorId;
     private bool _resuelto;
 
@@ -36,7 +38,7 @@ public class CobradorActual : ICobradorActual
         _cobradorId = await _context.Cobradores
             .Where(c => c.UsuarioId == _user.Id)
             .Select(c => (int?)c.Id)
-            .FirstOrDefaultAsync(cancellationToken);
+            .FirstOrDefaultAsync(cancellationToken) ?? SinCobrador;
 
         return _cobradorId;
     }
