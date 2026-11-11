@@ -683,7 +683,8 @@ dialog article form > footer {
   background: transparent;
   border: none;
 
-  button {
+  button,
+  button[type] {
     width: auto;
     margin-bottom: 0;
   }

@@ -1,6 +1,6 @@
 import { Component, Inject, InjectionToken, Input, OnChanges, OnDestroy, Optional, signal } from '@angular/core';
-import { AbstractControl } from '@angular/forms';
-import { Subscription } from 'rxjs';
+import { AbstractControl, FormGroupDirective } from '@angular/forms';
+import { ControlStateWatcher } from './form-state';
 
 export type FieldErrorMessages = Record<string, (error: any) => string>;
 
@@ -17,18 +17,6 @@ const DEFAULT_MESSAGES: FieldErrorMessages = {
   serverError: e => String(e)
 };
 
-export function controlErrorMessage(control: AbstractControl | null, defaults: FieldErrorMessages, overrides: Record<string, string>): string | null {
-  if (!control || !control.invalid || !(control.dirty || control.touched) || !control.errors) {
-    return null;
-  }
-  const [key, value] = Object.entries(control.errors)[0];
-  if (overrides[key]) {
-    return overrides[key];
-  }
-  const render = defaults[key];
-  return render ? render(value) : 'Invalid value.';
-}
-
 @Component({
   standalone: false,
   selector: 'app-field-error',
@@ -41,23 +29,35 @@ export class FieldErrorComponent implements OnChanges, OnDestroy {
   readonly message = signal<string | null>(null);
 
   private readonly defaults: FieldErrorMessages;
-  private subscription: Subscription | null = null;
+  private readonly watcher = new ControlStateWatcher(() => this.refresh());
 
-  constructor(@Optional() @Inject(FIELD_ERROR_MESSAGES) overrides: FieldErrorMessages | null) {
+  constructor(
+    @Optional() @Inject(FIELD_ERROR_MESSAGES) overrides: FieldErrorMessages | null,
+    @Optional() private readonly form: FormGroupDirective | null
+  ) {
     this.defaults = { ...DEFAULT_MESSAGES, ...(overrides ?? {}) };
   }
 
   ngOnChanges(): void {
-    this.subscription?.unsubscribe();
-    this.subscription = this.control?.events.subscribe(() => this.refresh()) ?? null;
-    this.refresh();
+    this.watcher.watch(this.control, this.form);
   }
 
   ngOnDestroy(): void {
-    this.subscription?.unsubscribe();
+    this.watcher.dispose();
   }
 
   private refresh(): void {
-    this.message.set(controlErrorMessage(this.control, this.defaults, this.messages));
+    const control = this.control;
+    if (!this.watcher.shouldShow(control) || !control?.errors) {
+      this.message.set(null);
+      return;
+    }
+    const [key, value] = Object.entries(control.errors)[0];
+    if (this.messages[key]) {
+      this.message.set(this.messages[key]);
+      return;
+    }
+    const render = this.defaults[key];
+    this.message.set(render ? render(value) : 'Invalid value.');
   }
 }
