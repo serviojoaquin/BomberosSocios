@@ -1,11 +1,11 @@
-<hgroup>
-  <h1>Users</h1>
-  <p>Registered users and their roles. Changes apply the next time the user logs in.</p>
-</hgroup>
-
-<div class="todo-panel-header">
-  <h2>All users</h2>
-  <button class="icon-btn" aria-label="New user" (click)="showNewUserDialog()"><lucide-icon name="plus" [size]="20" [strokeWidth]="2" /></button>
+<div class="page-header">
+  <hgroup>
+    <h1>Users</h1>
+    <p>Registered users and their roles. Changes apply the next time the user logs in.</p>
+  </hgroup>
+  <div class="toolbar">
+    <button class="icon-btn" aria-label="New user" title="New user" (click)="showNewUserDialog()"><lucide-icon name="plus" [size]="20" [strokeWidth]="2" /></button>
+  </div>
 </div>
 
 <app-data-table

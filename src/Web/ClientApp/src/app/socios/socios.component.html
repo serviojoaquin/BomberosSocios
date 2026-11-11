@@ -1,20 +1,18 @@
-<hgroup>
-  <h1>Socios</h1>
-  <p>Padrón de socios de la asociación.</p>
-</hgroup>
-
-<div class="todo-panel-header">
-  <h2>Todos los socios</h2>
+<div class="page-header">
+  <hgroup>
+    <h1>Socios</h1>
+    <p>Padrón de socios de la asociación.</p>
+  </hgroup>
   <div class="toolbar">
     @if (puedeEditar) {
       <button type="button" class="icon-btn" [disabled]="seleccionados().length === 0" (click)="showAfiliacionDialog()"
-        [attr.title]="'Datos de afiliación de ' + seleccionados().length + ' socio(s)'" aria-label="Datos de afiliación">
+        title="Datos de afiliación" aria-label="Datos de afiliación">
         <lucide-icon name="users" [size]="20" [strokeWidth]="2" />
         <span class="badge">{{ seleccionados().length }}</span>
       </button>
     }
     @if (puedeCrear) {
-      <button class="icon-btn" aria-label="Nuevo socio" (click)="showNewDialog()"><lucide-icon name="plus" [size]="20" [strokeWidth]="2" /></button>
+      <button class="icon-btn" aria-label="Nuevo socio" title="Nuevo socio" (click)="showNewDialog()"><lucide-icon name="plus" [size]="20" [strokeWidth]="2" /></button>
     }
   </div>
 </div>
@@ -29,10 +27,12 @@
   (action)="onAction($event)"
   (selectionChange)="onSelectionChange($event)" />
 
+<app-year-selector (selected)="onYearSelected($event)" />
+
 <dialog #editDialog>
   <article class="dialog-wide">
     <header>
-      <h3>{{ isEditing ? 'Modificar socio' : 'Nuevo socio' }}</h3>
+      <h3>{{ soloLectura() ? 'Ver socio' : (isEditing ? 'Modificar socio' : 'Nuevo socio') }}</h3>
       <button rel="prev" aria-label="Cerrar" (click)="closeEditDialog()"></button>
     </header>
     <form [formGroup]="form" (ngSubmit)="save()" novalidate>
@@ -111,8 +111,10 @@
         <small class="field-error">{{ message }}</small>
       }
       <footer>
-        <button type="button" class="secondary" (click)="closeEditDialog()">Cancelar</button>
-        <button type="submit">{{ isEditing ? 'Guardar' : 'Crear' }}</button>
+        <button type="button" class="secondary" (click)="closeEditDialog()">{{ soloLectura() ? 'Volver' : 'Cancelar' }}</button>
+        @if (!soloLectura()) {
+          <button type="submit">{{ isEditing ? 'Guardar' : 'Crear' }}</button>
+        }
       </footer>
     </form>
   </article>
@@ -160,19 +162,5 @@
         <button type="submit">Aplicar</button>
       </footer>
     </form>
-  </article>
-</dialog>
-
-<dialog #deleteDialog>
-  <article>
-    <header>
-      <h3>¿Eliminar a {{ selected()?.nombre }}?</h3>
-      <button rel="prev" aria-label="Cerrar" (click)="closeDeleteDialog()"></button>
-    </header>
-    <p>Esta acción no se puede deshacer.</p>
-    <footer>
-      <button class="secondary" (click)="closeDeleteDialog()">Cancelar</button>
-      <button class="danger" (click)="deleteConfirmed()">Eliminar</button>
-    </footer>
   </article>
 </dialog>

@@ -1,0 +1,20 @@
+<div class="page-header">
+  <hgroup>
+    <h1>Cajas</h1>
+    <p>Cajas de cobro con QR de Mercado Pago.</p>
+  </hgroup>
+  <div class="toolbar">
+    @if (!existeCajaPrincipal() && puedeAdministrar) {
+      <button type="button" class="outline" style="width: auto;" title="Crear Caja Principal" (click)="crearCajaPrincipal()">
+        Caja Principal <lucide-icon name="plus" [size]="18" [strokeWidth]="2" />
+      </button>
+    }
+  </div>
+</div>
+
+<app-data-table
+  [columns]="columns"
+  [data]="cajas()"
+  [actions]="actions"
+  exportTitle="Cajas"
+  (action)="onAction($event)" />

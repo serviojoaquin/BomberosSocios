@@ -16,5 +16,9 @@ public class Cobrador : BaseAuditableEntity
 
     public string? UsuarioId { get; set; }
 
+    public IList<Socio> Socios { get; private set; } = new List<Socio>();
+
+    public IList<Cuota> CuotasCobradas { get; private set; } = new List<Cuota>();
+
     public string NombreCompleto => $"{Apellido}, {Nombre}";
 }

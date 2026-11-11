@@ -34,6 +34,11 @@ public class DeleteSocioCommandHandler : IRequestHandler<DeleteSocioCommand>
             Result.Failure(["El socio pertenece a otro cobrador."]).ThrowIfFailed();
         }
 
+        if (await _context.Cuotas.AnyAsync(c => c.SocioId == entity.Id, cancellationToken))
+        {
+            Result.Failure(["El socio tiene cuotas generadas y no se puede eliminar; marcalo como pasivo."]).ThrowIfFailed();
+        }
+
         _context.Socios.Remove(entity);
 
         await _context.SaveChangesAsync(cancellationToken);

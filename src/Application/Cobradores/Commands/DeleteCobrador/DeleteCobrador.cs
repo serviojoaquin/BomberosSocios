@@ -2,6 +2,7 @@ using BaseApp.Application.Common.Interfaces;
 using BaseApp.Application.Common.Models;
 using BaseApp.Application.Common.Security;
 using BaseApp.Domain.Enums;
+using BaseApp.Domain.Events;
 
 namespace BaseApp.Application.Cobradores.Commands.DeleteCobrador;
 
@@ -30,7 +31,13 @@ public class DeleteCobradorCommandHandler : IRequestHandler<DeleteCobradorComman
             Result.Failure(["El cobrador tiene socios asignados y no se puede eliminar."]).ThrowIfFailed();
         }
 
+        if (await _context.Cuotas.AnyAsync(c => c.CobradorId == entity.Id, cancellationToken))
+        {
+            Result.Failure(["El cobrador tiene cuotas cobradas y no se puede eliminar."]).ThrowIfFailed();
+        }
+
         _context.Cobradores.Remove(entity);
+        entity.AddDomainEvent(new EliminarCajaEvent(entity.Id));
 
         await _context.SaveChangesAsync(cancellationToken);
     }

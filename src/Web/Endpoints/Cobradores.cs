@@ -3,6 +3,9 @@ using BaseApp.Application.Cobradores.Commands.CreateCobrador;
 using BaseApp.Application.Cobradores.Commands.DeleteCobrador;
 using BaseApp.Application.Cobradores.Commands.UpdateCobrador;
 using BaseApp.Application.Cobradores.Queries.GetCobradores;
+using BaseApp.Application.Cobradores.Queries.GetCobradorCuotasCobradas;
+using BaseApp.Application.Cobradores.Queries.GetCobradorCuotasImpagas;
+using BaseApp.Application.Cuotas.Queries.GetCuotasImprimir;
 using BaseApp.Domain.Enums;
 using Microsoft.AspNetCore.Http.HttpResults;
 
@@ -19,6 +22,36 @@ public class Cobradores : IEndpointGroup
         groupBuilder.MapPut(UpdateCobrador, "{id}").RequirePermission(Permissions.EditarCobradores);
         groupBuilder.MapDelete(DeleteCobrador, "{id}").RequirePermission(Permissions.EliminarCobradores);
         groupBuilder.MapPost(CrearUsuarioCobrador, "{id}/usuario").RequirePermission(Permissions.ManageSecurity);
+        groupBuilder.MapGet(GetCuotasCobradas, "{id}/cuotas-cobradas/{year}").RequirePermission(Permissions.VerCobradores);
+        groupBuilder.MapGet(GetCuotasImpagas, "{id}/cuotas-impagas/{year}").RequirePermission(Permissions.VerCobradores);
+        groupBuilder.MapGet(GetCuotasImprimir, "{id}/cuotas-imprimir/{year}").RequirePermission(Permissions.VerCuotas);
+    }
+
+    [EndpointSummary("Cuotas cobradas por un cobrador")]
+    [EndpointDescription("Devuelve por socio los importes cobrados en cada mes del año, opcionalmente acotado por rango de fecha de cobro.")]
+    public static async Task<Ok<CobradorCuotasCobradasVm>> GetCuotasCobradas(ISender sender, int id, short year, DateTime? fechaDeCobroFrom = null, DateTime? fechaDeCobroTo = null)
+    {
+        var vm = await sender.Send(new GetCobradorCuotasCobradasQuery(id, year, fechaDeCobroFrom, fechaDeCobroTo));
+
+        return TypedResults.Ok(vm);
+    }
+
+    [EndpointSummary("Cuotas impagas de los socios de un cobrador")]
+    [EndpointDescription("Devuelve por socio los importes impagos de cada mes del año.")]
+    public static async Task<Ok<CobradorCuotasImpagasVm>> GetCuotasImpagas(ISender sender, int id, short year)
+    {
+        var vm = await sender.Send(new GetCobradorCuotasImpagasQuery(id, year));
+
+        return TypedResults.Ok(vm);
+    }
+
+    [EndpointSummary("Cuotas de los socios de un cobrador para imprimir")]
+    [EndpointDescription("Devuelve hasta 50 socios activos del cobrador con sus 12 cuotas del año para armar los reportes imprimibles.")]
+    public static async Task<Ok<CuotasImprimirVm>> GetCuotasImprimir(ISender sender, int id, int year, bool regenerar = false)
+    {
+        var vm = await sender.Send(new GetCuotasImprimirQuery(id, null, year, regenerar));
+
+        return TypedResults.Ok(vm);
     }
 
     [EndpointSummary("Listar cobradores")]

@@ -13,13 +13,16 @@ public class CategoriaDto
 
     public IReadOnlyList<decimal> Importes { get; init; } = [];
 
-    public static CategoriaDto From(Categoria categoria)
+    public int SociosCount { get; init; }
+
+    public static CategoriaDto From(Categoria categoria, int sociosCount)
     {
         return new CategoriaDto
         {
             Id = categoria.Id,
             Descripcion = categoria.Descripcion,
-            Importes = categoria.GetImportes()
+            Importes = categoria.GetImportes(),
+            SociosCount = sociosCount
         };
     }
 }
@@ -46,11 +49,12 @@ public class GetCategoriasQueryHandler : IRequestHandler<GetCategoriasQuery, Cat
         var categorias = await _context.Categorias
             .AsNoTracking()
             .OrderBy(c => c.Descripcion)
+            .Select(c => new { Categoria = c, SociosCount = c.Socios.Count })
             .ToListAsync(cancellationToken);
 
         return new CategoriasVm
         {
-            Categorias = categorias.Select(CategoriaDto.From).ToList()
+            Categorias = categorias.Select(c => CategoriaDto.From(c.Categoria, c.SociosCount)).ToList()
         };
     }
 }

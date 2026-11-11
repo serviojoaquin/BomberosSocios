@@ -1,13 +1,13 @@
-<hgroup>
-  <h1>Cobradores</h1>
-  <p>Personas que cobran las cuotas de los socios.</p>
-</hgroup>
-
-<div class="todo-panel-header">
-  <h2>Todos los cobradores</h2>
-  @if (puedeCrear) {
-    <button class="icon-btn" aria-label="Nuevo cobrador" (click)="showNewDialog()"><lucide-icon name="plus" [size]="20" [strokeWidth]="2" /></button>
-  }
+<div class="page-header">
+  <hgroup>
+    <h1>Cobradores</h1>
+    <p>Personas que cobran las cuotas de los socios.</p>
+  </hgroup>
+  <div class="toolbar">
+    @if (puedeCrear) {
+      <button class="icon-btn" aria-label="Nuevo cobrador" title="Nuevo cobrador" (click)="showNewDialog()"><lucide-icon name="plus" [size]="20" [strokeWidth]="2" /></button>
+    }
+  </div>
 </div>
 
 <app-data-table
@@ -17,10 +17,12 @@
   exportTitle="Cobradores"
   (action)="onAction($event)" />
 
+<app-year-selector (selected)="onYearSelected($event)" />
+
 <dialog #editDialog>
   <article class="dialog-wide">
     <header>
-      <h3>{{ isEditing ? 'Modificar cobrador' : 'Nuevo cobrador' }}</h3>
+      <h3>{{ soloLectura() ? 'Ver cobrador' : (isEditing ? 'Modificar cobrador' : 'Nuevo cobrador') }}</h3>
       <button rel="prev" aria-label="Cerrar" (click)="closeEditDialog()"></button>
     </header>
     <form [formGroup]="form" (ngSubmit)="save()" novalidate>
@@ -60,8 +62,10 @@
         <small class="field-error">{{ message }}</small>
       }
       <footer>
-        <button type="button" class="secondary" (click)="closeEditDialog()">Cancelar</button>
-        <button type="submit">{{ isEditing ? 'Guardar' : 'Crear' }}</button>
+        <button type="button" class="secondary" (click)="closeEditDialog()">{{ soloLectura() ? 'Volver' : 'Cancelar' }}</button>
+        @if (!soloLectura()) {
+          <button type="submit">{{ isEditing ? 'Guardar' : 'Crear' }}</button>
+        }
       </footer>
     </form>
   </article>

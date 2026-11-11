@@ -40,11 +40,14 @@ public class SocioDto
 
     public string Estado { get; init; } = string.Empty;
 
+    public int CuotasCount { get; init; }
+
     private class Mapping : Profile
     {
         public Mapping()
         {
             CreateMap<Socio, SocioDto>()
+                .ForMember(d => d.CuotasCount, opt => opt.MapFrom(s => s.Cuotas.Count))
                 .ForMember(d => d.Categoria, opt => opt.MapFrom(s => s.Categoria.Descripcion))
                 .ForMember(d => d.Cobrador, opt => opt.MapFrom(s => s.Cobrador.Apellido + ", " + s.Cobrador.Nombre))
                 .ForMember(d => d.Pasivo, opt => opt.MapFrom(s => s.Estado == SocioEstado.Pasivo))
@@ -62,6 +65,8 @@ public class SociosVm
     public IReadOnlyCollection<LookupDto> Cobradores { get; init; } = [];
 
     public int? CobradorActualId { get; init; }
+
+    public int InitialYear { get; init; }
 }
 
 [Authorize(Permissions = Permissions.VerSocios)]
@@ -72,12 +77,14 @@ public class GetSociosQueryHandler : IRequestHandler<GetSociosQuery, SociosVm>
     private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
     private readonly ICobradorActual _cobradorActual;
+    private readonly TimeProvider _timeProvider;
 
-    public GetSociosQueryHandler(IApplicationDbContext context, IMapper mapper, ICobradorActual cobradorActual)
+    public GetSociosQueryHandler(IApplicationDbContext context, IMapper mapper, ICobradorActual cobradorActual, TimeProvider timeProvider)
     {
         _context = context;
         _mapper = mapper;
         _cobradorActual = cobradorActual;
+        _timeProvider = timeProvider;
     }
 
     public async Task<SociosVm> Handle(GetSociosQuery request, CancellationToken cancellationToken)
@@ -108,7 +115,8 @@ public class GetSociosQueryHandler : IRequestHandler<GetSociosQuery, SociosVm>
                 .OrderBy(c => c.Apellido).ThenBy(c => c.Nombre)
                 .Select(c => new LookupDto { Id = c.Id, Title = c.Apellido + ", " + c.Nombre })
                 .ToListAsync(cancellationToken),
-            CobradorActualId = propio
+            CobradorActualId = propio,
+            InitialYear = _timeProvider.GetLocalNow().Year
         };
     }
 }

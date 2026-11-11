@@ -22,7 +22,8 @@ export class CategoriasComponent implements OnInit {
   categorias = signal<CategoriaDto[] | null>(null);
   puedeCrear = this.authService.hasPermission(Permissions.CrearCategorias);
   columns: DataTableColumn[] = [
-    { data: 'descripcion', title: 'Descripción' },
+    { data: 'id', title: 'Id', className: 'dt-body-right' },
+    { data: 'descripcion', title: 'Descripcion' },
     ...MESES_CORTOS.map((mes, i) => ({
       data: `importes.${i}`,
       title: mes,
@@ -32,7 +33,7 @@ export class CategoriasComponent implements OnInit {
   ];
   actions: DataTableAction[] = [
     ...(this.authService.hasPermission(Permissions.EditarCategorias) ? [{ name: 'edit', label: 'Modificar', icon: 'pencil' } as DataTableAction] : []),
-    ...(this.authService.hasPermission(Permissions.EliminarCategorias) ? [{ name: 'delete', label: 'Eliminar', icon: 'trash' } as DataTableAction] : [])
+    ...(this.authService.hasPermission(Permissions.EliminarCategorias) ? [{ name: 'delete', label: 'Eliminar', icon: 'trash', disabled: (row: CategoriaDto) => row.sociosCount > 0 } as DataTableAction] : [])
   ];
   form = this.fb.group({
     id: [0],

@@ -2,6 +2,9 @@
 using BaseApp.Infrastructure.Data;
 using BaseApp.Infrastructure.Data.Interceptors;
 using BaseApp.Infrastructure.Identity;
+using BaseApp.Infrastructure.Files;
+using BaseApp.Infrastructure.Reports;
+using BaseApp.Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -56,5 +59,11 @@ public static class DependencyInjection
 
         builder.Services.AddSingleton(TimeProvider.System);
         builder.Services.AddTransient<IIdentityService, IdentityService>();
+        builder.Services.AddTransient<IReportService, ReportService>();
+        builder.Services.AddTransient<IPdfFileBuilder, PdfFileBuilder>();
+        builder.Services.AddTransient<IMercadoPagoService, MercadoPagoService>();
+        builder.Services.AddMercadoPagoServices();
+
+        QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
     }
 }

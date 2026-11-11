@@ -1,10 +1,14 @@
 import { Component, OnInit, ViewChild, ElementRef, signal } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
-import { SociosClient, SocioDto, LookupDto, CreateSocioCommand, UpdateSocioCommand, UpdateDatosAfiliacionCommand } from '../web-api-client';
+import { Router } from '@angular/router';
+import { SociosClient, SocioDto, LookupDto, CreateSocioCommand, UpdateSocioCommand, UpdateDatosAfiliacionCommand, CuotasClient, ReportesClient, GenerarCuotasCommand, BonificarCuotasViejasCommand } from '../web-api-client';
 import { AuthService } from 'src/api-authorization/auth.service';
 import { Permissions } from '../permissions';
 import { DataTableAction, DataTableActionEvent, DataTableColumn, DataTableComponent } from '../shared/data-table/data-table.component';
 import { FormErrorsService } from '../shared/forms/form-errors.service';
+import { YearSelectorComponent, YearSelectorResult } from '../shared/year-selector/year-selector.component';
+import { ToastService } from '../shared/toast/toast.service';
+import { saveBlob } from '../shared/download';
 
 @Component({
   standalone: false,
@@ -13,16 +17,19 @@ import { FormErrorsService } from '../shared/forms/form-errors.service';
 })
 export class SociosComponent implements OnInit {
   @ViewChild('editDialog') editDialogRef: ElementRef<HTMLDialogElement>;
-  @ViewChild('deleteDialog') deleteDialogRef: ElementRef<HTMLDialogElement>;
   @ViewChild('afiliacionDialog') afiliacionDialogRef: ElementRef<HTMLDialogElement>;
   @ViewChild(DataTableComponent) table: DataTableComponent;
+  @ViewChild(YearSelectorComponent) yearSelector: YearSelectorComponent;
 
   socios = signal<SocioDto[] | null>(null);
   categorias = signal<LookupDto[]>([]);
   cobradores = signal<LookupDto[]>([]);
   seleccionados = signal<SocioDto[]>([]);
+  initialYear = new Date().getFullYear();
   puedeCrear = this.authService.hasPermission(Permissions.CrearSocios);
   puedeEditar = this.authService.hasPermission(Permissions.EditarSocios);
+  puedeAdministrarCuotas = this.authService.hasPermission(Permissions.AdministrarCuotas);
+  soloLectura = signal(false);
   columns: DataTableColumn[] = [
     { data: 'id', title: 'N°', className: 'dt-body-right' },
     { data: 'nombre', title: 'Nombre' },
@@ -34,8 +41,23 @@ export class SociosComponent implements OnInit {
     { data: 'estado', title: 'Estado' }
   ];
   actions: DataTableAction[] = [
-    ...(this.puedeEditar ? [{ name: 'edit', label: 'Modificar', icon: 'pencil' } as DataTableAction] : []),
-    ...(this.authService.hasPermission(Permissions.EliminarSocios) ? [{ name: 'delete', label: 'Eliminar', icon: 'trash' } as DataTableAction] : [])
+    {
+      name: 'cuotas',
+      label: 'Cuotas',
+      icon: 'tasks',
+      visible: (row: SocioDto) => row.cuotasCount > 0 || (!row.pasivo && this.puedeAdministrarCuotas),
+      menu: (row: SocioDto) => [
+        { name: 'ver', label: 'Ver', visible: () => row.cuotasCount > 0 },
+        { name: 'd1', label: '', divider: true, visible: () => row.cuotasCount > 0 },
+        { name: 'generar', label: 'Generar', visible: () => !row.pasivo && this.puedeAdministrarCuotas },
+        { name: 'bonificar', label: 'Bonificar año pasado', visible: () => row.cuotasCount > 0 && this.puedeAdministrarCuotas },
+        { name: 'd2', label: '', divider: true, visible: () => row.cuotasCount > 0 && this.puedeAdministrarCuotas },
+        { name: 'descargar', label: 'Descargar reporte cuotas', visible: () => !row.pasivo && row.cuotasCount > 0 }
+      ]
+    },
+    this.puedeEditar
+      ? { name: 'edit', label: 'Editar', icon: 'pencil' }
+      : { name: 'ver-socio', label: 'Ver', icon: 'eye' }
   ];
   form = this.fb.group({
     id: [0],
@@ -60,11 +82,17 @@ export class SociosComponent implements OnInit {
   generalErrors = signal<string[]>([]);
   selected = signal<SocioDto | null>(null);
 
+  private pendingYearAction: ((result: YearSelectorResult) => void) | null = null;
+
   constructor(
     private client: SociosClient,
+    private cuotasClient: CuotasClient,
+    private reportesClient: ReportesClient,
     private authService: AuthService,
     private fb: FormBuilder,
-    private formErrors: FormErrorsService
+    private formErrors: FormErrorsService,
+    private router: Router,
+    private toast: ToastService
   ) {}
 
   get isEditing(): boolean {
@@ -80,20 +108,98 @@ export class SociosComponent implements OnInit {
       next: result => {
         this.categorias.set(result.categorias);
         this.cobradores.set(result.cobradores);
+        this.initialYear = result.initialYear;
         this.socios.set(result.socios);
         this.seleccionados.set([]);
       },
-      error: error => console.error(error)
+      error: () => this.toast.show('Error al cargar los socios.', 'danger')
     });
   }
 
   onAction(event: DataTableActionEvent): void {
     const socio = event.row as SocioDto;
-    if (event.action === 'edit') {
-      this.showEditDialog(socio);
-    } else if (event.action === 'delete') {
-      this.confirmDelete(socio);
+    switch (event.action) {
+      case 'ver':
+        this.router.navigate(['/socios', socio.id, 'cuotas']);
+        break;
+      case 'generar':
+        this.openYearSelectorForGenerate(socio);
+        break;
+      case 'bonificar':
+        this.confirmSetOldCuotasAsBonificadas(socio);
+        break;
+      case 'descargar':
+        this.openYearSelectorForDownload(socio);
+        break;
+      case 'edit':
+        this.showEditDialog(socio, false);
+        break;
+      case 'ver-socio':
+        this.showEditDialog(socio, true);
+        break;
     }
+  }
+
+  onYearSelected(result: YearSelectorResult): void {
+    const action = this.pendingYearAction;
+    this.pendingYearAction = null;
+    action?.(result);
+  }
+
+  openYearSelectorForGenerate(socio: SocioDto): void {
+    this.pendingYearAction = result => this.generateCuotas(socio, result.year, result.checkValue);
+    this.yearSelector.open({
+      initialYear: this.initialYear,
+      maxYears: socio.cuotasCount > 0 ? 2 : 1,
+      showCheck: true,
+      checkText: 'Forzar regeneración'
+    });
+  }
+
+  generateCuotas(socio: SocioDto, year: number, forceRecreate: boolean): void {
+    this.cuotasClient.generate({ socioId: socio.id, year, forceRecreate } as GenerarCuotasCommand).subscribe({
+      next: count => {
+        if (count === 0) {
+          this.toast.show('No hay mas cuotas que generar.');
+        } else {
+          this.toast.show(`Se han generado ${count} cuotas.`, 'success');
+          this.cargar();
+        }
+      },
+      error: () => this.toast.show('Se produjo un error al generar las cuotas.', 'danger', 10000)
+    });
+  }
+
+  confirmSetOldCuotasAsBonificadas(socio: SocioDto): void {
+    if (!confirm(`¿Está seguro que desea bonificar todas las cuotas del socio ${socio.nombre}?`)) {
+      return;
+    }
+    this.cuotasClient.setOldCuotasAsBonificada({ socioId: socio.id } as BonificarCuotasViejasCommand).subscribe({
+      next: result => {
+        if (result.cuotasModifiedCount === 0) {
+          this.toast.show('No hay mas cuotas para bonificar.');
+        } else {
+          this.toast.show(`Se han bonificado ${result.cuotasModifiedCount} cuotas.`, 'success');
+        }
+      },
+      error: error => this.toast.show(this.formErrors.firstMessage(error, 'Se produjo un error al bonificar las cuotas.'), 'danger')
+    });
+  }
+
+  openYearSelectorForDownload(socio: SocioDto): void {
+    this.pendingYearAction = result => {
+      this.reportesClient.getReporteCuotasSocio(socio.id, result.year).subscribe({
+        next: file => {
+          if (!file.data || file.data.size === 0) {
+            this.toast.show('Reporte no generado. Por favor, genérelo.', 'warning', 3000);
+          } else {
+            saveBlob(file.data, file.fileName ?? `CuotasSocio_${socio.id}_Ano_${result.year}.pdf`);
+          }
+        },
+        error: () => this.toast.show('Error desconocido al descargar el reporte de cuotas socio.', 'danger')
+      });
+    };
+    this.yearSelector.open({ initialYear: this.initialYear });
   }
 
   onSelectionChange(rows: any[]): void {
@@ -116,10 +222,10 @@ export class SociosComponent implements OnInit {
       email: '',
       web: '',
       pasivo: false
-    });
+    }, false);
   }
 
-  showEditDialog(socio: SocioDto): void {
+  showEditDialog(socio: SocioDto, soloLectura: boolean): void {
     this.openEditor({
       id: socio.id,
       nombre: socio.nombre,
@@ -134,7 +240,7 @@ export class SociosComponent implements OnInit {
       email: socio.email ?? '',
       web: socio.web ?? '',
       pasivo: socio.pasivo
-    });
+    }, soloLectura);
   }
 
   closeEditDialog(): void {
@@ -143,6 +249,9 @@ export class SociosComponent implements OnInit {
   }
 
   save(): void {
+    if (this.soloLectura()) {
+      return;
+    }
     this.form.markAllAsTouched();
     if (this.form.invalid) {
       return;
@@ -178,36 +287,21 @@ export class SociosComponent implements OnInit {
         this.closeAfiliacionDialog();
         this.cargar();
       },
-      error: error => this.generalErrors.set(this.formErrors.apply(error, this.afiliacionForm).general)
-    });
-  }
-
-  confirmDelete(socio: SocioDto): void {
-    this.selected.set(socio);
-    this.deleteDialogRef.nativeElement.showModal();
-  }
-
-  closeDeleteDialog(): void {
-    this.deleteDialogRef.nativeElement.close();
-    this.selected.set(null);
-  }
-
-  deleteConfirmed(): void {
-    const id = this.selected()!.id;
-    this.client.deleteSocio(id).subscribe({
-      next: () => {
-        this.socios.update(ss => ss!.filter(s => s.id !== id));
-        this.closeDeleteDialog();
-      },
       error: error => {
-        this.closeDeleteDialog();
-        alert(this.formErrors.firstMessage(error, 'No se pudo eliminar el socio.'));
+        this.generalErrors.set(this.formErrors.apply(error, this.afiliacionForm).general);
+        this.toast.show('Se produjo un error al actualizar los socios.', 'danger');
       }
     });
   }
 
-  private openEditor(value: any): void {
+  private openEditor(value: any, soloLectura: boolean): void {
+    this.soloLectura.set(soloLectura);
     this.form.reset(value);
+    if (soloLectura) {
+      this.form.disable();
+    } else {
+      this.form.enable();
+    }
     this.generalErrors.set([]);
     this.editDialogRef.nativeElement.showModal();
     setTimeout(() => document.getElementById('nombre')?.focus(), 50);

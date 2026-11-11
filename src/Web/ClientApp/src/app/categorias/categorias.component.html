@@ -1,13 +1,13 @@
-<hgroup>
-  <h1>Categorías</h1>
-  <p>Categorías de socios y el importe de la cuota de cada mes.</p>
-</hgroup>
-
-<div class="todo-panel-header">
-  <h2>Todas las categorías</h2>
-  @if (puedeCrear) {
-    <button class="icon-btn" aria-label="Nueva categoría" (click)="showNewDialog()"><lucide-icon name="plus" [size]="20" [strokeWidth]="2" /></button>
-  }
+<div class="page-header">
+  <hgroup>
+    <h1>Categorías</h1>
+    <p>Categorías de socios y el importe de la cuota de cada mes.</p>
+  </hgroup>
+  <div class="toolbar">
+    @if (puedeCrear) {
+      <button class="icon-btn" aria-label="Nueva categoría" title="Nueva categoría" (click)="showNewDialog()"><lucide-icon name="plus" [size]="20" [strokeWidth]="2" /></button>
+    }
+  </div>
 </div>
 
 <app-data-table

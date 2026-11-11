@@ -1,0 +1,14 @@
+<div class="page-header">
+  <hgroup>
+    <h1>Suscripciones</h1>
+    <p>Suscripciones de Mercado Pago.</p>
+  </hgroup>
+  <div class="toolbar">
+    <a class="icon-btn" routerLink="/suscripciones/registrar" title="Agregar nuevo" aria-label="Agregar nuevo"><lucide-icon name="plus" [size]="20" [strokeWidth]="2" /></a>
+  </div>
+</div>
+
+<app-data-table
+  [columns]="columns"
+  [data]="suscripciones()"
+  exportTitle="Suscripciones" />

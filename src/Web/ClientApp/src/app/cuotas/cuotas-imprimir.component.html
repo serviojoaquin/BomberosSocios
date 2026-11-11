@@ -1,0 +1,55 @@
+@if (vm && vm.socios.length > 0) {
+  <button type="button" (click)="download()" [disabled]="generando()" [attr.aria-busy]="generando() ? 'true' : null" style="width: auto;">Generar PDF</button>
+}
+@if (vm && vm.socios.length === 0) {
+  <p>No hay reportes pendientes de generar.</p>
+}
+@for (socio of vm?.socios ?? []; track socio.id) {
+  <div class="imprimir-socio htmlToPdfContainer" [attr.data-socio-id]="socio.id">
+    <h2>Asociación de bomberos voluntarios de bragado</h2>
+    <div class="imprimir-fila">
+      <div class="col-6 centrado"><b>Personeria Jurídica N°: </b><span class="mayus">4326</span></div>
+      <div class="col-6 centrado"><b>CUIT: </b><span>30-66444242-2</span></div>
+      <div class="col-4"><b>Número de socio: </b><span class="spanSocioId">{{ socio.id }}</span></div>
+      <div class="col-8"><b>Nombre y/o razon social: </b><span class="mayus">{{ socio.nombre }}</span></div>
+      <div class="col-4"><b>Cobrador: </b><span class="mayus">{{ socio.cobrador }}</span></div>
+      <div class="col-4"><b>Fecha de ingreso: </b><span>{{ formatFecha(socio.fechaAfiliacion) }}</span></div>
+      <div class="col-4"><b>Teléfono: </b><span>{{ socio.telefono }}</span></div>
+      <div class="col-6"><b>Domicilio: </b><span class="mayus">{{ socio.domicilio }}</span></div>
+      <div class="col-6">
+        @if (socio.domicilioDeCobro) {
+          <b>Domicilio de cobro: </b><span class="mayus">{{ socio.domicilioDeCobro }}</span>
+        }
+      </div>
+    </div>
+    <div class="imprimir-cuotas">
+      @for (cuota of socio.cuotas; track cuota.mes) {
+        <div class="cuota-card">
+          <div class="cuota-cabecera">
+            <img src="assets/logo_100.png" width="80" alt="" />
+            <div style="text-align: right;">
+              <p class="cuota-label">N° de socio</p>
+              <p class="cuota-valor">{{ socio.id }}</p>
+            </div>
+          </div>
+          <p class="cuota-label">Nombre y/o razon social</p>
+          <p class="cuota-valor">{{ socio.nombre }}</p>
+          <p class="cuota-label">Mes y año</p>
+          <p class="cuota-valor">{{ cuota.mesDescripcion }} de {{ cuota.ano }}</p>
+          <div class="fila">
+            <div>
+              <p class="cuota-label">Importe</p>
+              <p class="cuota-valor">{{ formatImporte(cuota.importe) }}</p>
+            </div>
+            <div style="text-align: right;">
+              <p class="cuota-label">Estado</p>
+              <p class="cuota-valor estado-{{ cuota.cuotaEstadoId }}">{{ cuota.cuotaEstado }}</p>
+            </div>
+          </div>
+          <p class="cuota-label">Cobrador</p>
+          <p class="cuota-valor">{{ socio.cobrador }}</p>
+        </div>
+      }
+    </div>
+  </div>
+}

@@ -1,0 +1,104 @@
+<hgroup>
+  <h1>Estadísticas</h1>
+  <p>Cantidad de socios activos por cobrador según las cuotas cobradas del año.</p>
+</hgroup>
+
+<div class="titulo-con-select">
+  <h4>Cobranza Cuota Socios</h4>
+  <select [value]="year" (change)="onYearChange($any($event.target).value)">
+    @for (y of years; track y) {
+      <option [value]="y">{{ y }}</option>
+    }
+  </select>
+  <button type="button" class="outline" style="width: auto; margin: 0;" (click)="invertirColumnas()">Invertir Columnas</button>
+</div>
+
+@if (!cargado()) {
+  <span aria-busy="true">Cargando&hellip;</span>
+} @else if (filas().length === 0) {
+  <p>No hay cobranzas realizadas el año {{ year }}</p>
+} @else if (!invertir()) {
+  <div class="estadisticas-tabla">
+    <table #tabla class="display cell-border compact" style="width: 100%">
+      <thead>
+        <tr>
+          <th rowspan="2" class="limit">Cobrador</th>
+          @for (n of buckets; track n) {
+            <th colspan="2" class="limit centrado">{{ n }}</th>
+          }
+          <th rowspan="2" class="dt-body-right">Total</th>
+        </tr>
+        <tr>
+          @for (n of buckets; track n) {
+            <th class="centrado">#</th>
+            <th class="limit centrado">%</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (fila of filas(); track fila.cobradorId) {
+          <tr>
+            <td class="limit">{{ fila.cobradorApellido }}, {{ fila.cobradorNombre }}</td>
+            @for (n of buckets; track n) {
+              <td class="dt-body-right">{{ fila.cant[n] }}</td>
+              <td class="limit dt-body-right">{{ porcI(fila, n) }}</td>
+            }
+            <td class="dt-body-right"><b>{{ fila.total }}</b></td>
+          </tr>
+        }
+      </tbody>
+      <tfoot>
+        <tr>
+          <th class="limit">Total</th>
+          @for (n of buckets; track n) {
+            <th class="dt-body-right">{{ totalRow()?.cant?.[n] }}</th>
+            <th class="limit"></th>
+          }
+          <th class="dt-body-right">{{ totalRow()?.total }}</th>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+} @else {
+  <div class="estadisticas-tabla">
+    <table #tabla class="display cell-border compact" style="width: 100%">
+      <thead>
+        <tr>
+          <th rowspan="2" class="limit">Cuotas Cobradas</th>
+          @for (fila of filas(); track fila.cobradorId) {
+            <th colspan="2" class="limit centrado">{{ fila.cobradorApellido }}, {{ fila.cobradorNombre }}</th>
+          }
+          <th rowspan="2" class="dt-body-right">Total</th>
+        </tr>
+        <tr>
+          @for (fila of filas(); track fila.cobradorId) {
+            <th class="centrado">#</th>
+            <th class="limit centrado">G</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (n of buckets; track n) {
+          <tr>
+            <td class="limit centrado">{{ n }}</td>
+            @for (fila of filas(); track fila.cobradorId) {
+              <td class="dt-body-right">{{ fila.cant[n] }}</td>
+              <td class="limit dt-body-right">{{ porcI(fila, n) }}</td>
+            }
+            <td class="dt-body-right">{{ totalRow()?.cant?.[n] }}</td>
+          </tr>
+        }
+      </tbody>
+      <tfoot>
+        <tr>
+          <th class="limit">Total</th>
+          @for (fila of filas(); track fila.cobradorId) {
+            <th class="dt-body-right">{{ fila.total }}</th>
+            <th class="limit dt-body-right">{{ percent(fila.porcGT) }}</th>
+          }
+          <th class="dt-body-right">{{ totalRow()?.total }}</th>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+}

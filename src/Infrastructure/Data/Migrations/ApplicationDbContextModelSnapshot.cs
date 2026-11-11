@@ -162,6 +162,103 @@ namespace BaseApp.Infrastructure.Data.Migrations
                     b.ToTable("Cobradores");
                 });
 
+            modelBuilder.Entity("BaseApp.Domain.Entities.Cuota", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<short>("Ano")
+                        .HasColumnType("smallint");
+
+                    b.Property<int?>("CobradorId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Estado")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("FechaBonificada")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("FechaDeCobro")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("Importe")
+                        .HasPrecision(8, 2)
+                        .HasColumnType("decimal(8,2)");
+
+                    b.Property<DateTimeOffset>("LastModified")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Mes")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SocioId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CobradorId");
+
+                    b.HasIndex("Ano", "Estado");
+
+                    b.HasIndex("SocioId", "Ano", "Mes")
+                        .IsUnique();
+
+                    b.ToTable("Cuotas");
+                });
+
+            modelBuilder.Entity("BaseApp.Domain.Entities.Reporte", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<short?>("Ano")
+                        .HasColumnType("smallint");
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("EntidadId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset>("LastModified")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte[]>("ReporteRaw")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<int>("ReporteTipo")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReporteTipo", "EntidadId", "Ano");
+
+                    b.ToTable("Reportes");
+                });
+
             modelBuilder.Entity("BaseApp.Domain.Entities.SampleItem", b =>
                 {
                     b.Property<int>("Id")
@@ -550,16 +647,34 @@ namespace BaseApp.Infrastructure.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("BaseApp.Domain.Entities.Cuota", b =>
+                {
+                    b.HasOne("BaseApp.Domain.Entities.Cobrador", "Cobrador")
+                        .WithMany("CuotasCobradas")
+                        .HasForeignKey("CobradorId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("BaseApp.Domain.Entities.Socio", "Socio")
+                        .WithMany("Cuotas")
+                        .HasForeignKey("SocioId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Cobrador");
+
+                    b.Navigation("Socio");
+                });
+
             modelBuilder.Entity("BaseApp.Domain.Entities.Socio", b =>
                 {
                     b.HasOne("BaseApp.Domain.Entities.Categoria", "Categoria")
-                        .WithMany()
+                        .WithMany("Socios")
                         .HasForeignKey("CategoriaId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("BaseApp.Domain.Entities.Cobrador", "Cobrador")
-                        .WithMany()
+                        .WithMany("Socios")
                         .HasForeignKey("CobradorId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -652,6 +767,23 @@ namespace BaseApp.Infrastructure.Data.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("BaseApp.Domain.Entities.Categoria", b =>
+                {
+                    b.Navigation("Socios");
+                });
+
+            modelBuilder.Entity("BaseApp.Domain.Entities.Cobrador", b =>
+                {
+                    b.Navigation("CuotasCobradas");
+
+                    b.Navigation("Socios");
+                });
+
+            modelBuilder.Entity("BaseApp.Domain.Entities.Socio", b =>
+                {
+                    b.Navigation("Cuotas");
                 });
 
             modelBuilder.Entity("BaseApp.Domain.Entities.TodoList", b =>

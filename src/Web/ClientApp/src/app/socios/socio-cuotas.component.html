@@ -1,0 +1,55 @@
+@if (!vm()) {
+  <span aria-busy="true">Cargando&hellip;</span>
+} @else {
+  <h4>Socio N° {{ vm()!.socioId }}: {{ vm()!.nombre }}</h4>
+
+  <div class="titulo-con-select">
+    <h4>Listado de cuotas</h4>
+    <select [value]="year()" (change)="onYearChange($any($event.target).value)">
+      @for (y of years(); track y) {
+        <option [value]="y">{{ y }}</option>
+      }
+    </select>
+  </div>
+
+  @if (cuotasImpagas().length > 0 && vm()!.activo && puedePagar) {
+    <div class="cuotas-toolbar">
+      <div class="btn-group">
+        @for (c of cuotasImpagas(); track c.id; let i = $index) {
+          <button type="button" class="secondary" [class.active]="cantCuotasToPaid() === i + 1" (click)="cantCuotasToPaid.set(i + 1)">{{ i + 1 }}</button>
+        }
+      </div>
+      <button type="button" class="outline" (click)="bonificarCuotas()">Bonificar</button>
+      <button type="button" (click)="pagarCuotas()">Pagar</button>
+      @if (puedePagarMercadoPago) {
+        <button type="button" class="secondary" [disabled]="!qrImageUrl()" (click)="generarCodigoQr()">Generar QR</button>
+      }
+    </div>
+  }
+
+  <app-data-table
+    [columns]="columns"
+    [data]="allCuotasByYear()"
+    [actions]="actions"
+    [options]="tableOptions"
+    (action)="onAction($event)" />
+
+  <div class="volver">
+    <button type="button" class="secondary" (click)="goToSocios()">Volver</button>
+  </div>
+}
+
+<dialog #qrDialog>
+  <article>
+    <header>
+      <h3>Código QR</h3>
+      <button rel="prev" aria-label="Cerrar" (click)="closeQr()"></button>
+    </header>
+    @if (qrImageUrl()) {
+      <img [src]="qrImageUrl()" alt="Código QR" width="300" style="display: block; margin: 0 auto;" />
+    }
+    <footer>
+      <button type="button" class="secondary" (click)="closeQr()">Cerrar</button>
+    </footer>
+  </article>
+</dialog>

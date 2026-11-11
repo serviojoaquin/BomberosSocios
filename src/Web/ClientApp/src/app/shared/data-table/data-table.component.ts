@@ -1,5 +1,5 @@
 import {
-  Component, ElementRef, EventEmitter, Inject, Input, OnChanges, OnDestroy, Output,
+  Component, ElementRef, EventEmitter, Inject, InjectionToken, Input, OnChanges, OnDestroy, Optional, Output,
   PLATFORM_ID, SimpleChanges, ViewChild, AfterViewInit
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
@@ -17,6 +17,8 @@ pdfMake.addVirtualFileSystem?.(pdfFonts);
 DataTable.Buttons.pdfMake(pdfMake);
 DataTable.Buttons.jszip(JSZip);
 
+export const DATA_TABLE_LANGUAGE = new InjectionToken<Record<string, any>>('DATA_TABLE_LANGUAGE');
+
 export interface DataTableColumn {
   data: string;
   title: string;
@@ -27,11 +29,20 @@ export interface DataTableColumn {
   searchable?: boolean;
 }
 
+export interface DataTableMenuItem {
+  name: string;
+  label: string;
+  visible?: (row: any) => boolean;
+  divider?: boolean;
+}
+
 export interface DataTableAction {
   name: string;
   label: string;
-  icon: 'pencil' | 'trash' | 'eye' | 'key' | 'ban' | 'circle-check';
+  icon: 'pencil' | 'trash' | 'eye' | 'key' | 'ban' | 'circle-check' | 'tasks' | 'user-plus';
   visible?: (row: any) => boolean;
+  disabled?: (row: any) => boolean;
+  menu?: DataTableMenuItem[] | ((row: any) => DataTableMenuItem[]);
 }
 
 export interface DataTableActionEvent {
@@ -45,7 +56,9 @@ const ICONS: Record<DataTableAction['icon'], string> = {
   eye: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg>',
   key: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4"/><path d="m21 2-9.6 9.6"/><circle cx="7.5" cy="15.5" r="5.5"/></svg>',
   ban: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></svg>',
-  'circle-check': '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>'
+  'circle-check': '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>',
+  tasks: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></svg>',
+  'user-plus': '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 21a8 8 0 0 1 13.292-6"/><circle cx="10" cy="8" r="5"/><path d="M19 16v6"/><path d="M22 19h-6"/></svg>'
 };
 
 function escapeHtml(value: unknown): string {
@@ -69,6 +82,7 @@ export class DataTableComponent implements AfterViewInit, OnChanges, OnDestroy {
   @Input() rowId = 'id';
   @Input() selectable = false;
   @Input() columnFilters = false;
+  @Input() footer = false;
 
   @Output() action = new EventEmitter<DataTableActionEvent>();
   @Output() selectionChange = new EventEmitter<any[]>();
@@ -77,14 +91,22 @@ export class DataTableComponent implements AfterViewInit, OnChanges, OnDestroy {
   private responsiveEnabled = false;
   private readonly isBrowser: boolean;
   private readonly onClick = (event: Event) => this.handleClick(event);
+  private readonly onToggle = (event: Event) => this.handleToggle(event);
+  private readonly onDocumentClick = (event: Event) => this.closeMenus(event);
 
-  constructor(@Inject(PLATFORM_ID) platformId: Object) {
+  constructor(
+    @Inject(PLATFORM_ID) platformId: Object,
+    @Optional() @Inject(DATA_TABLE_LANGUAGE) private language: Record<string, any> | null
+  ) {
     this.isBrowser = isPlatformBrowser(platformId);
   }
 
   ngAfterViewInit(): void {
     if (!this.isBrowser) {
       return;
+    }
+    if (this.footer) {
+      this.addFooter();
     }
     this.table = new DataTable(this.tableRef.nativeElement, this.buildOptions());
     this.tableRef.nativeElement.closest('.dt-container')
@@ -98,12 +120,25 @@ export class DataTableComponent implements AfterViewInit, OnChanges, OnDestroy {
         input.addEventListener('pointerdown', unlock);
       });
     this.tableRef.nativeElement.addEventListener('click', this.onClick);
+    this.tableRef.nativeElement.addEventListener('toggle', this.onToggle, true);
+    document.addEventListener('click', this.onDocumentClick);
     if (this.selectable) {
       this.table.on('select deselect', () => this.selectionChange.emit(this.selectedRows()));
     }
     if (this.columnFilters) {
       this.addColumnFilters();
     }
+  }
+
+  private addFooter(): void {
+    const tfoot = document.createElement('tfoot');
+    const row = document.createElement('tr');
+    const total = this.columns.length + (this.actions.length ? 1 : 0);
+    for (let i = 0; i < total; i++) {
+      row.appendChild(document.createElement('th'));
+    }
+    tfoot.appendChild(row);
+    this.tableRef.nativeElement.appendChild(tfoot);
   }
 
   private addColumnFilters(): void {
@@ -176,6 +211,8 @@ export class DataTableComponent implements AfterViewInit, OnChanges, OnDestroy {
 
   ngOnDestroy(): void {
     this.tableRef?.nativeElement.removeEventListener('click', this.onClick);
+    this.tableRef?.nativeElement.removeEventListener('toggle', this.onToggle, true);
+    document.removeEventListener('click', this.onDocumentClick);
     this.table?.destroy();
     this.table = null;
   }
@@ -214,9 +251,10 @@ export class DataTableComponent implements AfterViewInit, OnChanges, OnDestroy {
       select: this.selectable ? { style: 'multi', selector: 'td:not(.dt-actions)' } : false,
       orderClasses: false,
       order: [[0, 'asc']],
+      language: { search: '', searchPlaceholder: 'Search…', ...(this.language ?? {}) },
       layout: {
-        topStart: 'buttons',
-        topEnd: 'search',
+        topStart: 'search',
+        topEnd: 'buttons',
         bottomStart: 'info',
         bottomEnd: 'paging'
       },
@@ -236,7 +274,18 @@ export class DataTableComponent implements AfterViewInit, OnChanges, OnDestroy {
   private renderActions(row: any): string {
     return this.actions
       .filter(a => a.visible ? a.visible(row) : true)
-      .map(a => `<button type="button" class="icon-btn dt-action" data-action="${a.name}" aria-label="${escapeHtml(a.label)}" title="${escapeHtml(a.label)}">${ICONS[a.icon]}</button>`)
+      .map(a => {
+        const disabled = a.disabled?.(row) ? ' disabled' : '';
+        if (a.menu) {
+          const items = (typeof a.menu === 'function' ? a.menu(row) : a.menu)
+            .filter(i => i.visible ? i.visible(row) : true);
+          const list = items
+            .map(i => i.divider ? '<li class="dt-row-menu-divider"></li>' : `<li><button type="button" class="dt-action" data-action="${i.name}">${escapeHtml(i.label)}</button></li>`)
+            .join('');
+          return `<details class="dt-row-menu"><summary class="icon-btn" title="${escapeHtml(a.label)}" aria-label="${escapeHtml(a.label)}">${ICONS[a.icon]}</summary><ul>${list}</ul></details>`;
+        }
+        return `<button type="button" class="icon-btn dt-action" data-action="${a.name}" aria-label="${escapeHtml(a.label)}" title="${escapeHtml(a.label)}"${disabled}>${ICONS[a.icon]}</button>`;
+      })
       .join('');
   }
 
@@ -247,8 +296,34 @@ export class DataTableComponent implements AfterViewInit, OnChanges, OnDestroy {
     }
     const tr = button.closest('tr');
     const row = tr ? this.table.row(tr).data() : null;
+    button.closest<HTMLDetailsElement>('details.dt-row-menu')?.removeAttribute('open');
     if (row) {
       this.action.emit({ action: button.dataset['action']!, row });
     }
+  }
+
+  private handleToggle(event: Event): void {
+    const details = event.target as HTMLDetailsElement;
+    if (!details.classList.contains('dt-row-menu')) {
+      return;
+    }
+    if (details.open) {
+      this.tableRef.nativeElement.querySelectorAll<HTMLDetailsElement>('details.dt-row-menu[open]')
+        .forEach(other => {
+          if (other !== details) {
+            other.removeAttribute('open');
+          }
+        });
+    }
+    const anyOpen = !!this.tableRef.nativeElement.querySelector('details.dt-row-menu[open]');
+    this.tableRef.nativeElement.closest<HTMLElement>('.dt-layout-table')?.classList.toggle('dt-menu-open', anyOpen);
+  }
+
+  private closeMenus(event: Event): void {
+    if ((event.target as HTMLElement).closest('details.dt-row-menu')) {
+      return;
+    }
+    this.tableRef?.nativeElement.querySelectorAll<HTMLDetailsElement>('details.dt-row-menu[open]')
+      .forEach(details => details.removeAttribute('open'));
   }
 }

@@ -17,6 +17,13 @@ export enum Permissions {
   CrearSocios = 16384,
   EditarSocios = 32768,
   EliminarSocios = 65536,
+  VerCuotas = 131072,
+  PagarCuotas = 262144,
+  AdministrarCuotas = 524288,
+  VerEstadisticas = 1048576,
+  PagosMercadoPago = 2097152,
+  VerMercadoPago = 4194304,
+  AdministrarMercadoPago = 8388608,
   All = -1
 }
 

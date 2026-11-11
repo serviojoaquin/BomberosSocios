@@ -37,12 +37,12 @@ public class SocioConfiguration : IEntityTypeConfiguration<Socio>
         builder.HasIndex(s => s.NumeroDocumento);
 
         builder.HasOne(s => s.Categoria)
-            .WithMany()
+            .WithMany(c => c.Socios)
             .HasForeignKey(s => s.CategoriaId)
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(s => s.Cobrador)
-            .WithMany()
+            .WithMany(c => c.Socios)
             .HasForeignKey(s => s.CobradorId)
             .OnDelete(DeleteBehavior.Restrict);
     }

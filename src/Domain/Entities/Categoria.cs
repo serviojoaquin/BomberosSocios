@@ -4,6 +4,8 @@ public class Categoria : BaseAuditableEntity
 {
     public const int MesesPorAno = 12;
 
+    public IList<Socio> Socios { get; private set; } = new List<Socio>();
+
     public string Descripcion { get; set; } = string.Empty;
 
     public decimal Importe1 { get; set; }

@@ -3,6 +3,7 @@ using BaseApp.Application.Common.Models;
 using BaseApp.Application.Common.Security;
 using BaseApp.Domain.Constants;
 using BaseApp.Domain.Enums;
+using BaseApp.Domain.Events;
 
 namespace BaseApp.Application.Cobradores.Commands.CrearUsuarioCobrador;
 
@@ -78,6 +79,7 @@ public class CrearUsuarioCobradorCommandHandler : IRequestHandler<CrearUsuarioCo
         rolesResult.ThrowIfFailed();
 
         cobrador.UsuarioId = usuarioId;
+        cobrador.AddDomainEvent(new CrearCajaEvent($"Caja de {cobrador.Nombre} {cobrador.Apellido}", $"CajaCobrador{cobrador.Id}"));
 
         await _context.SaveChangesAsync(cancellationToken);
 

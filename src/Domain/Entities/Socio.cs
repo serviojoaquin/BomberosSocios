@@ -29,4 +29,6 @@ public class Socio : BaseAuditableEntity
     public string? Web { get; set; }
 
     public SocioEstado Estado { get; set; } = SocioEstado.Activo;
+
+    public IList<Cuota> Cuotas { get; private set; } = new List<Cuota>();
 }

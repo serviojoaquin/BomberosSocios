@@ -23,6 +23,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
 
     public DbSet<Socio> Socios => Set<Socio>();
 
+    public DbSet<Cuota> Cuotas => Set<Cuota>();
+
+    public DbSet<Reporte> Reportes => Set<Reporte>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

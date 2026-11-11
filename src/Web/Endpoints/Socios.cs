@@ -3,6 +3,7 @@ using BaseApp.Application.Socios.Commands.DeleteSocio;
 using BaseApp.Application.Socios.Commands.UpdateDatosAfiliacion;
 using BaseApp.Application.Socios.Commands.UpdateSocio;
 using BaseApp.Application.Socios.Queries.GetSocios;
+using BaseApp.Application.Cuotas.Queries.GetCuotasImprimir;
 using BaseApp.Domain.Enums;
 using Microsoft.AspNetCore.Http.HttpResults;
 
@@ -19,6 +20,16 @@ public class Socios : IEndpointGroup
         groupBuilder.MapPut(UpdateSocio, "{id}").RequirePermission(Permissions.EditarSocios);
         groupBuilder.MapPut(UpdateDatosAfiliacion, "afiliacion").RequirePermission(Permissions.EditarSocios);
         groupBuilder.MapDelete(DeleteSocio, "{id}").RequirePermission(Permissions.EliminarSocios);
+        groupBuilder.MapGet(GetSocioCuotasImprimir, "{id}/cuotas-imprimir/{year}").RequirePermission(Permissions.VerCuotas);
+    }
+
+    [EndpointSummary("Cuotas de un socio para imprimir")]
+    [EndpointDescription("Devuelve el socio con sus 12 cuotas del año para armar el reporte imprimible.")]
+    public static async Task<Ok<CuotasImprimirVm>> GetSocioCuotasImprimir(ISender sender, int id, int year, bool regenerar = false)
+    {
+        var vm = await sender.Send(new GetCuotasImprimirQuery(null, id, year, regenerar));
+
+        return TypedResults.Ok(vm);
     }
 
     [EndpointSummary("Listar socios")]

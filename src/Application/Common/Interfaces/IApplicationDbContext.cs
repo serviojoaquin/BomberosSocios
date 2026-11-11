@@ -16,5 +16,9 @@ public interface IApplicationDbContext
 
     DbSet<Socio> Socios { get; }
 
+    DbSet<Cuota> Cuotas { get; }
+
+    DbSet<Reporte> Reportes { get; }
+
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

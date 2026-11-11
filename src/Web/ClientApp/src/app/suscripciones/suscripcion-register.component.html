@@ -1,0 +1,18 @@
+<hgroup>
+  <h1>Suscribite</h1>
+  <p>Elegí tu categoría y suscribite al pago mensual con Mercado Pago.</p>
+</hgroup>
+
+@if (!vm()) {
+  <span aria-busy="true">Cargando&hellip;</span>
+} @else {
+  <div class="planes">
+    @for (categoria of vm()!.categorias; track categoria.id; let last = $last) {
+      <article>
+        <header><h4>{{ categoria.descripcion }}</h4></header>
+        <h1>{{ formatImporte(categoria.importe) }}<small>/mes</small></h1>
+        <button type="button" [class.outline]="!last" (click)="crearSuscripcion(categoria)">Suscribite!</button>
+      </article>
+    }
+  </div>
+}

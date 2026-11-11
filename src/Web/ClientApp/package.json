@@ -33,6 +33,7 @@
     "datatables.net-responsive-dt": "^4.1.1",
     "datatables.net-select": "^4.1.1",
     "datatables.net-select-dt": "^4.1.1",
+    "html-to-image": "^1.11.13",
     "jszip": "^3.10.2",
     "lucide-angular": "^1.0.0",
     "pdfmake": "^0.3.14",

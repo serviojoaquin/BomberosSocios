@@ -19,7 +19,7 @@ public enum Permissions
     [Description("Delete sample items")]
     DeleteSampleItems = 8,
 
-    [Description("Manage security")]
+    [Description("Administrar seguridad")]
     ManageSecurity = 16,
 
     [Description("Ver categorías")]
@@ -57,6 +57,27 @@ public enum Permissions
 
     [Description("Eliminar socios")]
     EliminarSocios = 65536,
+
+    [Description("Ver cuotas")]
+    VerCuotas = 131072,
+
+    [Description("Pagar cuotas")]
+    PagarCuotas = 262144,
+
+    [Description("Administrar cuotas")]
+    AdministrarCuotas = 524288,
+
+    [Description("Ver estadísticas")]
+    VerEstadisticas = 1048576,
+
+    [Description("Pagos Mercado Pago")]
+    PagosMercadoPago = 2097152,
+
+    [Description("Ver Mercado Pago")]
+    VerMercadoPago = 4194304,
+
+    [Description("Administrar Mercado Pago")]
+    AdministrarMercadoPago = 8388608,
 
     All = ~None
 }
