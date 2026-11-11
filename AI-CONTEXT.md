@@ -214,3 +214,19 @@ Cuando trabajes sobre esta solución:
 4. Todo cambio de permisos implica tocar `Permissions.cs` y `permissions.ts` a la vez.
 5. Compilá y probá con usuario administrador y con usuario sin permisos antes de reportar algo como terminado.
 6. No hagas `git commit`, `git push` ni `azd up` sin que te lo pidan explícitamente.
+
+## 10. BomberosSocios (esta app)
+
+**Autor:** Javier Gardella
+
+BomberosSocios nace de BaseApp (remoto `upstream` → `serviojoaquin/BaseApp`) y es la migración 1:1 de la app vieja `SociosApp2` (AKS). Regla de oro: copiar el comportamiento de la vieja, no inventar pantallas ni cambiar usabilidad; está en producción.
+
+- **Dominio** (`src/Domain/Entities`): Categoria (12 importes), Cobrador (+UsuarioId), Socio (Estado Activo/Pasivo), Cuota (Ano, Mes, Importe, Estado, CobradorId), Reporte (PDF de cuotas por socio y año).
+- **Permisos propios** en `Permissions.cs` / `permissions.ts`: Ver/Crear/Editar/Eliminar de Categorías, Cobradores y Socios; VerCuotas, PagarCuotas, AdministrarCuotas, VerEstadisticas, PagosMercadoPago, VerMercadoPago, AdministrarMercadoPago. Rol `Cobrador` (semilla) ve solo sus socios (`ICobradorActual`).
+- **Pantallas**: Socios y Cobradores con menú "Cuotas" por fila (ver, generar por año con regeneración, bonificar año pasado, descargar reporte); cuotas del socio (pagar N, bonificar, QR, marcar impaga); cobradas/impagas por cobrador; impresión de cuotas (`socios/:id/imprimircuotas/:año/:regenerar`); Estadísticas (cobranza por cobrador, `/dashboard`); Cajas, Suscripciones y Control de acceso.
+- **Reportes PDF**: se generan en el servidor al crear cuotas (`ReportService`, QuestPDF, logo embebido) y se unen con PDFsharp para la descarga por cobrador.
+- **Mercado Pago**: proyecto `src/MercadoPagoExtension` copiado de la vieja; credenciales en la sección `MercadoPago` de `appsettings.json` (vacías en el repo, van en user secrets o en el entorno de Azure). Sin credenciales, Cajas lista vacío.
+- **Idiomas**: los textos de Bomberos están en `ClientApp/src/assets/i18n/bomberos/es.json` y `en.json`, aparte de los de BaseApp; el loader carga ambos. Las claves de BaseApp (`common.*`, `dataTable.*`, `validation.*`) se reutilizan. Las tarjetas impresas quedan en castellano a propósito.
+- **Base local**: `BomberosSociosDb` en LocalDB; usuarios semilla `administrator@localhost / Administrator1!` y `viewer@localhost / Viewer1!`.
+- **Deploy**: igual que BaseApp (`azd env new bomberos`, `azd env set AZURE_LOCATION brazilsouth`, `azd up`) en la suscripción propia. Pendiente: pasar los datos reales del SQL del AKS con script (el esquema cambió: estados como enum, usuarios Identity nuevos, reportes).
+- **Traer cambios de BaseApp**: `git fetch upstream && git merge upstream/master`; resolver conflictos quedándose con BaseApp en lo compartido (grilla, layout, i18n base) y con Bomberos en pantallas y estilos propios.
