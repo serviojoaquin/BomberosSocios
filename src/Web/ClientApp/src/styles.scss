@@ -761,7 +761,7 @@ div.dt-container table.dataTable.display > tbody > tr.selected > .sorting_3,
 div.dt-container table.dataTable.display > tbody > tr.odd.selected > .sorting_1,
 div.dt-container table.dataTable.display > tbody > tr.odd.selected > .sorting_2,
 div.dt-container table.dataTable.display > tbody > tr.odd.selected > .sorting_3 {
-  box-shadow: inset 0 0 0 9999px rgba(var(--dt-row_background-selected), 0.28);
+  box-shadow: inset 0 0 0 9999px var(--pico-primary-focus);
   color: inherit;
 }
 
@@ -773,10 +773,22 @@ div.dt-container table.dataTable.hover > tbody > tr.selected:hover > .sorting_3,
 div.dt-container table.dataTable.display > tbody > tr.selected:hover > .sorting_1,
 div.dt-container table.dataTable.display > tbody > tr.selected:hover > .sorting_2,
 div.dt-container table.dataTable.display > tbody > tr.selected:hover > .sorting_3 {
-  box-shadow: inset 0 0 0 9999px rgba(var(--dt-row_background-selected), 0.34);
+  box-shadow: inset 0 0 0 9999px var(--pico-primary-focus);
   color: inherit;
 }
 
 div.dt-container table.dataTable > tbody > tr.selected a {
   color: inherit;
+}
+
+// Hovered rows: same soft grey as the sidebar
+div.dt-container table.dataTable.hover > tbody > tr:not(.selected):hover > *,
+div.dt-container table.dataTable.display > tbody > tr:not(.selected):hover > *,
+div.dt-container table.dataTable.hover > tbody > tr:not(.selected):hover > .sorting_1,
+div.dt-container table.dataTable.hover > tbody > tr:not(.selected):hover > .sorting_2,
+div.dt-container table.dataTable.hover > tbody > tr:not(.selected):hover > .sorting_3,
+div.dt-container table.dataTable.display > tbody > tr:not(.selected):hover > .sorting_1,
+div.dt-container table.dataTable.display > tbody > tr:not(.selected):hover > .sorting_2,
+div.dt-container table.dataTable.display > tbody > tr:not(.selected):hover > .sorting_3 {
+  box-shadow: inset 0 0 0 9999px var(--pico-muted-border-color);
 }
