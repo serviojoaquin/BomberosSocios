@@ -749,3 +749,12 @@ div.dt-container {
   --dt_color-selected: 24, 24, 32;
   --dt_link_color-selected: 24, 24, 32;
 }
+
+div.dt-container div.dt-layout-table {
+  overflow-x: auto;
+}
+
+.app-header-menu {
+  margin: 0;
+  align-self: center;
+}
