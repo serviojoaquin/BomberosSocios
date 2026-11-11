@@ -1209,3 +1209,9 @@ table.access-control {
 .app-header > .menu-dropdown {
   margin-inline-end: 1.5rem;
 }
+
+.menu-dropdown > summary,
+.menu-dropdown[open] > summary {
+  margin: 0;
+  padding: 0;
+}
