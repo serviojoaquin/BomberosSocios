@@ -1,11 +1,11 @@
 <div class="page-header">
   <hgroup>
-    <h1>Sample items</h1>
-    <p>A sample entity with the full CRUD pattern to copy for new features.</p>
+    <h1>{{ 'sampleItems.title' | translate }}</h1>
+    <p>{{ 'sampleItems.description' | translate }}</p>
   </hgroup>
   <div class="toolbar">
     @if (canCreate) {
-      <button class="icon-btn" aria-label="New sample item" title="New sample item" (click)="showNewDialog()"><lucide-icon name="plus" [size]="20" [strokeWidth]="2" /></button>
+      <button class="icon-btn" [attr.aria-label]="'sampleItems.new' | translate" [attr.title]="'sampleItems.new' | translate" (click)="showNewDialog()"><lucide-icon name="plus" [size]="20" [strokeWidth]="2" /></button>
     }
   </div>
 </div>
@@ -14,29 +14,29 @@
   [columns]="columns"
   [data]="sampleItems()"
   [actions]="actions"
-  exportTitle="Sample items"
+  [exportTitle]="'sampleItems.title' | translate"
   (action)="onAction($event)" />
 
 <dialog #editDialog>
   <article>
     <header>
-      <h3>{{ isEditing ? 'Edit sample item' : 'New sample item' }}</h3>
-      <button rel="prev" aria-label="Close" (click)="closeEditDialog()"></button>
+      <h3>{{ (isEditing ? 'sampleItems.edit' : 'sampleItems.new') | translate }}</h3>
+      <button rel="prev" [attr.aria-label]="'common.close' | translate" (click)="closeEditDialog()"></button>
     </header>
     <form [formGroup]="form" (ngSubmit)="save()" novalidate>
-      <label for="description">Description</label>
+      <label for="description">{{ 'sampleItems.descriptionLabel' | translate }}</label>
       <input type="text" id="description" formControlName="description" [appInvalid]="form.get('description')"
-        placeholder="Sample item description&hellip;" maxlength="200" />
+        [placeholder]="'sampleItems.descriptionPlaceholder' | translate" maxlength="200" />
       <app-field-error [control]="form.get('description')" />
-      <label for="amount">Amount</label>
+      <label for="amount">{{ 'sampleItems.amount' | translate }}</label>
       <input type="number" id="amount" formControlName="amount" [appInvalid]="form.get('amount')" min="0" step="0.01" />
       <app-field-error [control]="form.get('amount')" />
       @for (message of generalErrors(); track message) {
         <small class="field-error">{{ message }}</small>
       }
       <footer>
-        <button type="button" class="secondary" (click)="closeEditDialog()">Cancel</button>
-        <button type="submit">{{ isEditing ? 'Update' : 'Create' }}</button>
+        <button type="button" class="secondary" (click)="closeEditDialog()">{{ 'common.cancel' | translate }}</button>
+        <button type="submit">{{ (isEditing ? 'common.update' : 'common.create') | translate }}</button>
       </footer>
     </form>
   </article>
@@ -45,13 +45,13 @@
 <dialog #deleteDialog>
   <article>
     <header>
-      <h3>Delete "{{ selected()?.description }}"?</h3>
-      <button rel="prev" aria-label="Close" (click)="closeDeleteDialog()"></button>
+      <h3>{{ 'common.deleteConfirm' | translate: { name: selected()?.description } }}</h3>
+      <button rel="prev" [attr.aria-label]="'common.close' | translate" (click)="closeDeleteDialog()"></button>
     </header>
-    <p>This action cannot be undone.</p>
+    <p>{{ 'common.cannotUndo' | translate }}</p>
     <footer>
-      <button class="secondary" (click)="closeDeleteDialog()">Cancel</button>
-      <button class="danger" (click)="deleteConfirmed()">Delete</button>
+      <button class="secondary" (click)="closeDeleteDialog()">{{ 'common.cancel' | translate }}</button>
+      <button class="danger" (click)="deleteConfirmed()">{{ 'common.delete' | translate }}</button>
     </footer>
   </article>
 </dialog>

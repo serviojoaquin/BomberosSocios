@@ -23,6 +23,8 @@ export interface YearSelectorOptions {
 export class YearSelectorComponent {
   @ViewChild('dialog') dialogRef: ElementRef<HTMLDialogElement>;
 
+  @Input() title = 'common.selectYear';
+
   @Output() selected = new EventEmitter<YearSelectorResult>();
 
   years = signal<number[]>([]);

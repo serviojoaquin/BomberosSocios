@@ -1,8 +1,8 @@
 <dialog #dialog>
   <article>
     <header>
-      <h3>Seleccione el año</h3>
-      <button rel="prev" aria-label="Cerrar" (click)="close()"></button>
+      <h3>{{ title | translate }}</h3>
+      <button rel="prev" [attr.aria-label]="'common.close' | translate" (click)="close()"></button>
     </header>
     <div class="year-buttons">
       @for (year of years(); track year) {
@@ -18,11 +18,11 @@
     @if (showDateRangePicker()) {
       <div class="form-grid">
         <label>
-          Fecha de cobro (inicio)
+          {{ 'common.from' | translate }}
           <input type="date" [(ngModel)]="startDate" [min]="minDate" [max]="maxDate" />
         </label>
         <label>
-          Fecha de cobro (fin)
+          {{ 'common.to' | translate }}
           <input type="date" [(ngModel)]="endDate" [min]="minDate" [max]="maxDate" />
         </label>
       </div>

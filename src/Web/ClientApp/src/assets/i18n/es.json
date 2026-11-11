@@ -1,0 +1,203 @@
+{
+  "layout": {
+    "openMenu": "Abrir menú",
+    "collapseMenu": "Contraer menú",
+    "expandMenu": "Expandir menú",
+    "account": "Cuenta",
+    "language": "Idioma",
+    "logIn": "Iniciar sesión",
+    "logOut": "Cerrar sesión",
+    "register": "Registrarse",
+    "theme": {
+      "light": "Claro",
+      "dark": "Oscuro",
+      "system": "Sistema"
+    }
+  },
+  "sections": {
+    "general": "General",
+    "samples": "Ejemplos",
+    "security": "Seguridad"
+  },
+  "modules": {
+    "home": "Inicio",
+    "counter": "Contador",
+    "weather": "Clima",
+    "tasks": "Tareas",
+    "sampleItems": "Ítems de ejemplo",
+    "roles": "Roles",
+    "users": "Usuarios",
+    "accessControl": "Control de acceso"
+  },
+  "common": {
+    "cancel": "Cancelar",
+    "create": "Crear",
+    "update": "Guardar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "close": "Cerrar",
+    "loading": "Cargando…",
+    "none": "Ninguno",
+    "yes": "Sí",
+    "no": "No",
+    "deleteConfirm": "¿Eliminar \"{{name}}\"?",
+    "cannotUndo": "Esta acción no se puede deshacer.",
+    "selectYear": "Seleccione el año",
+    "from": "Desde",
+    "to": "Hasta"
+  },
+  "home": {
+    "title": "Bienvenido",
+    "intro": "Una aplicación completa con frontend en Angular y backend en ASP.NET Core, construida con:",
+    "stack": {
+      "aspnet": "ASP.NET Core y C# para el código de servidor multiplataforma",
+      "angular": "Angular y TypeScript para el código del cliente",
+      "pico": "Pico CSS para la maquetación y los estilos",
+      "lucide": "Lucide para los íconos"
+    },
+    "gettingStarted": "Para arrancar:",
+    "tips": {
+      "navigationTitle": "Navegación del lado del cliente",
+      "navigation": "Entrá a Contador y volvé con Atrás para regresar acá.",
+      "cliTitle": "Integración con Angular CLI",
+      "cli": "En desarrollo no hace falta correr ng serve: se ejecuta solo en segundo plano, los recursos del cliente se compilan a demanda y la página se refresca al modificar cualquier archivo.",
+      "buildsTitle": "Compilaciones de producción eficientes",
+      "builds": "En producción se desactivan las funciones de desarrollo y dotnet publish invoca ng build para generar JavaScript minificado y compilado con AOT."
+    },
+    "clientApp": "La carpeta ClientApp es una aplicación estándar de Angular CLI. Abrí una terminal ahí para correr cualquier comando ng (por ejemplo, ng test) o usá npm para instalar paquetes."
+  },
+  "counter": {
+    "title": "Contador",
+    "description": "Un ejemplo simple de componente Angular.",
+    "current": "Valor actual:",
+    "increment": "Incrementar"
+  },
+  "weather": {
+    "title": "Clima",
+    "description": "Este componente muestra cómo traer datos del servidor.",
+    "fetching": "Buscando el pronóstico…",
+    "tableLabel": "Pronóstico del clima",
+    "date": "Fecha",
+    "tempC": "Temp. (C)",
+    "tempF": "Temp. (F)",
+    "summary": "Resumen"
+  },
+  "tasks": {
+    "title": "Tareas",
+    "description": "Administrá tus listas y tareas.",
+    "lists": "Listas",
+    "newTask": "Nueva tarea…",
+    "newList": "Nueva lista",
+    "listOptions": "Opciones de la lista",
+    "titleLabel": "Título",
+    "listTitlePlaceholder": "Título de la lista…",
+    "listNamePlaceholder": "Nombre de la lista…",
+    "colour": "Color",
+    "allItemsDeleted": "Se eliminarán todos los ítems de forma permanente.",
+    "itemDetails": "Detalle del ítem",
+    "list": "Lista",
+    "priority": "Prioridad",
+    "note": "Nota"
+  },
+  "sampleItems": {
+    "title": "Ítems de ejemplo",
+    "description": "Una entidad de ejemplo con el patrón CRUD completo para copiar en nuevas funcionalidades.",
+    "new": "Nuevo ítem de ejemplo",
+    "edit": "Modificar ítem de ejemplo",
+    "descriptionLabel": "Descripción",
+    "descriptionPlaceholder": "Descripción del ítem…",
+    "amount": "Importe",
+    "deleteError": "No se pudo eliminar el ítem."
+  },
+  "roles": {
+    "title": "Roles",
+    "description": "Roles y los permisos que otorgan. Los cambios aplican en el próximo inicio de sesión.",
+    "new": "Nuevo rol",
+    "edit": "Modificar rol",
+    "name": "Nombre",
+    "namePlaceholder": "Nombre del rol…",
+    "permissions": "Permisos",
+    "system": "(sistema)",
+    "deleteError": "No se pudo eliminar el rol."
+  },
+  "users": {
+    "title": "Usuarios",
+    "description": "Usuarios registrados y sus roles. Los cambios aplican en el próximo inicio de sesión.",
+    "new": "Nuevo usuario",
+    "user": "Usuario",
+    "email": "Email",
+    "initialPassword": "Contraseña inicial",
+    "roles": "Roles",
+    "rolesFor": "Roles de {{name}}",
+    "editRoles": "Editar roles",
+    "resetPassword": "Restablecer contraseña",
+    "resetPasswordFor": "Restablecer la contraseña de {{name}}",
+    "newPassword": "Nueva contraseña",
+    "reset": "Restablecer",
+    "disable": "Deshabilitar",
+    "enable": "Habilitar",
+    "disableQuestion": "¿Deshabilitar a {{name}}?",
+    "enableQuestion": "¿Habilitar a {{name}}?",
+    "disableWarning": "El usuario no podrá iniciar sesión y se cerrará cualquier sesión abierta.",
+    "enableInfo": "El usuario podrá volver a iniciar sesión.",
+    "disabled": "(deshabilitado)",
+    "updateError": "No se pudo actualizar el usuario."
+  },
+  "accessControl": {
+    "title": "Control de acceso",
+    "description": "Permisos de cada rol. Los cambios aplican en el próximo inicio de sesión.",
+    "permission": "Permiso",
+    "loadError": "No se pudieron cargar los roles.",
+    "updateError": "No se pudo actualizar el rol."
+  },
+  "auth": {
+    "email": "Email",
+    "password": "Contraseña",
+    "logIn": "Iniciar sesión",
+    "register": "Registrarse",
+    "invalid": "Email o contraseña inválidos.",
+    "noAccount": "¿No tenés cuenta?",
+    "haveAccount": "¿Ya tenés cuenta?",
+    "emailInvalid": "Ingresá un email válido.",
+    "passwordMin": "La contraseña debe tener al menos {{min}} caracteres.",
+    "registrationFailed": "No se pudo completar el registro. Intentá de nuevo."
+  },
+  "validation": {
+    "required": "Este campo es requerido.",
+    "maxlength": "No puede exceder los {{requiredLength}} caracteres.",
+    "minlength": "Debe tener al menos {{requiredLength}} caracteres.",
+    "min": "El valor mínimo es {{min}}.",
+    "max": "El valor máximo es {{max}}.",
+    "email": "Ingresá un email válido.",
+    "pattern": "El formato no es válido."
+  },
+  "dataTable": {
+    "search": "",
+    "searchPlaceholder": "Buscar…",
+    "lengthMenu": "Mostrar _MENU_ elementos",
+    "info": "De _START_ a _END_ de _TOTAL_ elementos",
+    "infoEmpty": "De 0 a 0 de 0 elementos",
+    "infoFiltered": "(filtrados de _MAX_ elementos totales)",
+    "zeroRecords": "No hay coincidencias",
+    "emptyTable": "No hay datos",
+    "paginate": {
+      "first": "Prim.",
+      "last": "Últ.",
+      "next": "Sig.",
+      "previous": "Ant."
+    },
+    "select": {
+      "rows": {
+        "_": "%d filas seleccionadas",
+        "0": "",
+        "1": "1 fila seleccionada"
+      }
+    },
+    "buttons": {
+      "copy": "Copiar",
+      "excel": "Excel",
+      "pdf": "PDF",
+      "print": "Imprimir"
+    }
+  }
+}

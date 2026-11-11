@@ -5,6 +5,7 @@ import { AuthService } from 'src/api-authorization/auth.service';
 import { Permissions } from '../permissions';
 import { DataTableAction, DataTableActionEvent, DataTableColumn } from '../shared/data-table/data-table.component';
 import { FormErrorsService } from '../shared/forms/form-errors.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   standalone: false,
@@ -18,12 +19,12 @@ export class SampleItemsComponent implements OnInit {
   sampleItems = signal<SampleItemDto[] | null>(null);
   canCreate = this.authService.hasPermission(Permissions.CreateSampleItems);
   columns: DataTableColumn[] = [
-    { data: 'description', title: 'Description' },
-    { data: 'amount', title: 'Amount', className: 'dt-body-right', render: (value, type) => type === 'display' ? this.formatAmount(value) : value }
+    { data: 'description', title: 'sampleItems.descriptionLabel' },
+    { data: 'amount', title: 'sampleItems.amount', className: 'dt-body-right', render: (value, type) => type === 'display' ? this.formatAmount(value) : value }
   ];
   actions: DataTableAction[] = [
-    ...(this.authService.hasPermission(Permissions.EditSampleItems) ? [{ name: 'edit', label: 'Edit', icon: 'pencil' } as DataTableAction] : []),
-    ...(this.authService.hasPermission(Permissions.DeleteSampleItems) ? [{ name: 'delete', label: 'Delete', icon: 'trash' } as DataTableAction] : [])
+    ...(this.authService.hasPermission(Permissions.EditSampleItems) ? [{ name: 'edit', label: 'common.edit', icon: 'pencil' } as DataTableAction] : []),
+    ...(this.authService.hasPermission(Permissions.DeleteSampleItems) ? [{ name: 'delete', label: 'common.delete', icon: 'trash' } as DataTableAction] : [])
   ];
   form = this.fb.group({
     id: [0],
@@ -37,7 +38,8 @@ export class SampleItemsComponent implements OnInit {
     private client: SampleItemsClient,
     private authService: AuthService,
     private fb: FormBuilder,
-    private formErrors: FormErrorsService
+    private formErrors: FormErrorsService,
+    private translate: TranslateService
   ) {}
 
   get isEditing(): boolean {
@@ -105,7 +107,7 @@ export class SampleItemsComponent implements OnInit {
       },
       error: error => {
         this.closeDeleteDialog();
-        alert(this.formErrors.firstMessage(error, 'Unable to delete the sample item.'));
+        alert(this.formErrors.firstMessage(error, this.translate.instant('sampleItems.deleteError')));
       }
     });
   }

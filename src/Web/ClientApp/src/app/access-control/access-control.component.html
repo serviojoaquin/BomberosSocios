@@ -1,16 +1,16 @@
 <hgroup>
-  <h1>Control de acceso</h1>
-  <p>Permisos de cada rol. Los cambios aplican en el próximo inicio de sesión.</p>
+  <h1>{{ 'accessControl.title' | translate }}</h1>
+  <p>{{ 'accessControl.description' | translate }}</p>
 </hgroup>
 
 @if (!cargado()) {
-  <span aria-busy="true">Cargando&hellip;</span>
+  <span aria-busy="true">{{ 'common.loading' | translate }}</span>
 } @else {
   <div style="overflow-x: auto;">
     <table class="access-control">
       <thead>
         <tr>
-          <th>Permiso</th>
+          <th>{{ 'accessControl.permission' | translate }}</th>
           @for (role of roles(); track role.id) {
             <th>{{ role.name }}</th>
           }

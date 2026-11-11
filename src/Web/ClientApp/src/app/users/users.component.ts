@@ -4,6 +4,7 @@ import { UsersClient, UserDto, UpdateUserRolesCommand, CreateUserCommand, ResetU
 import { AuthService } from 'src/api-authorization/auth.service';
 import { DataTableAction, DataTableActionEvent, DataTableColumn } from '../shared/data-table/data-table.component';
 import { FormErrorsService } from '../shared/forms/form-errors.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   standalone: false,
@@ -19,14 +20,14 @@ export class UsersComponent implements OnInit {
   users = signal<UserDto[] | null>(null);
   availableRoles = signal<string[]>([]);
   columns: DataTableColumn[] = [
-    { data: 'userName', title: 'User', render: (value: string, type, row: UserDto) => type === 'display' ? this.escape(value) + (row.isEnabled ? '' : ' <small>(disabled)</small>') : value },
-    { data: 'roles', title: 'Roles', render: (value: string[], type) => type === 'display' ? this.escape(value?.length ? value.join(', ') : 'None') : (value ?? []).join(', ') }
+    { data: 'userName', title: 'users.user', render: (value: string, type, row: UserDto) => type === 'display' ? this.escape(value) + (row.isEnabled ? '' : ' <small>' + this.translate.instant('users.disabled') + '</small>') : value },
+    { data: 'roles', title: 'users.roles', render: (value: string[], type) => type === 'display' ? this.escape(value?.length ? value.join(', ') : this.translate.instant('common.none')) : (value ?? []).join(', ') }
   ];
   actions: DataTableAction[] = [
-    { name: 'roles', label: 'Edit roles', icon: 'pencil' },
-    { name: 'password', label: 'Reset password', icon: 'key' },
-    { name: 'disable', label: 'Disable', icon: 'ban', visible: (row: UserDto) => row.isEnabled && row.id !== this.currentUserId },
-    { name: 'enable', label: 'Enable', icon: 'circle-check', visible: (row: UserDto) => !row.isEnabled }
+    { name: 'roles', label: 'users.editRoles', icon: 'pencil' },
+    { name: 'password', label: 'users.resetPassword', icon: 'key' },
+    { name: 'disable', label: 'users.disable', icon: 'ban', visible: (row: UserDto) => row.isEnabled && row.id !== this.currentUserId },
+    { name: 'enable', label: 'users.enable', icon: 'circle-check', visible: (row: UserDto) => !row.isEnabled }
   ];
   selected = signal<UserDto | null>(null);
   rolesEditor: string[] = [];
@@ -48,7 +49,8 @@ export class UsersComponent implements OnInit {
     private client: UsersClient,
     private authService: AuthService,
     private fb: FormBuilder,
-    private formErrors: FormErrorsService
+    private formErrors: FormErrorsService,
+    private translate: TranslateService
   ) {
     this.authService.currentUser$.subscribe(user => this.currentUserId = user?.id ?? null);
   }
@@ -119,7 +121,7 @@ export class UsersComponent implements OnInit {
         this.patch(command.id, { roles: [...command.roles].sort() });
         this.closeDialogs();
       },
-      error: error => this.generalErrors.set([this.formErrors.firstMessage(error, 'Unable to update the user.')])
+      error: error => this.generalErrors.set([this.formErrors.firstMessage(error, this.translate.instant('users.updateError'))])
     });
   }
 
@@ -159,7 +161,7 @@ export class UsersComponent implements OnInit {
         this.patch(command.id, { isEnabled: command.enabled });
         this.closeDialogs();
       },
-      error: error => this.generalErrors.set([this.formErrors.firstMessage(error, 'Unable to update the user.')])
+      error: error => this.generalErrors.set([this.formErrors.firstMessage(error, this.translate.instant('users.updateError'))])
     });
   }
 

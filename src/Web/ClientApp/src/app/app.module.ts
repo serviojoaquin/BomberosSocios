@@ -2,8 +2,11 @@ import { APP_ID, NgModule, inject, provideAppInitializer } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { LucideAngularModule, Sun, Moon, Laptop, Plus, Settings, MoreHorizontal, Pencil, Trash2, House, Hash, CloudSun, ListChecks, Tags, Box, Wallet, Contact, Receipt, Shield, Users, Layers, Menu, PanelLeftClose, PanelLeftOpen, LockKeyhole, QrCode, ChartColumn } from 'lucide-angular';
+import { LucideAngularModule, Sun, Moon, Laptop, Plus, Settings, MoreHorizontal, Pencil, Trash2, House, Hash, CloudSun, ListChecks, Tags, Box, Wallet, Contact, Receipt, Shield, Users, Layers, Menu, PanelLeftClose, PanelLeftOpen, LockKeyhole, QrCode, ChartColumn, User, Check } from 'lucide-angular';
 import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { TranslatePipe, provideTranslateService } from '@ngx-translate/core';
+import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
+import { LanguageService, DEFAULT_LANGUAGE } from './i18n/language.service';
 
 import { AppComponent } from './app.component';
 import { SidebarComponent } from './layout/sidebar.component';
@@ -25,14 +28,13 @@ import { AccessControlComponent } from './access-control/access-control.componen
 import { EstadisticasComponent } from './estadisticas/estadisticas.component';
 import { RolesComponent } from './roles/roles.component';
 import { UsersComponent } from './users/users.component';
-import { DataTableComponent, DATA_TABLE_LANGUAGE } from './shared/data-table/data-table.component';
+import { DataTableComponent } from './shared/data-table/data-table.component';
 import { YearSelectorComponent } from './shared/year-selector/year-selector.component';
 import { ToastComponent } from './shared/toast/toast.component';
 import { FieldErrorComponent } from './shared/forms/field-error.component';
 import { InvalidDirective } from './shared/forms/invalid.directive';
 import { FIELD_ERROR_MESSAGES } from './shared/forms/field-error.component';
 import { MENSAJES_VALIDACION } from './mensajes-validacion';
-import { IDIOMA_TABLAS } from './idioma-tablas';
 import { ThemeToggleComponent } from './theme-toggle/theme-toggle.component';
 import { API_BASE_URL } from './web-api-client';
 import { AuthorizeInterceptor } from 'src/api-authorization/authorize.interceptor';
@@ -82,7 +84,8 @@ export function getApiBaseUrl(): string {
         BrowserModule,
         FormsModule,
         ReactiveFormsModule,
-        LucideAngularModule.pick({ Sun, Moon, Laptop, Plus, Settings, MoreHorizontal, Pencil, Trash2, House, Hash, CloudSun, ListChecks, Tags, Box, Wallet, Contact, Receipt, Shield, Users, Layers, Menu, PanelLeftClose, PanelLeftOpen, LockKeyhole, QrCode, ChartColumn }),
+        LucideAngularModule.pick({ Sun, Moon, Laptop, Plus, Settings, MoreHorizontal, Pencil, Trash2, House, Hash, CloudSun, ListChecks, Tags, Box, Wallet, Contact, Receipt, Shield, Users, Layers, Menu, PanelLeftClose, PanelLeftOpen, LockKeyhole, QrCode, ChartColumn, User, Check }),
+        TranslatePipe,
         RouterModule.forRoot([
             { path: '', component: HomeComponent, pathMatch: 'full' },
             { path: 'categorias', component: CategoriasComponent, canActivate: [AuthGuard] },
@@ -107,10 +110,15 @@ export function getApiBaseUrl(): string {
     ],
     providers: [
         { provide: APP_ID, useValue: 'ng-cli-universal' },
+        provideTranslateService({
+            loader: provideTranslateHttpLoader({ prefix: './assets/i18n/', suffix: '.json' }),
+            fallbackLang: DEFAULT_LANGUAGE,
+            lang: DEFAULT_LANGUAGE
+        }),
         { provide: HTTP_INTERCEPTORS, useClass: AuthorizeInterceptor, multi: true },
         { provide: API_BASE_URL, useFactory: getApiBaseUrl, deps: [] },
         { provide: FIELD_ERROR_MESSAGES, useValue: MENSAJES_VALIDACION },
-        { provide: DATA_TABLE_LANGUAGE, useValue: IDIOMA_TABLAS },
+        provideAppInitializer(() => inject(LanguageService).init()),
         provideAppInitializer(() => inject(AuthService).initialize()),
         provideHttpClient(withInterceptorsFromDi())
     ]

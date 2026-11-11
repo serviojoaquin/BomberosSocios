@@ -1,10 +1,10 @@
 <div class="page-header">
   <hgroup>
-    <h1>Roles</h1>
-    <p>Roles and the permissions they grant. Changes apply the next time a user logs in.</p>
+    <h1>{{ 'roles.title' | translate }}</h1>
+    <p>{{ 'roles.description' | translate }}</p>
   </hgroup>
   <div class="toolbar">
-    <button class="icon-btn" aria-label="New role" title="New role" (click)="showNewDialog()"><lucide-icon name="plus" [size]="20" [strokeWidth]="2" /></button>
+    <button class="icon-btn" [attr.aria-label]="'roles.new' | translate" [attr.title]="'roles.new' | translate" (click)="showNewDialog()"><lucide-icon name="plus" [size]="20" [strokeWidth]="2" /></button>
   </div>
 </div>
 
@@ -12,21 +12,21 @@
   [columns]="columns"
   [data]="roles()"
   [actions]="actions"
-  exportTitle="Roles"
+  [exportTitle]="'roles.title' | translate"
   (action)="onAction($event)" />
 
 <dialog #editDialog>
   <article>
     <header>
-      <h3>{{ isEditing ? 'Edit Role' : 'New Role' }}</h3>
-      <button rel="prev" aria-label="Close" (click)="closeEditDialog()"></button>
+      <h3>{{ (isEditing ? 'roles.edit' : 'roles.new') | translate }}</h3>
+      <button rel="prev" [attr.aria-label]="'common.close' | translate" (click)="closeEditDialog()"></button>
     </header>
     <form [formGroup]="form" (ngSubmit)="save()" novalidate>
-      <label for="name">Name</label>
-      <input type="text" id="name" formControlName="name" [appInvalid]="form.get('name')" placeholder="Role name&hellip;" maxlength="50" />
+      <label for="name">{{ 'roles.name' | translate }}</label>
+      <input type="text" id="name" formControlName="name" [appInvalid]="form.get('name')" [placeholder]="'roles.namePlaceholder' | translate" maxlength="50" />
       <app-field-error [control]="form.get('name')" />
       <fieldset>
-        <legend>Permissions</legend>
+        <legend>{{ 'roles.permissions' | translate }}</legend>
         @for (permission of availablePermissions(); track permission.id) {
           <label>
             <input type="checkbox"
@@ -40,8 +40,8 @@
         <small class="field-error">{{ message }}</small>
       }
       <footer>
-        <button type="button" class="secondary" (click)="closeEditDialog()">Cancel</button>
-        <button type="submit">{{ isEditing ? 'Update' : 'Create' }}</button>
+        <button type="button" class="secondary" (click)="closeEditDialog()">{{ 'common.cancel' | translate }}</button>
+        <button type="submit">{{ (isEditing ? 'common.update' : 'common.create') | translate }}</button>
       </footer>
     </form>
   </article>
@@ -50,13 +50,13 @@
 <dialog #deleteDialog>
   <article>
     <header>
-      <h3>Delete "{{ selected()?.name }}"?</h3>
-      <button rel="prev" aria-label="Close" (click)="closeDeleteDialog()"></button>
+      <h3>{{ 'common.deleteConfirm' | translate: { name: selected()?.name } }}</h3>
+      <button rel="prev" [attr.aria-label]="'common.close' | translate" (click)="closeDeleteDialog()"></button>
     </header>
-    <p>This action cannot be undone.</p>
+    <p>{{ 'common.cannotUndo' | translate }}</p>
     <footer>
-      <button class="secondary" (click)="closeDeleteDialog()">Cancel</button>
-      <button class="danger" (click)="deleteConfirmed()">Delete</button>
+      <button class="secondary" (click)="closeDeleteDialog()">{{ 'common.cancel' | translate }}</button>
+      <button class="danger" (click)="deleteConfirmed()">{{ 'common.delete' | translate }}</button>
     </footer>
   </article>
 </dialog>

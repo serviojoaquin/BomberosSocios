@@ -1,0 +1,203 @@
+{
+  "layout": {
+    "openMenu": "Open menu",
+    "collapseMenu": "Collapse menu",
+    "expandMenu": "Expand menu",
+    "account": "Account",
+    "language": "Language",
+    "logIn": "Log in",
+    "logOut": "Log out",
+    "register": "Register",
+    "theme": {
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System"
+    }
+  },
+  "sections": {
+    "general": "General",
+    "samples": "Samples",
+    "security": "Security"
+  },
+  "modules": {
+    "home": "Home",
+    "counter": "Counter",
+    "weather": "Weather",
+    "tasks": "Tasks",
+    "sampleItems": "Sample items",
+    "roles": "Roles",
+    "users": "Users",
+    "accessControl": "Access control"
+  },
+  "common": {
+    "cancel": "Cancel",
+    "create": "Create",
+    "update": "Update",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "loading": "Loading…",
+    "none": "None",
+    "yes": "Yes",
+    "no": "No",
+    "deleteConfirm": "Delete \"{{name}}\"?",
+    "cannotUndo": "This action cannot be undone.",
+    "selectYear": "Select the year",
+    "from": "From",
+    "to": "To"
+  },
+  "home": {
+    "title": "Welcome",
+    "intro": "A full-stack application with an Angular frontend and an ASP.NET Core backend, built with:",
+    "stack": {
+      "aspnet": "ASP.NET Core and C# for cross-platform server-side code",
+      "angular": "Angular and TypeScript for client-side code",
+      "pico": "Pico CSS for layout and styling",
+      "lucide": "Lucide for icons"
+    },
+    "gettingStarted": "To help you get started:",
+    "tips": {
+      "navigationTitle": "Client-side navigation",
+      "navigation": "Click Counter then Back to return here.",
+      "cliTitle": "Angular CLI integration",
+      "cli": "In development mode, there's no need to run ng serve. It runs in the background automatically, so your client-side resources are dynamically built on demand and the page refreshes when you modify any file.",
+      "buildsTitle": "Efficient production builds",
+      "builds": "In production mode, development-time features are disabled, and your dotnet publish configuration automatically invokes ng build to produce minified, ahead-of-time compiled JavaScript files."
+    },
+    "clientApp": "The ClientApp subdirectory is a standard Angular CLI application. Open a command prompt there to run any ng command (e.g., ng test), or use npm to install extra packages."
+  },
+  "counter": {
+    "title": "Counter",
+    "description": "This is a simple example of an Angular component.",
+    "current": "Current count:",
+    "increment": "Increment"
+  },
+  "weather": {
+    "title": "Weather",
+    "description": "This component demonstrates fetching data from the server.",
+    "fetching": "Fetching your weather forecast…",
+    "tableLabel": "Weather forecast",
+    "date": "Date",
+    "tempC": "Temp. (C)",
+    "tempF": "Temp. (F)",
+    "summary": "Summary"
+  },
+  "tasks": {
+    "title": "Tasks",
+    "description": "Manage your todo lists and tasks.",
+    "lists": "Lists",
+    "newTask": "New task…",
+    "newList": "New List",
+    "listOptions": "List Options",
+    "titleLabel": "Title",
+    "listTitlePlaceholder": "List title…",
+    "listNamePlaceholder": "List name…",
+    "colour": "Colour",
+    "allItemsDeleted": "All items will be permanently deleted.",
+    "itemDetails": "Item Details",
+    "list": "List",
+    "priority": "Priority",
+    "note": "Note"
+  },
+  "sampleItems": {
+    "title": "Sample items",
+    "description": "A sample entity with the full CRUD pattern to copy for new features.",
+    "new": "New sample item",
+    "edit": "Edit sample item",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "Sample item description…",
+    "amount": "Amount",
+    "deleteError": "Unable to delete the sample item."
+  },
+  "roles": {
+    "title": "Roles",
+    "description": "Roles and the permissions they grant. Changes apply the next time a user logs in.",
+    "new": "New Role",
+    "edit": "Edit Role",
+    "name": "Name",
+    "namePlaceholder": "Role name…",
+    "permissions": "Permissions",
+    "system": "(system)",
+    "deleteError": "Unable to delete the role."
+  },
+  "users": {
+    "title": "Users",
+    "description": "Registered users and their roles. Changes apply the next time the user logs in.",
+    "new": "New User",
+    "user": "User",
+    "email": "Email",
+    "initialPassword": "Initial password",
+    "roles": "Roles",
+    "rolesFor": "Roles for {{name}}",
+    "editRoles": "Edit roles",
+    "resetPassword": "Reset password",
+    "resetPasswordFor": "Reset password for {{name}}",
+    "newPassword": "New password",
+    "reset": "Reset",
+    "disable": "Disable",
+    "enable": "Enable",
+    "disableQuestion": "Disable {{name}}?",
+    "enableQuestion": "Enable {{name}}?",
+    "disableWarning": "The user will not be able to log in and any open session will be closed.",
+    "enableInfo": "The user will be able to log in again.",
+    "disabled": "(disabled)",
+    "updateError": "Unable to update the user."
+  },
+  "accessControl": {
+    "title": "Access control",
+    "description": "Permissions of each role. Changes apply the next time a user logs in.",
+    "permission": "Permission",
+    "loadError": "Could not load the roles.",
+    "updateError": "Could not update the role."
+  },
+  "auth": {
+    "email": "Email",
+    "password": "Password",
+    "logIn": "Log in",
+    "register": "Register",
+    "invalid": "Invalid email or password.",
+    "noAccount": "Don't have an account?",
+    "haveAccount": "Already have an account?",
+    "emailInvalid": "Please enter a valid email address.",
+    "passwordMin": "Password must be at least {{min}} characters.",
+    "registrationFailed": "Registration failed. Please try again."
+  },
+  "validation": {
+    "required": "This field is required.",
+    "maxlength": "Maximum length is {{requiredLength}} characters.",
+    "minlength": "Minimum length is {{requiredLength}} characters.",
+    "min": "Minimum value is {{min}}.",
+    "max": "Maximum value is {{max}}.",
+    "email": "Enter a valid email address.",
+    "pattern": "The value has an invalid format."
+  },
+  "dataTable": {
+    "search": "",
+    "searchPlaceholder": "Search…",
+    "lengthMenu": "Show _MENU_ entries",
+    "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+    "infoEmpty": "Showing 0 to 0 of 0 entries",
+    "infoFiltered": "(filtered from _MAX_ total entries)",
+    "zeroRecords": "No matching records found",
+    "emptyTable": "No data available in table",
+    "paginate": {
+      "first": "First",
+      "last": "Last",
+      "next": "Next",
+      "previous": "Previous"
+    },
+    "select": {
+      "rows": {
+        "_": "%d rows selected",
+        "0": "",
+        "1": "1 row selected"
+      }
+    },
+    "buttons": {
+      "copy": "Copy",
+      "excel": "Excel",
+      "pdf": "PDF",
+      "print": "Print"
+    }
+  }
+}

@@ -4,6 +4,7 @@ import { RolesClient, RoleDto, PermissionDto, CreateRoleCommand, UpdateRoleComma
 import { hasPermission } from '../permissions';
 import { DataTableAction, DataTableActionEvent, DataTableColumn } from '../shared/data-table/data-table.component';
 import { FormErrorsService } from '../shared/forms/form-errors.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   standalone: false,
@@ -17,12 +18,12 @@ export class RolesComponent implements OnInit {
   roles = signal<RoleDto[] | null>(null);
   availablePermissions = signal<PermissionDto[]>([]);
   columns: DataTableColumn[] = [
-    { data: 'name', title: 'Name', render: (value, type, row: RoleDto) => type === 'display' ? this.escape(value) + (row.isSystem ? ' <small>(system)</small>' : '') : value },
-    { data: 'permissions', title: 'Permissions', render: (_value, type, row: RoleDto) => type === 'display' ? this.escape(this.permissionNames(row)) : this.permissionNames(row) }
+    { data: 'name', title: 'roles.name', render: (value, type, row: RoleDto) => type === 'display' ? this.escape(value) + (row.isSystem ? ' <small>' + this.translate.instant('roles.system') + '</small>' : '') : value },
+    { data: 'permissions', title: 'roles.permissions', render: (_value, type, row: RoleDto) => type === 'display' ? this.escape(this.permissionNames(row)) : this.permissionNames(row) }
   ];
   actions: DataTableAction[] = [
-    { name: 'edit', label: 'Edit', icon: 'pencil', visible: (row: RoleDto) => !this.isAdministrator(row) },
-    { name: 'delete', label: 'Delete', icon: 'trash', visible: (row: RoleDto) => !row.isSystem }
+    { name: 'edit', label: 'common.edit', icon: 'pencil', visible: (row: RoleDto) => !this.isAdministrator(row) },
+    { name: 'delete', label: 'common.delete', icon: 'trash', visible: (row: RoleDto) => !row.isSystem }
   ];
   form = this.fb.group({
     id: [''],
@@ -36,7 +37,8 @@ export class RolesComponent implements OnInit {
   constructor(
     private client: RolesClient,
     private fb: FormBuilder,
-    private formErrors: FormErrorsService
+    private formErrors: FormErrorsService,
+    private translate: TranslateService
   ) {}
 
   get isEditing(): boolean {
@@ -131,7 +133,7 @@ export class RolesComponent implements OnInit {
       },
       error: error => {
         this.closeDeleteDialog();
-        alert(this.formErrors.firstMessage(error, 'Unable to delete the role.'));
+        alert(this.formErrors.firstMessage(error, this.translate.instant('roles.deleteError')));
       }
     });
   }

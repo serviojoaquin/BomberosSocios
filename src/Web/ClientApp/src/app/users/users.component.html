@@ -1,10 +1,10 @@
 <div class="page-header">
   <hgroup>
-    <h1>Users</h1>
-    <p>Registered users and their roles. Changes apply the next time the user logs in.</p>
+    <h1>{{ 'users.title' | translate }}</h1>
+    <p>{{ 'users.description' | translate }}</p>
   </hgroup>
   <div class="toolbar">
-    <button class="icon-btn" aria-label="New user" title="New user" (click)="showNewUserDialog()"><lucide-icon name="plus" [size]="20" [strokeWidth]="2" /></button>
+    <button class="icon-btn" [attr.aria-label]="'users.new' | translate" [attr.title]="'users.new' | translate" (click)="showNewUserDialog()"><lucide-icon name="plus" [size]="20" [strokeWidth]="2" /></button>
   </div>
 </div>
 
@@ -12,25 +12,25 @@
   [columns]="columns"
   [data]="users()"
   [actions]="actions"
-  exportTitle="Users"
+  [exportTitle]="'users.title' | translate"
   (action)="onAction($event)" />
 
 <dialog #newUserDialog>
   <article>
     @if (newUserOpen()) {
     <header>
-      <h3>New User</h3>
-      <button rel="prev" aria-label="Close" (click)="closeDialogs()"></button>
+      <h3>{{ 'users.new' | translate }}</h3>
+      <button rel="prev" [attr.aria-label]="'common.close' | translate" (click)="closeDialogs()"></button>
     </header>
     <form [formGroup]="newUserForm" (ngSubmit)="createUser()" novalidate>
-      <label for="email">Email</label>
+      <label for="email">{{ 'users.email' | translate }}</label>
       <input type="email" id="email" formControlName="email" [appInvalid]="newUserForm.get('email')" autocomplete="off" placeholder="user@example.com" maxlength="256" />
       <app-field-error [control]="newUserForm.get('email')" />
-      <label for="password">Initial password</label>
+      <label for="password">{{ 'users.initialPassword' | translate }}</label>
       <input type="password" id="password" formControlName="password" [appInvalid]="newUserForm.get('password')" autocomplete="new-password" />
       <app-field-error [control]="newUserForm.get('password')" />
       <fieldset>
-        <legend>Roles</legend>
+        <legend>{{ 'users.roles' | translate }}</legend>
         @for (role of availableRoles(); track role) {
           <label>
             <input type="checkbox" [checked]="hasRole(newUserRoles, role)"
@@ -43,8 +43,8 @@
         <small class="field-error">{{ message }}</small>
       }
       <footer>
-        <button type="button" class="secondary" (click)="closeDialogs()">Cancel</button>
-        <button type="submit">Create</button>
+        <button type="button" class="secondary" (click)="closeDialogs()">{{ 'common.cancel' | translate }}</button>
+        <button type="submit">{{ 'common.create' | translate }}</button>
       </footer>
     </form>
     }
@@ -54,8 +54,8 @@
 <dialog #rolesDialog>
   <article>
     <header>
-      <h3>Roles for {{ selected()?.userName }}</h3>
-      <button rel="prev" aria-label="Close" (click)="closeDialogs()"></button>
+      <h3>{{ 'users.rolesFor' | translate: { name: selected()?.userName } }}</h3>
+      <button rel="prev" [attr.aria-label]="'common.close' | translate" (click)="closeDialogs()"></button>
     </header>
     <fieldset>
       @for (role of availableRoles(); track role) {
@@ -70,8 +70,8 @@
       <small class="field-error">{{ message }}</small>
     }
     <footer>
-      <button class="secondary" (click)="closeDialogs()">Cancel</button>
-      <button (click)="saveRoles()">Update</button>
+      <button class="secondary" (click)="closeDialogs()">{{ 'common.cancel' | translate }}</button>
+      <button (click)="saveRoles()">{{ 'common.update' | translate }}</button>
     </footer>
   </article>
 </dialog>
@@ -80,19 +80,19 @@
   <article>
     @if (passwordOpen()) {
     <header>
-      <h3>Reset password for {{ selected()?.userName }}</h3>
-      <button rel="prev" aria-label="Close" (click)="closeDialogs()"></button>
+      <h3>{{ 'users.resetPasswordFor' | translate: { name: selected()?.userName } }}</h3>
+      <button rel="prev" [attr.aria-label]="'common.close' | translate" (click)="closeDialogs()"></button>
     </header>
     <form [formGroup]="passwordForm" (ngSubmit)="resetPassword()" novalidate>
-      <label for="newPassword">New password</label>
+      <label for="newPassword">{{ 'users.newPassword' | translate }}</label>
       <input type="password" id="newPassword" formControlName="newPassword" [appInvalid]="passwordForm.get('newPassword')" autocomplete="new-password" />
       <app-field-error [control]="passwordForm.get('newPassword')" />
       @for (message of generalErrors(); track message) {
         <small class="field-error">{{ message }}</small>
       }
       <footer>
-        <button type="button" class="secondary" (click)="closeDialogs()">Cancel</button>
-        <button type="submit">Reset</button>
+        <button type="button" class="secondary" (click)="closeDialogs()">{{ 'common.cancel' | translate }}</button>
+        <button type="submit">{{ 'users.reset' | translate }}</button>
       </footer>
     </form>
     }
@@ -102,22 +102,16 @@
 <dialog #enabledDialog>
   <article>
     <header>
-      <h3>{{ selected()?.isEnabled ? 'Disable' : 'Enable' }} {{ selected()?.userName }}?</h3>
-      <button rel="prev" aria-label="Close" (click)="closeDialogs()"></button>
+      <h3>{{ (selected()?.isEnabled ? 'users.disableQuestion' : 'users.enableQuestion') | translate: { name: selected()?.userName } }}</h3>
+      <button rel="prev" [attr.aria-label]="'common.close' | translate" (click)="closeDialogs()"></button>
     </header>
-    <p>
-      @if (selected()?.isEnabled) {
-        The user will not be able to log in and any open session will be closed.
-      } @else {
-        The user will be able to log in again.
-      }
-    </p>
+    <p>{{ (selected()?.isEnabled ? 'users.disableWarning' : 'users.enableInfo') | translate }}</p>
     @for (message of generalErrors(); track message) {
       <small class="field-error">{{ message }}</small>
     }
     <footer>
-      <button class="secondary" (click)="closeDialogs()">Cancel</button>
-      <button [class.danger]="selected()?.isEnabled" (click)="setEnabled()">{{ selected()?.isEnabled ? 'Disable' : 'Enable' }}</button>
+      <button class="secondary" (click)="closeDialogs()">{{ 'common.cancel' | translate }}</button>
+      <button [class.danger]="selected()?.isEnabled" (click)="setEnabled()">{{ (selected()?.isEnabled ? 'users.disable' : 'users.enable') | translate }}</button>
     </footer>
   </article>
 </dialog>
