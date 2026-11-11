@@ -520,13 +520,17 @@ app-sidebar {
     text-decoration: none;
     white-space: nowrap;
 
-    &:hover {
-      background: var(--pico-secondary-focus);
+    border-inline-start: 3px solid transparent;
+
+    &:hover:not(.active) {
+      background: var(--pico-muted-border-color);
     }
 
     &.active {
       background: var(--pico-primary-focus);
+      border-inline-start-color: var(--pico-primary);
       color: var(--pico-primary);
+      font-weight: 600;
     }
   }
 }
@@ -791,4 +795,25 @@ div.dt-container table.dataTable.hover > tbody > tr.selected > *:hover {
       }
     }
   }
+}
+
+div.dt-container {
+  --dt-row-selected: 117, 64, 191;
+  --dt-row-selected-text: 255, 255, 255;
+  --dt-row-selected-link: 255, 255, 255;
+}
+
+:root[data-theme="dark"] div.dt-container,
+:root:not([data-theme="light"]) div.dt-container {
+  @media (prefers-color-scheme: dark) {
+    --dt-row-selected: 155, 110, 233;
+    --dt-row-selected-text: 24, 24, 32;
+    --dt-row-selected-link: 24, 24, 32;
+  }
+}
+
+:root[data-theme="dark"] div.dt-container {
+  --dt-row-selected: 155, 110, 233;
+  --dt-row-selected-text: 24, 24, 32;
+  --dt-row-selected-link: 24, 24, 32;
 }
