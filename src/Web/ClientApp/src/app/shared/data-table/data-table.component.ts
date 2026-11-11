@@ -74,6 +74,7 @@ export class DataTableComponent implements AfterViewInit, OnChanges, OnDestroy {
   @Output() selectionChange = new EventEmitter<any[]>();
 
   private table: any = null;
+  private responsiveEnabled = false;
   private readonly isBrowser: boolean;
   private readonly onClick = (event: Event) => this.handleClick(event);
 
@@ -145,6 +146,9 @@ export class DataTableComponent implements AfterViewInit, OnChanges, OnDestroy {
   }
 
   private isResponsiveHidden(index: number): boolean {
+    if (!this.responsiveEnabled) {
+      return false;
+    }
     const column = this.table.column(index);
     try {
       return typeof column.responsiveHidden === 'function' ? column.responsiveHidden() === false : false;
@@ -224,7 +228,9 @@ export class DataTableComponent implements AfterViewInit, OnChanges, OnDestroy {
       ]
     };
 
-    return { ...defaults, ...this.options };
+    const merged = { ...defaults, ...this.options };
+    this.responsiveEnabled = !!merged['responsive'];
+    return merged;
   }
 
   private renderActions(row: any): string {
