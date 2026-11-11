@@ -1,6 +1,6 @@
-import { Directive, ElementRef, Input, OnChanges, OnDestroy } from '@angular/core';
-import { AbstractControl } from '@angular/forms';
-import { Subscription } from 'rxjs';
+import { Directive, ElementRef, Input, OnChanges, OnDestroy, Optional } from '@angular/core';
+import { AbstractControl, FormGroupDirective } from '@angular/forms';
+import { ControlStateWatcher } from './form-state';
 
 @Directive({
   standalone: false,
@@ -9,24 +9,23 @@ import { Subscription } from 'rxjs';
 export class InvalidDirective implements OnChanges, OnDestroy {
   @Input('appInvalid') control: AbstractControl | null = null;
 
-  private subscription: Subscription | null = null;
+  private readonly watcher = new ControlStateWatcher(() => this.refresh());
 
-  constructor(private element: ElementRef<HTMLElement>) {}
+  constructor(
+    private readonly element: ElementRef<HTMLElement>,
+    @Optional() private readonly form: FormGroupDirective | null
+  ) {}
 
   ngOnChanges(): void {
-    this.subscription?.unsubscribe();
-    this.subscription = this.control?.events.subscribe(() => this.refresh()) ?? null;
-    this.refresh();
+    this.watcher.watch(this.control, this.form);
   }
 
   ngOnDestroy(): void {
-    this.subscription?.unsubscribe();
+    this.watcher.dispose();
   }
 
   private refresh(): void {
-    const control = this.control;
-    const invalid = !!control && (control.dirty || control.touched) && control.invalid;
-    if (invalid) {
+    if (this.watcher.shouldShow(this.control)) {
       this.element.nativeElement.setAttribute('aria-invalid', 'true');
     } else {
       this.element.nativeElement.removeAttribute('aria-invalid');
