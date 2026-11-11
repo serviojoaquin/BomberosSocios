@@ -68,6 +68,7 @@ export class DataTableComponent implements AfterViewInit, OnChanges, OnDestroy {
   @Input() exportTitle = '';
   @Input() rowId = 'id';
   @Input() selectable = false;
+  @Input() columnFilters = false;
 
   @Output() action = new EventEmitter<DataTableActionEvent>();
   @Output() selectionChange = new EventEmitter<any[]>();
@@ -99,6 +100,37 @@ export class DataTableComponent implements AfterViewInit, OnChanges, OnDestroy {
     if (this.selectable) {
       this.table.on('select deselect', () => this.selectionChange.emit(this.selectedRows()));
     }
+    if (this.columnFilters) {
+      this.addColumnFilters();
+    }
+  }
+
+  private addColumnFilters(): void {
+    const thead = this.tableRef.nativeElement.querySelector('thead');
+    if (!thead) {
+      return;
+    }
+    const row = document.createElement('tr');
+    row.className = 'dt-column-filters';
+    this.table.columns().every((index: number) => {
+      const column = this.table.column(index);
+      const cell = document.createElement('th');
+      if (index < this.columns.length && column.searchable()) {
+        const input = document.createElement('input');
+        input.type = 'search';
+        input.setAttribute('autocomplete', 'off');
+        input.setAttribute('aria-label', this.columns[index].title);
+        input.addEventListener('input', () => {
+          if (column.search() !== input.value) {
+            column.search(input.value).draw();
+          }
+        });
+        input.addEventListener('click', event => event.stopPropagation());
+        cell.appendChild(input);
+      }
+      row.appendChild(cell);
+    });
+    thead.appendChild(row);
   }
 
   selectedRows(): any[] {
