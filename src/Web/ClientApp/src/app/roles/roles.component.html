@@ -1,11 +1,11 @@
-<hgroup>
-  <h1>Roles</h1>
-  <p>Roles and the permissions they grant. Changes apply the next time a user logs in.</p>
-</hgroup>
-
-<div class="todo-panel-header">
-  <h2>All roles</h2>
-  <button class="icon-btn" aria-label="New role" (click)="showNewDialog()"><lucide-icon name="plus" [size]="20" [strokeWidth]="2" /></button>
+<div class="page-header">
+  <hgroup>
+    <h1>Roles</h1>
+    <p>Roles and the permissions they grant. Changes apply the next time a user logs in.</p>
+  </hgroup>
+  <div class="toolbar">
+    <button class="icon-btn" aria-label="New role" title="New role" (click)="showNewDialog()"><lucide-icon name="plus" [size]="20" [strokeWidth]="2" /></button>
+  </div>
 </div>
 
 <app-data-table

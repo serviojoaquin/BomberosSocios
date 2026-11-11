@@ -1,0 +1,31 @@
+<dialog #dialog>
+  <article>
+    <header>
+      <h3>{{ title }}</h3>
+      <button rel="prev" aria-label="Close" (click)="close()"></button>
+    </header>
+    <div class="year-buttons">
+      @for (year of years(); track year) {
+        <button type="button" class="outline" (click)="choose(year)">{{ year }}</button>
+      }
+    </div>
+    @if (showCheck()) {
+      <label class="checkbox-inline">
+        <input type="checkbox" [(ngModel)]="checkValue" />
+        {{ checkText() }}
+      </label>
+    }
+    @if (showDateRangePicker()) {
+      <div class="form-grid">
+        <label>
+          From
+          <input type="date" [(ngModel)]="startDate" [min]="minDate" [max]="maxDate" />
+        </label>
+        <label>
+          To
+          <input type="date" [(ngModel)]="endDate" [min]="minDate" [max]="maxDate" />
+        </label>
+      </div>
+    }
+  </article>
+</dialog>

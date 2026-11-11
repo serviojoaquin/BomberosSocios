@@ -323,8 +323,15 @@ div.dt-container {
   }
 
   .dt-search input[type="search"] {
-    padding: var(--pico-form-element-spacing-vertical) var(--pico-form-element-spacing-horizontal);
-    padding-inline-start: calc(var(--pico-form-element-spacing-horizontal) + 1.75rem);
+    --dt-input_border: var(--pico-border-width) solid var(--pico-form-element-border-color);
+    --dt-input_background: var(--pico-form-element-background-color);
+    --dt-input_color: var(--pico-form-element-color);
+    --dt-input_border-radius: var(--pico-border-radius);
+    height: auto;
+    padding: 0.3rem 0.6rem;
+    font-size: 0.85rem;
+    line-height: var(--pico-line-height);
+    background-image: none;
     --pico-border-radius: inherit;
     border-radius: var(--pico-border-radius);
   }
@@ -367,26 +374,26 @@ div.dt-container {
   --dt-paging-button_padding: 0.3rem 0.7rem;
   --dt-paging-button_border-radius: var(--pico-border-radius);
   --dt-paging-button_color-disabled: var(--pico-muted-color);
-  --dt-paging-button_background-current: var(--pico-primary-background);
-  --dt-paging-button_border-current: 1px solid var(--pico-primary-border);
-  --dt-paging-button_color-current: var(--pico-primary-inverse);
-  --dt-paging-button_background-current-hover: var(--pico-primary-hover-background);
-  --dt-paging-button_border-current-hover: 1px solid var(--pico-primary-hover-background);
-  --dt-paging-button_color-current-hover: var(--pico-primary-inverse);
-  --dt-paging-button_background-hover: var(--pico-secondary-focus);
+  --dt-paging-button_background-current: var(--pico-primary-focus);
+  --dt-paging-button_border-current: 1px solid transparent;
+  --dt-paging-button_color-current: var(--pico-color);
+  --dt-paging-button_background-current-hover: var(--pico-primary-focus);
+  --dt-paging-button_border-current-hover: 1px solid transparent;
+  --dt-paging-button_color-current-hover: var(--pico-color);
+  --dt-paging-button_background-hover: var(--pico-muted-border-color);
   --dt-paging-button_color-hover: var(--pico-color);
-  --dtb-button_background: var(--pico-primary-background);
-  --dtb-button_border: 1px solid var(--pico-primary-border);
-  --dtb-button_color: var(--pico-primary-inverse);
-  --dtb-button_background-hover: var(--pico-primary-hover-background);
-  --dtb-button_border-hover: 1px solid var(--pico-primary-hover-background);
-  --dtb-button_color-hover: var(--pico-primary-inverse);
-  --dtb-button_background-active: var(--pico-primary-hover-background);
-  --dtb-button_border-active: 1px solid var(--pico-primary-hover-background);
-  --dtb-button_color-active: var(--pico-primary-inverse);
-  --dtb-button_background-active-hover: var(--pico-primary-hover-background);
-  --dtb-button_border-active-hover: 1px solid var(--pico-primary-hover-background);
-  --dtb-button_color-active-hover: var(--pico-primary-inverse);
+  --dtb-button_background: transparent;
+  --dtb-button_border: 1px solid var(--pico-muted-border-color);
+  --dtb-button_color: var(--pico-muted-color);
+  --dtb-button_background-hover: var(--pico-muted-border-color);
+  --dtb-button_border-hover: 1px solid var(--pico-muted-border-color);
+  --dtb-button_color-hover: var(--pico-color);
+  --dtb-button_background-active: var(--pico-muted-border-color);
+  --dtb-button_border-active: 1px solid var(--pico-muted-border-color);
+  --dtb-button_color-active: var(--pico-color);
+  --dtb-button_background-active-hover: var(--pico-muted-border-color);
+  --dtb-button_border-active-hover: 1px solid var(--pico-muted-border-color);
+  --dtb-button_color-active-hover: var(--pico-color);
 
   .dt-paging .dt-paging-button {
     width: auto;
@@ -396,9 +403,11 @@ div.dt-container {
   .dt-buttons .dt-button {
     width: auto;
     padding: 0.35rem 0.9rem;
-    margin-inline-end: 0.35rem;
+    margin-inline-start: 0.35rem;
     font-size: 0.85rem;
+    line-height: var(--pico-line-height);
     border-radius: var(--pico-border-radius);
+    box-shadow: none;
   }
 }
 
@@ -639,11 +648,37 @@ app-root > .app-shell > main {
   }
 }
 
+// ── Bomberos ──────────────────────────────────────────────────────────────────
+dialog article.dialog-wide {
+  max-width: 60rem;
+  width: 100%;
+}
+
+.importes-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0 1rem;
+
+  @media (max-width: 767px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0 1rem;
+
+  @media (max-width: 767px) {
+    grid-template-columns: 1fr;
+  }
+}
+
 .app-sidebar-logo {
-  height: 1.75rem;
-  width: auto;
-  max-width: 2.5rem;
-  object-fit: contain;
+  height: 2.25rem;
+  width: 2.25rem;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 // ── Forms ─────────────────────────────────────────────────────────────────────
@@ -668,6 +703,48 @@ dialog article form > footer {
     width: auto;
     margin-bottom: 0;
   }
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-inline-start: 0.5rem;
+
+  .icon-btn {
+    position: relative;
+  }
+
+  .icon-btn:disabled {
+    opacity: 0.4;
+  }
+
+  .badge {
+    position: absolute;
+    top: -0.2rem;
+    right: -0.35rem;
+    min-width: 1.1rem;
+    padding: 0 0.3rem;
+    border-radius: 1rem;
+    background: var(--pico-primary-background);
+    color: var(--pico-primary-inverse);
+    font-size: 0.65rem;
+    font-weight: 700;
+    line-height: 1.1rem;
+    text-align: center;
+  }
+
+  button {
+    width: auto;
+    margin-bottom: 0;
+  }
+}
+
+.form-grid label.checkbox-inline {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 2rem;
 }
 
 div.dt-container table.dataTable thead > tr.dt-column-filters > th {
@@ -791,4 +868,234 @@ div.dt-container table.dataTable.display > tbody > tr:not(.selected):hover > .so
 div.dt-container table.dataTable.display > tbody > tr:not(.selected):hover > .sorting_2,
 div.dt-container table.dataTable.display > tbody > tr:not(.selected):hover > .sorting_3 {
   box-shadow: inset 0 0 0 9999px var(--pico-muted-border-color) !important;
+}
+
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: var(--pico-spacing);
+
+  hgroup {
+    margin-bottom: 0;
+  }
+}
+
+div.dt-container .dt-layout-row:not(.dt-layout-table) {
+  align-items: center;
+
+  .dt-search {
+    display: flex;
+    align-items: center;
+
+    input[type="search"] {
+      min-width: 18rem;
+    }
+  }
+}
+
+.dt-row-menu {
+  position: relative;
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+  border: 0;
+
+  > summary {
+    list-style: none;
+    cursor: pointer;
+
+    &::after {
+      display: none;
+    }
+
+    &::-webkit-details-marker,
+    &::marker {
+      display: none;
+      content: "";
+    }
+  }
+
+  > ul {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    z-index: 20;
+    min-width: 14rem;
+    margin: 0.25rem 0 0;
+    padding: 0.35rem 0;
+    list-style: none;
+    background: var(--pico-card-background-color);
+    border: 1px solid var(--pico-muted-border-color);
+    border-radius: var(--pico-border-radius);
+    box-shadow: var(--pico-card-box-shadow);
+    text-align: left;
+
+    li {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    button {
+      width: 100%;
+      margin: 0;
+      padding: 0.45rem 1rem;
+      text-align: left;
+      background: transparent !important;
+      border: 0;
+      border-radius: 0;
+      color: var(--pico-color);
+      box-shadow: none !important;
+      font-size: 0.9rem;
+      font-weight: normal;
+
+      &:hover {
+        background: var(--pico-muted-border-color) !important;
+      }
+    }
+  }
+
+  .dt-row-menu-divider {
+    height: 1px;
+    margin: 0.3rem 0;
+    background: var(--pico-muted-border-color);
+  }
+}
+
+div.dt-container .dt-layout-table.dt-menu-open {
+  overflow: visible;
+}
+
+div.dt-container table.dataTable td.dt-actions .icon-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.toast-container {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 24rem;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0.6rem 0.9rem;
+  background: var(--pico-card-background-color);
+  border-left: 4px solid var(--pico-muted-border-color);
+  box-shadow: var(--pico-card-box-shadow);
+
+  .icon-btn {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  &.toast-success {
+    border-left-color: var(--pico-ins-color);
+  }
+
+  &.toast-danger {
+    border-left-color: var(--pico-del-color);
+  }
+
+  &.toast-warning {
+    border-left-color: #e0a800;
+  }
+}
+
+.year-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: var(--pico-spacing);
+
+  button {
+    width: auto;
+    margin: 0;
+  }
+}
+
+button.outline {
+  --pico-background-color: transparent;
+  --pico-border-color: var(--pico-primary);
+  --pico-color: var(--pico-primary);
+
+  &:hover,
+  &:focus {
+    --pico-background-color: var(--pico-primary-focus);
+  }
+}
+
+
+.titulo-con-select {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: var(--pico-spacing);
+
+  h4 {
+    margin: 0;
+  }
+
+  select {
+    width: auto;
+    margin: 0;
+  }
+}
+
+.volver {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: var(--pico-spacing) 0;
+  padding: var(--pico-spacing) 0;
+  border-top: 1px solid var(--pico-muted-border-color);
+  border-bottom: 1px solid var(--pico-muted-border-color);
+
+  button {
+    width: auto;
+    margin: 0;
+  }
+}
+
+.badge-estado {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--pico-border-radius);
+  font-size: 0.8rem;
+  color: #fff;
+  background: #6c757d;
+
+  &.estado-1 { background: #ffc107; color: #000; }
+  &.estado-2 { background: #198754; }
+  &.estado-3 { background: #0d6efd; }
+  &.estado-5 { background: #6c757d; }
+  &.estado-6 { background: #0dcaf0; color: #000; }
+}
+
+
+
+table.access-control {
+  td, th {
+    text-align: center;
+  }
+
+  td:first-child, th:first-child {
+    text-align: left;
+  }
+
+  input[type="checkbox"] {
+    margin: 0;
+  }
 }

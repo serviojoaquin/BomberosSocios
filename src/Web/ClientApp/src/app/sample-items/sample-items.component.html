@@ -1,13 +1,13 @@
-<hgroup>
-  <h1>Sample items</h1>
-  <p>A sample entity with the full CRUD pattern to copy for new features.</p>
-</hgroup>
-
-<div class="todo-panel-header">
-  <h2>All sample items</h2>
-  @if (canCreate) {
-    <button class="icon-btn" aria-label="New sample item" (click)="showNewDialog()"><lucide-icon name="plus" [size]="20" [strokeWidth]="2" /></button>
-  }
+<div class="page-header">
+  <hgroup>
+    <h1>Sample items</h1>
+    <p>A sample entity with the full CRUD pattern to copy for new features.</p>
+  </hgroup>
+  <div class="toolbar">
+    @if (canCreate) {
+      <button class="icon-btn" aria-label="New sample item" title="New sample item" (click)="showNewDialog()"><lucide-icon name="plus" [size]="20" [strokeWidth]="2" /></button>
+    }
+  </div>
 </div>
 
 <app-data-table

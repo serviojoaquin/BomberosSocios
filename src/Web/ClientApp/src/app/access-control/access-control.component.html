@@ -1,0 +1,35 @@
+<hgroup>
+  <h1>Access control</h1>
+  <p>Permissions of each role. Changes apply the next time a user logs in.</p>
+</hgroup>
+
+@if (!cargado()) {
+  <span aria-busy="true">Loading&hellip;</span>
+} @else {
+  <div style="overflow-x: auto;">
+    <table class="access-control">
+      <thead>
+        <tr>
+          <th>Permission</th>
+          @for (role of roles(); track role.id) {
+            <th>{{ role.name }}</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (permission of permissions(); track permission.id) {
+          <tr>
+            <td>{{ permission.name }}</td>
+            @for (role of roles(); track role.id) {
+              <td>
+                <input type="checkbox" [id]="'permission-' + permission.id + '-role-' + role.id"
+                  [checked]="roleHasPermission(role, permission)" [disabled]="esAdministrador(role)"
+                  (change)="setPermissionToRole(role, permission, $event)" />
+              </td>
+            }
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

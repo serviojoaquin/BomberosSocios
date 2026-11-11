@@ -2,7 +2,7 @@ import { APP_ID, NgModule, inject, provideAppInitializer } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { LucideAngularModule, Sun, Moon, Laptop, Plus, Settings, MoreHorizontal, Pencil, Trash2, House, Hash, CloudSun, ListChecks, Tags, Box, Shield, Users, Layers, Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-angular';
+import { LucideAngularModule, Sun, Moon, Laptop, Plus, Settings, MoreHorizontal, Pencil, Trash2, House, Hash, CloudSun, ListChecks, Tags, Box, Shield, Users, Layers, Menu, PanelLeftClose, PanelLeftOpen, LockKeyhole } from 'lucide-angular';
 import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 import { AppComponent } from './app.component';
@@ -15,6 +15,9 @@ import { TasksComponent } from './todo/todo.component';
 import { SampleItemsComponent } from './sample-items/sample-items.component';
 import { RolesComponent } from './roles/roles.component';
 import { UsersComponent } from './users/users.component';
+import { AccessControlComponent } from './access-control/access-control.component';
+import { YearSelectorComponent } from './shared/year-selector/year-selector.component';
+import { ToastComponent } from './shared/toast/toast.component';
 import { DataTableComponent } from './shared/data-table/data-table.component';
 import { FieldErrorComponent } from './shared/forms/field-error.component';
 import { InvalidDirective } from './shared/forms/invalid.directive';
@@ -43,6 +46,9 @@ export function getApiBaseUrl(): string {
         SampleItemsComponent,
         RolesComponent,
         UsersComponent,
+        AccessControlComponent,
+        YearSelectorComponent,
+        ToastComponent,
         DataTableComponent,
         FieldErrorComponent,
         InvalidDirective,
@@ -55,7 +61,7 @@ export function getApiBaseUrl(): string {
         BrowserModule,
         FormsModule,
         ReactiveFormsModule,
-        LucideAngularModule.pick({ Sun, Moon, Laptop, Plus, Settings, MoreHorizontal, Pencil, Trash2, House, Hash, CloudSun, ListChecks, Tags, Box, Shield, Users, Layers, Menu, PanelLeftClose, PanelLeftOpen }),
+        LucideAngularModule.pick({ Sun, Moon, Laptop, Plus, Settings, MoreHorizontal, Pencil, Trash2, House, Hash, CloudSun, ListChecks, Tags, Box, Shield, Users, Layers, Menu, PanelLeftClose, PanelLeftOpen, LockKeyhole }),
         RouterModule.forRoot([
             { path: '', component: HomeComponent, pathMatch: 'full' },
             { path: 'counter', component: CounterComponent },
@@ -64,6 +70,7 @@ export function getApiBaseUrl(): string {
             { path: 'sample-items', component: SampleItemsComponent, canActivate: [AuthGuard] },
             { path: 'roles', component: RolesComponent, canActivate: [AuthGuard] },
             { path: 'users', component: UsersComponent, canActivate: [AuthGuard] },
+            { path: 'access-control', component: AccessControlComponent, canActivate: [AuthGuard] },
             { path: 'login', component: LoginComponent },
             { path: 'register', component: RegisterComponent }
         ])
