@@ -67,8 +67,10 @@ export class DataTableComponent implements AfterViewInit, OnChanges, OnDestroy {
   @Input() options: Record<string, any> = {};
   @Input() exportTitle = '';
   @Input() rowId = 'id';
+  @Input() selectable = false;
 
   @Output() action = new EventEmitter<DataTableActionEvent>();
+  @Output() selectionChange = new EventEmitter<any[]>();
 
   private table: any = null;
   private readonly isBrowser: boolean;
@@ -94,11 +96,25 @@ export class DataTableComponent implements AfterViewInit, OnChanges, OnDestroy {
         input.addEventListener('pointerdown', unlock);
       });
     this.tableRef.nativeElement.addEventListener('click', this.onClick);
+    if (this.selectable) {
+      this.table.on('select deselect', () => this.selectionChange.emit(this.selectedRows()));
+    }
+  }
+
+  selectedRows(): any[] {
+    return this.table ? this.table.rows({ selected: true }).data().toArray() : [];
+  }
+
+  clearSelection(): void {
+    this.table?.rows().deselect();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['data'] && this.table) {
       this.table.clear().rows.add(this.data ?? []).draw(false);
+      if (this.selectable) {
+        this.selectionChange.emit([]);
+      }
     }
   }
 
@@ -139,6 +155,7 @@ export class DataTableComponent implements AfterViewInit, OnChanges, OnDestroy {
       lengthMenu: [10, 25, 50, 100],
       responsive: true,
       stateSave: false,
+      select: this.selectable ? { style: 'multi', selector: 'td:not(.dt-actions)' } : false,
       orderClasses: false,
       order: [[0, 'asc']],
       layout: {
