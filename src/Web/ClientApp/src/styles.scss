@@ -731,3 +731,28 @@ dialog article form > footer {
   gap: 0.5rem;
   margin-top: 2rem;
 }
+
+div.dt-container table.dataTable thead > tr.dt-column-filters > th {
+  padding: 0.25rem 0.5rem 0.5rem;
+  border-bottom: 1px solid var(--pico-muted-border-color);
+
+  input[type="search"] {
+    --pico-border-radius: inherit;
+    margin: 0;
+    padding: 0.3rem 0.6rem;
+    padding-inline-start: 0.6rem;
+    height: auto;
+    font-size: 0.85rem;
+    background-image: none;
+  }
+}
+
+div.dt-container table.dataTable tbody > tr.selected > * {
+  box-shadow: inset 0 0 0 9999px var(--pico-primary-focus);
+  color: inherit;
+}
+
+div.dt-container table.dataTable tbody > tr.selected a {
+  color: inherit;
+}
+}
