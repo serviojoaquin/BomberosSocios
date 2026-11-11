@@ -1,4 +1,5 @@
 using BaseApp.Application.Common.Interfaces;
+using BaseApp.Application.Common.Models;
 using BaseApp.Application.Common.Security;
 using BaseApp.Domain.Enums;
 
@@ -23,6 +24,11 @@ public class DeleteCobradorCommandHandler : IRequestHandler<DeleteCobradorComman
             .SingleOrDefaultAsync(cancellationToken);
 
         Guard.Against.NotFound(request.Id, entity);
+
+        if (await _context.Socios.AnyAsync(s => s.CobradorId == entity.Id, cancellationToken))
+        {
+            Result.Failure(["El cobrador tiene socios asignados y no se puede eliminar."]).ThrowIfFailed();
+        }
 
         _context.Cobradores.Remove(entity);
 

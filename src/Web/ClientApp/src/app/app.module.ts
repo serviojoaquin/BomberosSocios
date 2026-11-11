@@ -2,7 +2,7 @@ import { APP_ID, NgModule, inject, provideAppInitializer } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { LucideAngularModule, Sun, Moon, Laptop, Plus, Settings, MoreHorizontal, Pencil, Trash2, House, Hash, CloudSun, ListChecks, Tags, Box, Wallet, Shield, Users, Layers, Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-angular';
+import { LucideAngularModule, Sun, Moon, Laptop, Plus, Settings, MoreHorizontal, Pencil, Trash2, House, Hash, CloudSun, ListChecks, Tags, Box, Wallet, Contact, Shield, Users, Layers, Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-angular';
 import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 import { AppComponent } from './app.component';
@@ -11,6 +11,7 @@ import { HeaderComponent } from './layout/header.component';
 import { HomeComponent } from './home/home.component';
 import { CategoriasComponent } from './categorias/categorias.component';
 import { CobradoresComponent } from './cobradores/cobradores.component';
+import { SociosComponent } from './socios/socios.component';
 import { RolesComponent } from './roles/roles.component';
 import { UsersComponent } from './users/users.component';
 import { DataTableComponent } from './shared/data-table/data-table.component';
@@ -39,6 +40,7 @@ export function getApiBaseUrl(): string {
         HomeComponent,
         CategoriasComponent,
         CobradoresComponent,
+        SociosComponent,
         RolesComponent,
         UsersComponent,
         DataTableComponent,
@@ -53,11 +55,12 @@ export function getApiBaseUrl(): string {
         BrowserModule,
         FormsModule,
         ReactiveFormsModule,
-        LucideAngularModule.pick({ Sun, Moon, Laptop, Plus, Settings, MoreHorizontal, Pencil, Trash2, House, Hash, CloudSun, ListChecks, Tags, Box, Wallet, Shield, Users, Layers, Menu, PanelLeftClose, PanelLeftOpen }),
+        LucideAngularModule.pick({ Sun, Moon, Laptop, Plus, Settings, MoreHorizontal, Pencil, Trash2, House, Hash, CloudSun, ListChecks, Tags, Box, Wallet, Contact, Shield, Users, Layers, Menu, PanelLeftClose, PanelLeftOpen }),
         RouterModule.forRoot([
             { path: '', component: HomeComponent, pathMatch: 'full' },
             { path: 'categorias', component: CategoriasComponent, canActivate: [AuthGuard] },
             { path: 'cobradores', component: CobradoresComponent, canActivate: [AuthGuard] },
+            { path: 'socios', component: SociosComponent, canActivate: [AuthGuard] },
             { path: 'roles', component: RolesComponent, canActivate: [AuthGuard] },
             { path: 'users', component: UsersComponent, canActivate: [AuthGuard] },
             { path: 'login', component: LoginComponent },

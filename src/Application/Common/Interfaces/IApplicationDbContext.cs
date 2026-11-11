@@ -14,5 +14,7 @@ public interface IApplicationDbContext
 
     DbSet<Cobrador> Cobradores { get; }
 
+    DbSet<Socio> Socios { get; }
+
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

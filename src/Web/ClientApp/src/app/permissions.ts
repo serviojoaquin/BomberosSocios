@@ -13,6 +13,10 @@ export enum Permissions {
   CrearCobradores = 1024,
   EditarCobradores = 2048,
   EliminarCobradores = 4096,
+  VerSocios = 8192,
+  CrearSocios = 16384,
+  EditarSocios = 32768,
+  EliminarSocios = 65536,
   All = -1
 }
 

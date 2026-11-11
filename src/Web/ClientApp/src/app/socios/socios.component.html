@@ -1,0 +1,178 @@
+<hgroup>
+  <h1>Socios</h1>
+  <p>Padrón de socios de la asociación.</p>
+</hgroup>
+
+<div class="todo-panel-header">
+  <h2>Todos los socios</h2>
+  <div class="toolbar">
+    @if (puedeEditar) {
+      <button type="button" class="icon-btn" [disabled]="seleccionados().length === 0" (click)="showAfiliacionDialog()"
+        [attr.title]="'Datos de afiliación de ' + seleccionados().length + ' socio(s)'" aria-label="Datos de afiliación">
+        <lucide-icon name="users" [size]="20" [strokeWidth]="2" />
+        <span class="badge">{{ seleccionados().length }}</span>
+      </button>
+    }
+    @if (puedeCrear) {
+      <button class="icon-btn" aria-label="Nuevo socio" (click)="showNewDialog()"><lucide-icon name="plus" [size]="20" [strokeWidth]="2" /></button>
+    }
+  </div>
+</div>
+
+<app-data-table
+  [columns]="columns"
+  [data]="socios()"
+  [actions]="actions"
+  [selectable]="puedeEditar"
+  [columnFilters]="true"
+  exportTitle="Socios"
+  (action)="onAction($event)"
+  (selectionChange)="onSelectionChange($event)" />
+
+<dialog #editDialog>
+  <article class="dialog-wide">
+    <header>
+      <h3>{{ isEditing ? 'Modificar socio' : 'Nuevo socio' }}</h3>
+      <button rel="prev" aria-label="Cerrar" (click)="closeEditDialog()"></button>
+    </header>
+    <form [formGroup]="form" (ngSubmit)="save()" novalidate>
+      <div class="form-grid">
+        <label>
+          Nombre y/o razón social
+          <input type="text" id="nombre" formControlName="nombre" [appInvalid]="form.get('nombre')" maxlength="200" />
+          <app-field-error [control]="form.get('nombre')" />
+        </label>
+        <label>
+          Número de documento
+          <input type="number" id="numeroDocumento" formControlName="numeroDocumento" [appInvalid]="form.get('numeroDocumento')" min="1" />
+          <app-field-error [control]="form.get('numeroDocumento')" />
+        </label>
+        <label>
+          Categoría
+          <select id="categoriaId" formControlName="categoriaId" [appInvalid]="form.get('categoriaId')">
+            <option [ngValue]="null">Seleccioná una categoría</option>
+            @for (c of categorias(); track c.id) {
+              <option [ngValue]="c.id">{{ c.title }}</option>
+            }
+          </select>
+          <app-field-error [control]="form.get('categoriaId')" />
+        </label>
+        <label>
+          Cobrador
+          <select id="cobradorId" formControlName="cobradorId" [appInvalid]="form.get('cobradorId')">
+            <option [ngValue]="null">Seleccioná un cobrador</option>
+            @for (c of cobradores(); track c.id) {
+              <option [ngValue]="c.id">{{ c.title }}</option>
+            }
+          </select>
+          <app-field-error [control]="form.get('cobradorId')" />
+        </label>
+        <label>
+          Domicilio
+          <input type="text" id="domicilio" formControlName="domicilio" [appInvalid]="form.get('domicilio')" maxlength="300" />
+          <app-field-error [control]="form.get('domicilio')" />
+        </label>
+        <label>
+          Domicilio de cobro
+          <input type="text" id="domicilioDeCobro" formControlName="domicilioDeCobro" [appInvalid]="form.get('domicilioDeCobro')" maxlength="300" />
+          <app-field-error [control]="form.get('domicilioDeCobro')" />
+        </label>
+        <label>
+          Teléfono
+          <input type="text" id="telefono" formControlName="telefono" [appInvalid]="form.get('telefono')" maxlength="50" />
+          <app-field-error [control]="form.get('telefono')" />
+        </label>
+        <label>
+          Celular
+          <input type="text" id="celular" formControlName="celular" [appInvalid]="form.get('celular')" maxlength="50" />
+          <app-field-error [control]="form.get('celular')" />
+        </label>
+        <label>
+          Email
+          <input type="email" id="email" formControlName="email" [appInvalid]="form.get('email')" maxlength="200" autocomplete="off" />
+          <app-field-error [control]="form.get('email')" />
+        </label>
+        <label>
+          Web
+          <input type="text" id="web" formControlName="web" [appInvalid]="form.get('web')" maxlength="200" />
+          <app-field-error [control]="form.get('web')" />
+        </label>
+        <label>
+          Fecha de afiliación
+          <input type="date" id="fechaAfiliacion" formControlName="fechaAfiliacion" [appInvalid]="form.get('fechaAfiliacion')" />
+          <app-field-error [control]="form.get('fechaAfiliacion')" />
+        </label>
+        <label class="checkbox-inline">
+          <input type="checkbox" id="pasivo" formControlName="pasivo" />
+          Socio pasivo
+        </label>
+      </div>
+      @for (message of generalErrors(); track message) {
+        <small class="field-error">{{ message }}</small>
+      }
+      <footer>
+        <button type="button" class="secondary" (click)="closeEditDialog()">Cancelar</button>
+        <button type="submit">{{ isEditing ? 'Guardar' : 'Crear' }}</button>
+      </footer>
+    </form>
+  </article>
+</dialog>
+
+<dialog #afiliacionDialog>
+  <article>
+    <header>
+      <h3>Datos de afiliación de {{ seleccionados().length }} socio(s)</h3>
+      <button rel="prev" aria-label="Cerrar" (click)="closeAfiliacionDialog()"></button>
+    </header>
+    <p>Solo se modifican los datos que elijas; los demás quedan como están.</p>
+    <form [formGroup]="afiliacionForm" (ngSubmit)="saveAfiliacion()" novalidate>
+      <label>
+        Categoría
+        <select formControlName="categoriaId">
+          <option [ngValue]="null">Sin cambios</option>
+          @for (c of categorias(); track c.id) {
+            <option [ngValue]="c.id">{{ c.title }}</option>
+          }
+        </select>
+      </label>
+      <label>
+        Cobrador
+        <select formControlName="cobradorId">
+          <option [ngValue]="null">Sin cambios</option>
+          @for (c of cobradores(); track c.id) {
+            <option [ngValue]="c.id">{{ c.title }}</option>
+          }
+        </select>
+      </label>
+      <label>
+        Estado
+        <select formControlName="estado">
+          <option value="">Sin cambios</option>
+          <option value="activo">Activo</option>
+          <option value="pasivo">Pasivo</option>
+        </select>
+      </label>
+      @for (message of generalErrors(); track message) {
+        <small class="field-error">{{ message }}</small>
+      }
+      <footer>
+        <button type="button" class="secondary" (click)="closeAfiliacionDialog()">Cancelar</button>
+        <button type="submit">Aplicar</button>
+      </footer>
+    </form>
+  </article>
+</dialog>
+
+<dialog #deleteDialog>
+  <article>
+    <header>
+      <h3>¿Eliminar a {{ selected()?.nombre }}?</h3>
+      <button rel="prev" aria-label="Cerrar" (click)="closeDeleteDialog()"></button>
+    </header>
+    <p>Esta acción no se puede deshacer.</p>
+    <footer>
+      <button class="secondary" (click)="closeDeleteDialog()">Cancelar</button>
+      <button class="danger" (click)="deleteConfirmed()">Eliminar</button>
+    </footer>
+  </article>
+</dialog>

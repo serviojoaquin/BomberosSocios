@@ -1,4 +1,5 @@
 using BaseApp.Application.Common.Interfaces;
+using BaseApp.Application.Common.Models;
 using BaseApp.Application.Common.Security;
 using BaseApp.Domain.Enums;
 
@@ -23,6 +24,11 @@ public class DeleteCategoriaCommandHandler : IRequestHandler<DeleteCategoriaComm
             .SingleOrDefaultAsync(cancellationToken);
 
         Guard.Against.NotFound(request.Id, entity);
+
+        if (await _context.Socios.AnyAsync(s => s.CategoriaId == entity.Id, cancellationToken))
+        {
+            Result.Failure(["La categoría tiene socios asignados y no se puede eliminar."]).ThrowIfFailed();
+        }
 
         _context.Categorias.Remove(entity);
 
