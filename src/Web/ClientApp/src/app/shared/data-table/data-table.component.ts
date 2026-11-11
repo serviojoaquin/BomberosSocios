@@ -279,7 +279,7 @@ export class DataTableComponent implements AfterViewInit, OnChanges, OnDestroy {
       .filter(a => a.visible ? a.visible(row) : true)
       .map(a => {
         const disabled = a.disabled?.(row) ? ' disabled' : '';
-        if (a.menu) {
+        if (a.menu && !disabled) {
           const items = (typeof a.menu === 'function' ? a.menu(row) : a.menu)
             .filter(i => i.visible ? i.visible(row) : true);
           const list = items
