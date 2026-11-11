@@ -201,7 +201,7 @@ export class DataTableComponent implements AfterViewInit, OnChanges, OnDestroy {
       rowId: this.rowId,
       pageLength: 10,
       lengthMenu: [10, 25, 50, 100],
-      responsive: true,
+      responsive: false,
       stateSave: false,
       select: this.selectable ? { style: 'multi', selector: 'td:not(.dt-actions)' } : false,
       orderClasses: false,
