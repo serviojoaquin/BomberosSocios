@@ -829,8 +829,8 @@ div.dt-container table.dataTable.display > tbody > tr.selected > .sorting_3,
 div.dt-container table.dataTable.display > tbody > tr.odd.selected > .sorting_1,
 div.dt-container table.dataTable.display > tbody > tr.odd.selected > .sorting_2,
 div.dt-container table.dataTable.display > tbody > tr.odd.selected > .sorting_3 {
-  box-shadow: inset 0 0 0 9999px var(--pico-primary-focus);
-  color: inherit;
+  box-shadow: inset 0 0 0 9999px var(--pico-primary-focus) !important;
+  color: inherit !important;
 }
 
 div.dt-container table.dataTable.hover > tbody > tr.selected:hover > *,
@@ -841,8 +841,8 @@ div.dt-container table.dataTable.hover > tbody > tr.selected:hover > .sorting_3,
 div.dt-container table.dataTable.display > tbody > tr.selected:hover > .sorting_1,
 div.dt-container table.dataTable.display > tbody > tr.selected:hover > .sorting_2,
 div.dt-container table.dataTable.display > tbody > tr.selected:hover > .sorting_3 {
-  box-shadow: inset 0 0 0 9999px var(--pico-primary-focus);
-  color: inherit;
+  box-shadow: inset 0 0 0 9999px rgba(0, 0, 0, 0.14), inset 0 0 0 9999px var(--pico-primary-focus) !important;
+  color: inherit !important;
 }
 
 div.dt-container table.dataTable > tbody > tr.selected a {
@@ -858,5 +858,5 @@ div.dt-container table.dataTable.hover > tbody > tr:not(.selected):hover > .sort
 div.dt-container table.dataTable.display > tbody > tr:not(.selected):hover > .sorting_1,
 div.dt-container table.dataTable.display > tbody > tr:not(.selected):hover > .sorting_2,
 div.dt-container table.dataTable.display > tbody > tr:not(.selected):hover > .sorting_3 {
-  box-shadow: inset 0 0 0 9999px var(--pico-muted-border-color);
+  box-shadow: inset 0 0 0 9999px var(--pico-muted-border-color) !important;
 }
