@@ -773,8 +773,8 @@ div.dt-container table.dataTable.hover > tbody > tr.selected:hover > .sorting_3,
 div.dt-container table.dataTable.display > tbody > tr.selected:hover > .sorting_1,
 div.dt-container table.dataTable.display > tbody > tr.selected:hover > .sorting_2,
 div.dt-container table.dataTable.display > tbody > tr.selected:hover > .sorting_3 {
-  box-shadow: inset 0 0 0 9999px rgba(var(--dt-row_background-selected), 0.92);
-  color: rgb(var(--dt-row-text_color-selected));
+  box-shadow: inset 0 0 0 9999px rgba(var(--dt-row_background-selected), 0.34);
+  color: inherit;
 }
 
 div.dt-container table.dataTable > tbody > tr.selected a {
