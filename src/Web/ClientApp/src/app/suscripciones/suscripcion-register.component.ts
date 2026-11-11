@@ -1,4 +1,5 @@
 import { Component, OnInit, signal } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { SuscripcionesClient, RegisterSuscripcionVm, CategoriaSuscripcionDto, CreateSuscripcionCommand } from '../web-api-client';
 import { ToastService } from '../shared/toast/toast.service';
 import { FormErrorsService } from '../shared/forms/form-errors.service';
@@ -14,20 +15,21 @@ export class SuscripcionRegisterComponent implements OnInit {
   constructor(
     private client: SuscripcionesClient,
     private toast: ToastService,
-    private formErrors: FormErrorsService
+    private formErrors: FormErrorsService,
+    private translate: TranslateService
   ) {}
 
   ngOnInit(): void {
     this.client.register().subscribe({
       next: result => this.vm.set(result),
-      error: error => this.toast.show(this.formErrors.firstMessage(error, 'No se pudieron cargar las categorías.'), 'danger')
+      error: error => this.toast.show(this.formErrors.firstMessage(error, this.translate.instant('suscripciones.errorCargarCategorias')), 'danger')
     });
   }
 
   crearSuscripcion(categoria: CategoriaSuscripcionDto): void {
     this.client.create({ categoriaId: categoria.id, importe: categoria.importe } as CreateSuscripcionCommand).subscribe({
-      next: () => this.toast.show('Suscripción creada.', 'success'),
-      error: error => this.toast.show(this.formErrors.firstMessage(error, 'No se pudo crear la suscripción.'), 'danger')
+      next: () => this.toast.show(this.translate.instant('suscripciones.creada'), 'success'),
+      error: error => this.toast.show(this.formErrors.firstMessage(error, this.translate.instant('suscripciones.errorCrear')), 'danger')
     });
   }
 

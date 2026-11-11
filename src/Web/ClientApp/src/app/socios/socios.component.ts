@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef, signal } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 import { SociosClient, SocioDto, LookupDto, CreateSocioCommand, UpdateSocioCommand, UpdateDatosAfiliacionCommand, CuotasClient, ReportesClient, GenerarCuotasCommand, BonificarCuotasViejasCommand } from '../web-api-client';
 import { AuthService } from 'src/api-authorization/auth.service';
 import { Permissions } from '../permissions';
@@ -31,33 +32,33 @@ export class SociosComponent implements OnInit {
   puedeAdministrarCuotas = this.authService.hasPermission(Permissions.AdministrarCuotas);
   soloLectura = signal(false);
   columns: DataTableColumn[] = [
-    { data: 'id', title: 'N°', className: 'dt-body-right' },
-    { data: 'nombre', title: 'Nombre' },
-    { data: 'numeroDocumento', title: 'Documento', className: 'dt-body-right' },
-    { data: 'categoria', title: 'Categoría' },
-    { data: 'cobrador', title: 'Cobrador' },
-    { data: 'domicilio', title: 'Domicilio' },
-    { data: 'domicilioDeCobro', title: 'Domicilio de cobro' },
-    { data: 'estado', title: 'Estado' }
+    { data: 'id', title: 'socios.numero', className: 'dt-body-right' },
+    { data: 'nombre', title: 'socios.nombre' },
+    { data: 'numeroDocumento', title: 'socios.documento', className: 'dt-body-right' },
+    { data: 'categoria', title: 'socios.categoria' },
+    { data: 'cobrador', title: 'socios.cobrador' },
+    { data: 'domicilio', title: 'socios.domicilio' },
+    { data: 'domicilioDeCobro', title: 'socios.domicilioDeCobro' },
+    { data: 'estado', title: 'socios.estado', render: (_v, type, row: SocioDto) => type === 'display' ? this.translate.instant(row.pasivo ? 'comun.pasivo' : 'comun.activo') : (row.pasivo ? 'pasivo' : 'activo') }
   ];
   actions: DataTableAction[] = [
     {
       name: 'cuotas',
-      label: 'Cuotas',
+      label: 'cuotas.menu',
       icon: 'tasks',
       visible: (row: SocioDto) => row.cuotasCount > 0 || (!row.pasivo && this.puedeAdministrarCuotas),
       menu: (row: SocioDto) => [
-        { name: 'ver', label: 'Ver', visible: () => row.cuotasCount > 0 },
+        { name: 'ver', label: 'cuotas.ver', visible: () => row.cuotasCount > 0 },
         { name: 'd1', label: '', divider: true, visible: () => row.cuotasCount > 0 },
-        { name: 'generar', label: 'Generar', visible: () => !row.pasivo && this.puedeAdministrarCuotas },
-        { name: 'bonificar', label: 'Bonificar año pasado', visible: () => row.cuotasCount > 0 && this.puedeAdministrarCuotas },
+        { name: 'generar', label: 'cuotas.generar', visible: () => !row.pasivo && this.puedeAdministrarCuotas },
+        { name: 'bonificar', label: 'cuotas.bonificarAnoPasado', visible: () => row.cuotasCount > 0 && this.puedeAdministrarCuotas },
         { name: 'd2', label: '', divider: true, visible: () => row.cuotasCount > 0 && this.puedeAdministrarCuotas },
-        { name: 'descargar', label: 'Descargar reporte cuotas', visible: () => !row.pasivo && row.cuotasCount > 0 }
+        { name: 'descargar', label: 'cuotas.descargarReporte', visible: () => !row.pasivo && row.cuotasCount > 0 }
       ]
     },
     this.puedeEditar
-      ? { name: 'edit', label: 'Editar', icon: 'pencil' }
-      : { name: 'ver-socio', label: 'Ver', icon: 'eye' }
+      ? { name: 'edit', label: 'comun.editar', icon: 'pencil' }
+      : { name: 'ver-socio', label: 'comun.ver', icon: 'eye' }
   ];
   form = this.fb.group({
     id: [0],
@@ -92,7 +93,8 @@ export class SociosComponent implements OnInit {
     private fb: FormBuilder,
     private formErrors: FormErrorsService,
     private router: Router,
-    private toast: ToastService
+    private toast: ToastService,
+    private translate: TranslateService
   ) {}
 
   get isEditing(): boolean {
@@ -112,7 +114,7 @@ export class SociosComponent implements OnInit {
         this.socios.set(result.socios);
         this.seleccionados.set([]);
       },
-      error: () => this.toast.show('Error al cargar los socios.', 'danger')
+      error: () => this.toast.show(this.translate.instant('socios.errorCargar'), 'danger')
     });
   }
 
@@ -152,7 +154,7 @@ export class SociosComponent implements OnInit {
       initialYear: this.initialYear,
       maxYears: socio.cuotasCount > 0 ? 2 : 1,
       showCheck: true,
-      checkText: 'Forzar regeneración'
+      checkText: this.translate.instant('cuotas.forzarRegeneracion')
     });
   }
 
@@ -160,29 +162,29 @@ export class SociosComponent implements OnInit {
     this.cuotasClient.generate({ socioId: socio.id, year, forceRecreate } as GenerarCuotasCommand).subscribe({
       next: count => {
         if (count === 0) {
-          this.toast.show('No hay mas cuotas que generar.');
+          this.toast.show(this.translate.instant('cuotas.sinCuotasQueGenerar'));
         } else {
-          this.toast.show(`Se han generado ${count} cuotas.`, 'success');
+          this.toast.show(this.translate.instant('cuotas.generadas', { cantidad: count }), 'success');
           this.cargar();
         }
       },
-      error: () => this.toast.show('Se produjo un error al generar las cuotas.', 'danger', 10000)
+      error: () => this.toast.show(this.translate.instant('cuotas.errorGenerar'), 'danger', 10000)
     });
   }
 
   confirmSetOldCuotasAsBonificadas(socio: SocioDto): void {
-    if (!confirm(`¿Está seguro que desea bonificar todas las cuotas del socio ${socio.nombre}?`)) {
+    if (!confirm(this.translate.instant('socios.confirmarBonificar', { nombre: socio.nombre }))) {
       return;
     }
     this.cuotasClient.setOldCuotasAsBonificada({ socioId: socio.id } as BonificarCuotasViejasCommand).subscribe({
       next: result => {
         if (result.cuotasModifiedCount === 0) {
-          this.toast.show('No hay mas cuotas para bonificar.');
+          this.toast.show(this.translate.instant('cuotas.sinCuotasParaBonificar'));
         } else {
-          this.toast.show(`Se han bonificado ${result.cuotasModifiedCount} cuotas.`, 'success');
+          this.toast.show(this.translate.instant('cuotas.bonificadas', { cantidad: result.cuotasModifiedCount }), 'success');
         }
       },
-      error: error => this.toast.show(this.formErrors.firstMessage(error, 'Se produjo un error al bonificar las cuotas.'), 'danger')
+      error: error => this.toast.show(this.formErrors.firstMessage(error, this.translate.instant('cuotas.errorBonificar')), 'danger')
     });
   }
 
@@ -191,12 +193,12 @@ export class SociosComponent implements OnInit {
       this.reportesClient.getReporteCuotasSocio(socio.id, result.year).subscribe({
         next: file => {
           if (!file.data || file.data.size === 0) {
-            this.toast.show('Reporte no generado. Por favor, genérelo.', 'warning', 3000);
+            this.toast.show(this.translate.instant('cuotas.reporteNoGenerado'), 'warning', 3000);
           } else {
             saveBlob(file.data, file.fileName ?? `CuotasSocio_${socio.id}_Ano_${result.year}.pdf`);
           }
         },
-        error: () => this.toast.show('Error desconocido al descargar el reporte de cuotas socio.', 'danger')
+        error: () => this.toast.show(this.translate.instant('cuotas.errorDescargarReporte'), 'danger')
       });
     };
     this.yearSelector.open({ initialYear: this.initialYear });
@@ -289,7 +291,7 @@ export class SociosComponent implements OnInit {
       },
       error: error => {
         this.generalErrors.set(this.formErrors.apply(error, this.afiliacionForm).general);
-        this.toast.show('Se produjo un error al actualizar los socios.', 'danger');
+        this.toast.show(this.translate.instant('socios.errorActualizar'), 'danger');
       }
     });
   }

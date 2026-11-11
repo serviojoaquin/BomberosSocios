@@ -33,8 +33,6 @@ import { YearSelectorComponent } from './shared/year-selector/year-selector.comp
 import { ToastComponent } from './shared/toast/toast.component';
 import { FieldErrorComponent } from './shared/forms/field-error.component';
 import { InvalidDirective } from './shared/forms/invalid.directive';
-import { FIELD_ERROR_MESSAGES } from './shared/forms/field-error.component';
-import { MENSAJES_VALIDACION } from './mensajes-validacion';
 import { ThemeToggleComponent } from './theme-toggle/theme-toggle.component';
 import { API_BASE_URL } from './web-api-client';
 import { AuthorizeInterceptor } from 'src/api-authorization/authorize.interceptor';
@@ -111,13 +109,12 @@ export function getApiBaseUrl(): string {
     providers: [
         { provide: APP_ID, useValue: 'ng-cli-universal' },
         provideTranslateService({
-            loader: provideTranslateHttpLoader({ prefix: './assets/i18n/', suffix: '.json' }),
+            loader: provideTranslateHttpLoader({ resources: [{ prefix: './assets/i18n/', suffix: '.json' }, { prefix: './assets/i18n/bomberos/', suffix: '.json' }] }),
             fallbackLang: DEFAULT_LANGUAGE,
             lang: DEFAULT_LANGUAGE
         }),
         { provide: HTTP_INTERCEPTORS, useClass: AuthorizeInterceptor, multi: true },
         { provide: API_BASE_URL, useFactory: getApiBaseUrl, deps: [] },
-        { provide: FIELD_ERROR_MESSAGES, useValue: MENSAJES_VALIDACION },
         provideAppInitializer(() => inject(LanguageService).init()),
         provideAppInitializer(() => inject(AuthService).initialize()),
         provideHttpClient(withInterceptorsFromDi())

@@ -1,5 +1,7 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild, signal } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import DataTable from 'datatables.net-dt';
+import { Subscription } from 'rxjs';
 import { DashboardClient, CobranzaCuotaSociosDto } from '../web-api-client';
 import { ToastService } from '../shared/toast/toast.service';
 import { FormErrorsService } from '../shared/forms/form-errors.service';
@@ -30,18 +32,27 @@ export class EstadisticasComponent implements OnInit, OnDestroy {
 
   private table: any = null;
   private pendingInit = false;
+  private langSubscription: Subscription | null = null;
 
   constructor(
     private client: DashboardClient,
     private toast: ToastService,
-    private formErrors: FormErrorsService
+    private formErrors: FormErrorsService,
+    private translate: TranslateService
   ) {}
 
   ngOnInit(): void {
     this.cargar();
+    this.langSubscription = this.translate.onLangChange.subscribe(() => {
+      if (this.table) {
+        this.destroyTable();
+        queueMicrotask(() => this.initTable());
+      }
+    });
   }
 
   ngOnDestroy(): void {
+    this.langSubscription?.unsubscribe();
     this.destroyTable();
   }
 
@@ -67,7 +78,7 @@ export class EstadisticasComponent implements OnInit, OnDestroy {
         this.cargado.set(true);
         this.pendingInit = list.length > 0;
       },
-      error: error => this.toast.show(this.formErrors.firstMessage(error, 'No se pudieron cargar las estadísticas.'), 'danger')
+      error: error => this.toast.show(this.formErrors.firstMessage(error, this.translate.instant('estadisticas.errorCargar')), 'danger')
     });
   }
 
@@ -81,7 +92,7 @@ export class EstadisticasComponent implements OnInit, OnDestroy {
   }
 
   get subtitle(): string {
-    return `Cobranza Cuota Socios ${this.year}`;
+    return `${this.translate.instant('estadisticas.cobranza')} ${this.year}`;
   }
 
   get filename(): string {
@@ -94,13 +105,14 @@ export class EstadisticasComponent implements OnInit, OnDestroy {
     }
     const self = this;
     const invertido = this.invertir();
-    this.table = new DataTable(this.tablaRef!.nativeElement, {
+    const language = this.translate.instant('dataTable');
+    this.table = new DataTable(this.tablaRef.nativeElement, {
       paging: false,
       info: false,
       searching: !invertido,
       ordering: !invertido,
       orderClasses: false,
-      language: { search: '', searchPlaceholder: 'Buscar…' },
+      language: typeof language === 'object' ? language : {},
       layout: { topStart: invertido ? null : 'search', topEnd: 'buttons', bottomStart: null, bottomEnd: null },
       buttons: [
         { extend: 'excelHtml5', text: 'Excel', footer: true, title: () => self.subtitle, filename: () => self.filename, exportOptions: { columns: ':visible' } },

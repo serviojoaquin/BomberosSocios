@@ -9,8 +9,8 @@ export function formatPivotImporte(value: number | null | undefined): string {
 
 export function pivotColumns(): DataTableColumn[] {
   const columns: DataTableColumn[] = [
-    { data: 'socioId', title: 'N°', className: 'dt-body-right' },
-    { data: 'socioNombre', title: 'Socio' }
+    { data: 'socioId', title: 'socios.numero', className: 'dt-body-right' },
+    { data: 'socioNombre', title: 'cobradores.socio' }
   ];
   for (let i = 0; i < 12; i++) {
     columns.push({
@@ -23,7 +23,7 @@ export function pivotColumns(): DataTableColumn[] {
   }
   columns.push({
     data: 'total',
-    title: 'Total',
+    title: 'comun.total',
     className: 'dt-body-right',
     orderable: false,
     render: (value: number, type: string) => type === 'display' ? `<b>${formatPivotImporte(value)}</b>` : String(value ?? '')

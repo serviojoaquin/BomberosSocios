@@ -1,17 +1,17 @@
 <hgroup>
-  <h1>Suscribite</h1>
-  <p>Elegí tu categoría y suscribite al pago mensual con Mercado Pago.</p>
+  <h1>{{ 'suscripciones.suscribite' | translate }}</h1>
+  <p>{{ 'suscripciones.elegiCategoria' | translate }}</p>
 </hgroup>
 
 @if (!vm()) {
-  <span aria-busy="true">Cargando&hellip;</span>
+  <span aria-busy="true">{{ 'common.loading' | translate }}</span>
 } @else {
   <div class="planes">
     @for (categoria of vm()!.categorias; track categoria.id; let last = $last) {
       <article>
         <header><h4>{{ categoria.descripcion }}</h4></header>
-        <h1>{{ formatImporte(categoria.importe) }}<small>/mes</small></h1>
-        <button type="button" [class.outline]="!last" (click)="crearSuscripcion(categoria)">Suscribite!</button>
+        <h1>{{ formatImporte(categoria.importe) }}<small>{{ 'suscripciones.porMes' | translate }}</small></h1>
+        <button type="button" [class.outline]="!last" (click)="crearSuscripcion(categoria)">{{ 'suscripciones.boton' | translate }}</button>
       </article>
     }
   </div>

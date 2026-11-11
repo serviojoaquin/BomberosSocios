@@ -1,12 +1,12 @@
 <div class="page-header">
   <hgroup>
-    <h1>Cajas</h1>
-    <p>Cajas de cobro con QR de Mercado Pago.</p>
+    <h1>{{ 'cajas.titulo' | translate }}</h1>
+    <p>{{ 'cajas.descripcion' | translate }}</p>
   </hgroup>
   <div class="toolbar">
     @if (!existeCajaPrincipal() && puedeAdministrar) {
-      <button type="button" class="outline" style="width: auto;" title="Crear Caja Principal" (click)="crearCajaPrincipal()">
-        Caja Principal <lucide-icon name="plus" [size]="18" [strokeWidth]="2" />
+      <button type="button" class="outline" style="width: auto;" [attr.title]="'cajas.crearPrincipal' | translate" (click)="crearCajaPrincipal()">
+        {{ 'cajas.cajaPrincipal' | translate }} <lucide-icon name="plus" [size]="18" [strokeWidth]="2" />
       </button>
     }
   </div>
@@ -16,5 +16,5 @@
   [columns]="columns"
   [data]="cajas()"
   [actions]="actions"
-  exportTitle="Cajas"
+  [exportTitle]="'cajas.titulo' | translate"
   (action)="onAction($event)" />

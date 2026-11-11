@@ -1,5 +1,6 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 import { SociosClient, CuotasImprimirVm } from '../web-api-client';
 import { ToastService } from '../shared/toast/toast.service';
 import { FormErrorsService } from '../shared/forms/form-errors.service';
@@ -10,7 +11,7 @@ import { FormErrorsService } from '../shared/forms/form-errors.service';
   template: `
     <app-cuotas-imprimir [vm]="vm()" [year]="year" />
     <div class="volver">
-      <button type="button" class="secondary" (click)="goToSocios()">Volver</button>
+      <button type="button" class="secondary" (click)="goToSocios()">{{ 'comun.volver' | translate }}</button>
     </div>
   `
 })
@@ -23,7 +24,8 @@ export class SocioCuotasImprimirComponent implements OnInit {
     private router: Router,
     private sociosClient: SociosClient,
     private toast: ToastService,
-    private formErrors: FormErrorsService
+    private formErrors: FormErrorsService,
+    private translate: TranslateService
   ) {}
 
   ngOnInit(): void {
@@ -33,7 +35,7 @@ export class SocioCuotasImprimirComponent implements OnInit {
       const regenerar = (params.get('regenerar') ?? '').toLowerCase() === 'true';
       this.sociosClient.getSocioCuotasImprimir(socioId, this.year, regenerar).subscribe({
         next: result => this.vm.set(result),
-        error: error => this.toast.show(this.formErrors.firstMessage(error, 'No se pudieron cargar las cuotas.'), 'danger')
+        error: error => this.toast.show(this.formErrors.firstMessage(error, this.translate.instant('cuotas.errorCargar')), 'danger')
       });
     });
   }

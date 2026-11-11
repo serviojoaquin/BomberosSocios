@@ -1,11 +1,11 @@
 <div class="page-header">
   <hgroup>
-    <h1>Cobradores</h1>
-    <p>Personas que cobran las cuotas de los socios.</p>
+    <h1>{{ 'cobradores.titulo' | translate }}</h1>
+    <p>{{ 'cobradores.descripcion' | translate }}</p>
   </hgroup>
   <div class="toolbar">
     @if (puedeCrear) {
-      <button class="icon-btn" aria-label="Nuevo cobrador" title="Nuevo cobrador" (click)="showNewDialog()"><lucide-icon name="plus" [size]="20" [strokeWidth]="2" /></button>
+      <button class="icon-btn" [attr.aria-label]="'cobradores.nuevo' | translate" [attr.title]="'cobradores.nuevo' | translate" (click)="showNewDialog()"><lucide-icon name="plus" [size]="20" [strokeWidth]="2" /></button>
     }
   </div>
 </div>
@@ -14,7 +14,7 @@
   [columns]="columns"
   [data]="cobradores()"
   [actions]="actions"
-  exportTitle="Cobradores"
+  [exportTitle]="'cobradores.titulo' | translate"
   (action)="onAction($event)" />
 
 <app-year-selector (selected)="onYearSelected($event)" />
@@ -22,38 +22,38 @@
 <dialog #editDialog>
   <article class="dialog-wide">
     <header>
-      <h3>{{ soloLectura() ? 'Ver cobrador' : (isEditing ? 'Modificar cobrador' : 'Nuevo cobrador') }}</h3>
-      <button rel="prev" aria-label="Cerrar" (click)="closeEditDialog()"></button>
+      <h3>{{ (soloLectura() ? 'cobradores.ver' : (isEditing ? 'cobradores.modificar' : 'cobradores.nuevo')) | translate }}</h3>
+      <button rel="prev" [attr.aria-label]="'common.close' | translate" (click)="closeEditDialog()"></button>
     </header>
     <form [formGroup]="form" (ngSubmit)="save()" novalidate>
       <div class="form-grid">
         <label>
-          Apellido
+          {{ 'cobradores.apellido' | translate }}
           <input type="text" id="apellido" formControlName="apellido" [appInvalid]="form.get('apellido')" maxlength="200" />
           <app-field-error [control]="form.get('apellido')" />
         </label>
         <label>
-          Nombre
+          {{ 'cobradores.nombre' | translate }}
           <input type="text" id="nombre" formControlName="nombre" [appInvalid]="form.get('nombre')" maxlength="200" />
           <app-field-error [control]="form.get('nombre')" />
         </label>
         <label>
-          Email
+          {{ 'cobradores.email' | translate }}
           <input type="email" id="email" formControlName="email" [appInvalid]="form.get('email')" maxlength="200" autocomplete="off" />
           <app-field-error [control]="form.get('email')" />
         </label>
         <label>
-          Comisión (%)
+          {{ 'cobradores.comision' | translate }}
           <input type="number" id="comision" formControlName="comision" [appInvalid]="form.get('comision')" min="0" max="100" step="0.01" />
           <app-field-error [control]="form.get('comision')" />
         </label>
         <label>
-          Teléfono
+          {{ 'cobradores.telefono' | translate }}
           <input type="text" id="telefono" formControlName="telefono" [appInvalid]="form.get('telefono')" maxlength="50" />
           <app-field-error [control]="form.get('telefono')" />
         </label>
         <label>
-          Celular
+          {{ 'cobradores.celular' | translate }}
           <input type="text" id="celular" formControlName="celular" [appInvalid]="form.get('celular')" maxlength="50" />
           <app-field-error [control]="form.get('celular')" />
         </label>
@@ -62,9 +62,9 @@
         <small class="field-error">{{ message }}</small>
       }
       <footer>
-        <button type="button" class="secondary" (click)="closeEditDialog()">{{ soloLectura() ? 'Volver' : 'Cancelar' }}</button>
+        <button type="button" class="secondary" (click)="closeEditDialog()">{{ (soloLectura() ? 'comun.volver' : 'common.cancel') | translate }}</button>
         @if (!soloLectura()) {
-          <button type="submit">{{ isEditing ? 'Guardar' : 'Crear' }}</button>
+          <button type="submit">{{ (isEditing ? 'common.update' : 'common.create') | translate }}</button>
         }
       </footer>
     </form>
@@ -75,20 +75,20 @@
   <article>
     @if (usuarioOpen()) {
     <header>
-      <h3>Crear usuario para {{ selected()?.apellido }}, {{ selected()?.nombre }}</h3>
-      <button rel="prev" aria-label="Cerrar" (click)="closeUsuarioDialog()"></button>
+      <h3>{{ 'cobradores.crearUsuarioPara' | translate: { nombre: selected()?.apellido + ', ' + selected()?.nombre } }}</h3>
+      <button rel="prev" [attr.aria-label]="'common.close' | translate" (click)="closeUsuarioDialog()"></button>
     </header>
-    <p>Se crea el usuario <strong>{{ selected()?.email }}</strong> con el rol Cobrador. Si ya existe un usuario con ese email, se le asigna el rol.</p>
+    <p [innerHTML]="'cobradores.crearUsuarioDetalle' | translate: { email: selected()?.email }"></p>
     <form [formGroup]="usuarioForm" (ngSubmit)="crearUsuario()" novalidate>
-      <label for="password">Contraseña inicial</label>
+      <label for="password">{{ 'cobradores.contrasenaInicial' | translate }}</label>
       <input type="password" id="password" formControlName="password" [appInvalid]="usuarioForm.get('password')" autocomplete="new-password" />
       <app-field-error [control]="usuarioForm.get('password')" />
       @for (message of generalErrors(); track message) {
         <small class="field-error">{{ message }}</small>
       }
       <footer>
-        <button type="button" class="secondary" (click)="closeUsuarioDialog()">Cancelar</button>
-        <button type="submit">Crear usuario</button>
+        <button type="button" class="secondary" (click)="closeUsuarioDialog()">{{ 'common.cancel' | translate }}</button>
+        <button type="submit">{{ 'cobradores.crearUsuario' | translate }}</button>
       </footer>
     </form>
     }
@@ -98,13 +98,13 @@
 <dialog #deleteDialog>
   <article>
     <header>
-      <h3>¿Eliminar a {{ selected()?.apellido }}, {{ selected()?.nombre }}?</h3>
-      <button rel="prev" aria-label="Cerrar" (click)="closeDeleteDialog()"></button>
+      <h3>{{ 'comun.eliminarA' | translate: { nombre: selected()?.apellido + ', ' + selected()?.nombre } }}</h3>
+      <button rel="prev" [attr.aria-label]="'common.close' | translate" (click)="closeDeleteDialog()"></button>
     </header>
-    <p>Esta acción no se puede deshacer.</p>
+    <p>{{ 'comun.noSePuedeDeshacer' | translate }}</p>
     <footer>
-      <button class="secondary" (click)="closeDeleteDialog()">Cancelar</button>
-      <button class="danger" (click)="deleteConfirmed()">Eliminar</button>
+      <button class="secondary" (click)="closeDeleteDialog()">{{ 'common.cancel' | translate }}</button>
+      <button class="danger" (click)="deleteConfirmed()">{{ 'common.delete' | translate }}</button>
     </footer>
   </article>
 </dialog>

@@ -1,4 +1,4 @@
 @if (!data) {
-  <span aria-busy="true">Loading&hellip;</span>
+  <span aria-busy="true">{{ 'common.loading' | translate }}</span>
 }
 <table #table class="display" style="width: 100%" [hidden]="!data"></table>

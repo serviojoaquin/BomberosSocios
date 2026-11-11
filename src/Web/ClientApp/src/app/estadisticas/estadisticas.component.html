@@ -1,32 +1,32 @@
 <hgroup>
-  <h1>Estadísticas</h1>
-  <p>Cantidad de socios activos por cobrador según las cuotas cobradas del año.</p>
+  <h1>{{ 'estadisticas.titulo' | translate }}</h1>
+  <p>{{ 'estadisticas.descripcion' | translate }}</p>
 </hgroup>
 
 <div class="titulo-con-select">
-  <h4>Cobranza Cuota Socios</h4>
+  <h4>{{ 'estadisticas.cobranza' | translate }}</h4>
   <select [value]="year" (change)="onYearChange($any($event.target).value)">
     @for (y of years; track y) {
       <option [value]="y">{{ y }}</option>
     }
   </select>
-  <button type="button" class="outline" style="width: auto; margin: 0;" (click)="invertirColumnas()">Invertir Columnas</button>
+  <button type="button" class="outline" style="width: auto; margin: 0;" (click)="invertirColumnas()">{{ 'estadisticas.invertirColumnas' | translate }}</button>
 </div>
 
 @if (!cargado()) {
-  <span aria-busy="true">Cargando&hellip;</span>
+  <span aria-busy="true">{{ 'common.loading' | translate }}</span>
 } @else if (filas().length === 0) {
-  <p>No hay cobranzas realizadas el año {{ year }}</p>
+  <p>{{ 'estadisticas.sinCobranzas' | translate: { ano: year } }}</p>
 } @else if (!invertir()) {
   <div class="estadisticas-tabla">
     <table #tabla class="display cell-border compact" style="width: 100%">
       <thead>
         <tr>
-          <th rowspan="2" class="limit">Cobrador</th>
+          <th rowspan="2" class="limit">{{ 'estadisticas.cobrador' | translate }}</th>
           @for (n of buckets; track n) {
             <th colspan="2" class="limit centrado">{{ n }}</th>
           }
-          <th rowspan="2" class="dt-body-right">Total</th>
+          <th rowspan="2" class="dt-body-right">{{ 'comun.total' | translate }}</th>
         </tr>
         <tr>
           @for (n of buckets; track n) {
@@ -49,7 +49,7 @@
       </tbody>
       <tfoot>
         <tr>
-          <th class="limit">Total</th>
+          <th class="limit">{{ 'comun.total' | translate }}</th>
           @for (n of buckets; track n) {
             <th class="dt-body-right">{{ totalRow()?.cant?.[n] }}</th>
             <th class="limit"></th>
@@ -64,11 +64,11 @@
     <table #tabla class="display cell-border compact" style="width: 100%">
       <thead>
         <tr>
-          <th rowspan="2" class="limit">Cuotas Cobradas</th>
+          <th rowspan="2" class="limit">{{ 'estadisticas.cuotasCobradas' | translate }}</th>
           @for (fila of filas(); track fila.cobradorId) {
             <th colspan="2" class="limit centrado">{{ fila.cobradorApellido }}, {{ fila.cobradorNombre }}</th>
           }
-          <th rowspan="2" class="dt-body-right">Total</th>
+          <th rowspan="2" class="dt-body-right">{{ 'comun.total' | translate }}</th>
         </tr>
         <tr>
           @for (fila of filas(); track fila.cobradorId) {
@@ -91,7 +91,7 @@
       </tbody>
       <tfoot>
         <tr>
-          <th class="limit">Total</th>
+          <th class="limit">{{ 'comun.total' | translate }}</th>
           @for (fila of filas(); track fila.cobradorId) {
             <th class="dt-body-right">{{ fila.total }}</th>
             <th class="limit dt-body-right">{{ percent(fila.porcGT) }}</th>

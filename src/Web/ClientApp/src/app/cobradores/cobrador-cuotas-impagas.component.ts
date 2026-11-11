@@ -1,5 +1,6 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 import { CobradoresClient, CobradorCuotasImpagasVm } from '../web-api-client';
 import { ToastService } from '../shared/toast/toast.service';
 import { FormErrorsService } from '../shared/forms/form-errors.service';
@@ -21,12 +22,17 @@ export class CobradorCuotasImpagasComponent implements OnInit {
     private router: Router,
     private cobradoresClient: CobradoresClient,
     private toast: ToastService,
-    private formErrors: FormErrorsService
+    private formErrors: FormErrorsService,
+    private translate: TranslateService
   ) {}
 
   get subtitle(): string {
     const vm = this.vm();
-    return vm ? `Cobrador N° ${vm.cobrador.id}: ${vm.cobrador.apellido}, ${vm.cobrador.nombre} - Cuotas impagas - ${this.year}` : '';
+    if (!vm) {
+      return '';
+    }
+    const base = this.translate.instant('cobradores.cobradorNumero', { id: vm.cobrador.id, nombre: `${vm.cobrador.apellido}, ${vm.cobrador.nombre}` });
+    return `${base} - ${this.translate.instant('cobradores.cuotasImpagas')} - ${this.year}`;
   }
 
   get filename(): string {
@@ -40,7 +46,7 @@ export class CobradorCuotasImpagasComponent implements OnInit {
       this.year = Number(params.get('year'));
       this.cobradoresClient.getCuotasImpagas(cobradorId, this.year).subscribe({
         next: result => this.vm.set(result),
-        error: error => this.toast.show(this.formErrors.firstMessage(error, 'No se pudieron cargar las cuotas.'), 'danger')
+        error: error => this.toast.show(this.formErrors.firstMessage(error, this.translate.instant('cuotas.errorCargar')), 'danger')
       });
     });
   }
@@ -64,7 +70,7 @@ export class CobradorCuotasImpagasComponent implements OnInit {
       footerCallback: function (this: any) {
         const api = this.api();
         const total = api.column(14, { page: 'current' }).data().reduce((a: number, b: number) => (Number(a) || 0) + (Number(b) || 0), 0);
-        api.column(13).footer().innerHTML = '<div style="text-align:right">Total</div>';
+        api.column(13).footer().innerHTML = `<div style="text-align:right">${self.translate.instant('comun.total')}</div>`;
         api.column(14).footer().innerHTML = `<div style="text-align:right">${formatPivotImporte(total)}</div>`;
       }
     };

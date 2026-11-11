@@ -1,14 +1,14 @@
 <div class="page-header">
   <hgroup>
-    <h1>Suscripciones</h1>
-    <p>Suscripciones de Mercado Pago.</p>
+    <h1>{{ 'suscripciones.titulo' | translate }}</h1>
+    <p>{{ 'suscripciones.descripcion' | translate }}</p>
   </hgroup>
   <div class="toolbar">
-    <a class="icon-btn" routerLink="/suscripciones/registrar" title="Agregar nuevo" aria-label="Agregar nuevo"><lucide-icon name="plus" [size]="20" [strokeWidth]="2" /></a>
+    <a class="icon-btn" routerLink="/suscripciones/registrar" [attr.title]="'suscripciones.agregar' | translate" [attr.aria-label]="'suscripciones.agregar' | translate"><lucide-icon name="plus" [size]="20" [strokeWidth]="2" /></a>
   </div>
 </div>
 
 <app-data-table
   [columns]="columns"
   [data]="suscripciones()"
-  exportTitle="Suscripciones" />
+  [exportTitle]="'suscripciones.titulo' | translate" />

@@ -1,11 +1,11 @@
 <div class="page-header">
   <hgroup>
-    <h1>Categorías</h1>
-    <p>Categorías de socios y el importe de la cuota de cada mes.</p>
+    <h1>{{ 'categorias.titulo' | translate }}</h1>
+    <p>{{ 'categorias.descripcion' | translate }}</p>
   </hgroup>
   <div class="toolbar">
     @if (puedeCrear) {
-      <button class="icon-btn" aria-label="Nueva categoría" title="Nueva categoría" (click)="showNewDialog()"><lucide-icon name="plus" [size]="20" [strokeWidth]="2" /></button>
+      <button class="icon-btn" [attr.aria-label]="'categorias.nueva' | translate" [attr.title]="'categorias.nueva' | translate" (click)="showNewDialog()"><lucide-icon name="plus" [size]="20" [strokeWidth]="2" /></button>
     }
   </div>
 </div>
@@ -14,28 +14,28 @@
   [columns]="columns"
   [data]="categorias()"
   [actions]="actions"
-  exportTitle="Categorías"
+  [exportTitle]="'categorias.titulo' | translate"
   (action)="onAction($event)" />
 
 <dialog #editDialog>
   <article class="dialog-wide">
     <header>
-      <h3>{{ isEditing ? 'Modificar categoría' : 'Nueva categoría' }}</h3>
-      <button rel="prev" aria-label="Cerrar" (click)="closeEditDialog()"></button>
+      <h3>{{ (isEditing ? 'categorias.modificar' : 'categorias.nueva') | translate }}</h3>
+      <button rel="prev" [attr.aria-label]="'common.close' | translate" (click)="closeEditDialog()"></button>
     </header>
     <form [formGroup]="form" (ngSubmit)="save()" novalidate>
-      <label for="descripcion">Descripción</label>
+      <label for="descripcion">{{ 'categorias.campoDescripcion' | translate }}</label>
       <input type="text" id="descripcion" formControlName="descripcion" [appInvalid]="form.get('descripcion')"
-        placeholder="Descripción de la categoría&hellip;" maxlength="200" />
+        [placeholder]="'categorias.placeholderDescripcion' | translate" maxlength="200" />
       <app-field-error [control]="form.get('descripcion')" />
       <div class="todo-panel-header">
-        <h4>Importes mensuales</h4>
-        <button type="button" class="secondary" (click)="copiarEneroATodos()">Copiar enero a todos</button>
+        <h4>{{ 'categorias.importesMensuales' | translate }}</h4>
+        <button type="button" class="secondary" (click)="copiarEneroATodos()">{{ 'categorias.copiarEnero' | translate }}</button>
       </div>
       <div class="importes-grid" formArrayName="importes">
         @for (mes of meses; track mes; let i = $index) {
           <label>
-            {{ mes }}
+            {{ mes | translate }}
             <input type="number" [id]="'importe' + i" [formControlName]="i" [appInvalid]="importes.at(i)" min="0" step="0.01" />
             <app-field-error [control]="importes.at(i)" />
           </label>
@@ -45,8 +45,8 @@
         <small class="field-error">{{ message }}</small>
       }
       <footer>
-        <button type="button" class="secondary" (click)="closeEditDialog()">Cancelar</button>
-        <button type="submit">{{ isEditing ? 'Guardar' : 'Crear' }}</button>
+        <button type="button" class="secondary" (click)="closeEditDialog()">{{ 'common.cancel' | translate }}</button>
+        <button type="submit">{{ (isEditing ? 'common.update' : 'common.create') | translate }}</button>
       </footer>
     </form>
   </article>
@@ -55,13 +55,13 @@
 <dialog #deleteDialog>
   <article>
     <header>
-      <h3>¿Eliminar "{{ selected()?.descripcion }}"?</h3>
-      <button rel="prev" aria-label="Cerrar" (click)="closeDeleteDialog()"></button>
+      <h3>{{ 'comun.eliminarConfirmacion' | translate: { nombre: selected()?.descripcion } }}</h3>
+      <button rel="prev" [attr.aria-label]="'common.close' | translate" (click)="closeDeleteDialog()"></button>
     </header>
-    <p>Esta acción no se puede deshacer.</p>
+    <p>{{ 'comun.noSePuedeDeshacer' | translate }}</p>
     <footer>
-      <button class="secondary" (click)="closeDeleteDialog()">Cancelar</button>
-      <button class="danger" (click)="deleteConfirmed()">Eliminar</button>
+      <button class="secondary" (click)="closeDeleteDialog()">{{ 'common.cancel' | translate }}</button>
+      <button class="danger" (click)="deleteConfirmed()">{{ 'common.delete' | translate }}</button>
     </footer>
   </article>
 </dialog>

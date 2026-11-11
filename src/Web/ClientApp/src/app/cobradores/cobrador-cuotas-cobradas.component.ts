@@ -1,5 +1,6 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 import { CobradoresClient, CobradorCuotasCobradasVm } from '../web-api-client';
 import { ToastService } from '../shared/toast/toast.service';
 import { FormErrorsService } from '../shared/forms/form-errors.service';
@@ -21,7 +22,8 @@ export class CobradorCuotasCobradasComponent implements OnInit {
     private router: Router,
     private cobradoresClient: CobradoresClient,
     private toast: ToastService,
-    private formErrors: FormErrorsService
+    private formErrors: FormErrorsService,
+    private translate: TranslateService
   ) {}
 
   get subtitle(): string {
@@ -29,14 +31,14 @@ export class CobradorCuotasCobradasComponent implements OnInit {
     if (!vm) {
       return '';
     }
-    const base = `Cobrador N° ${vm.cobrador.id}: ${vm.cobrador.apellido}, ${vm.cobrador.nombre} - `;
+    const base = this.translate.instant('cobradores.cobradorNumero', { id: vm.cobrador.id, nombre: `${vm.cobrador.apellido}, ${vm.cobrador.nombre}` }) + ' - ';
     if (!vm.fechaDeCobroFromFormatted) {
-      return `${base}Cuotas cobradas - ${this.year}`;
+      return `${base}${this.translate.instant('cobradores.cuotasCobradas')} - ${this.year}`;
     }
     if (vm.fechaDeCobroFromFormatted !== vm.fechaDeCobroToFormatted) {
-      return `${base}Cuotas cobradas desde ${vm.fechaDeCobroFromFormatted} hasta ${vm.fechaDeCobroToFormatted}`;
+      return base + this.translate.instant('cobradores.cuotasCobradasDesde', { desde: vm.fechaDeCobroFromFormatted, hasta: vm.fechaDeCobroToFormatted });
     }
-    return `${base}Cuotas cobradas el ${vm.fechaDeCobroFromFormatted}`;
+    return base + this.translate.instant('cobradores.cuotasCobradasEl', { fecha: vm.fechaDeCobroFromFormatted });
   }
 
   get filename(): string {
@@ -62,7 +64,7 @@ export class CobradorCuotasCobradasComponent implements OnInit {
           this.tableOptions = this.buildOptions(result.cobrador.comision);
           this.vm.set(result);
         },
-        error: error => this.toast.show(this.formErrors.firstMessage(error, 'No se pudieron cargar las cuotas.'), 'danger')
+        error: error => this.toast.show(this.formErrors.firstMessage(error, this.translate.instant('cuotas.errorCargar')), 'danger')
       });
     });
   }
@@ -88,7 +90,7 @@ export class CobradorCuotasCobradasComponent implements OnInit {
         const total = api.column(14, { page: 'current' }).data().reduce((a: number, b: number) => (Number(a) || 0) + (Number(b) || 0), 0);
         const comisionTotal = total * comision / 100;
         const neto = total - comisionTotal;
-        api.column(13).footer().innerHTML = `<div style="text-align:right">Total:</div><div style="text-align:right">${comision}%:</div><div style="text-align:right">Neto:</div>`;
+        api.column(13).footer().innerHTML = `<div style="text-align:right">${self.translate.instant('comun.total')}:</div><div style="text-align:right">${comision}%:</div><div style="text-align:right">${self.translate.instant('cobradores.neto')}:</div>`;
         api.column(14).footer().innerHTML = `<div style="text-align:right">${formatPivotImporte(total)}</div><div style="text-align:right">${formatPivotImporte(comisionTotal)}</div><div style="text-align:right">${formatPivotImporte(neto)}</div>`;
       }
     };

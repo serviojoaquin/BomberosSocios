@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef, signal } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 import { CobradoresClient, CobradorDto, CreateCobradorCommand, UpdateCobradorCommand, CrearUsuarioCobradorCommand, CuotasClient, ReportesClient, GenerarCuotasCommand, BonificarCuotasViejasCommand } from '../web-api-client';
 import { AuthService } from 'src/api-authorization/auth.service';
 import { Permissions } from '../permissions';
@@ -28,28 +29,28 @@ export class CobradoresComponent implements OnInit {
   puedeAdministrarCuotas = this.authService.hasPermission(Permissions.AdministrarCuotas);
   soloLectura = signal(false);
   columns: DataTableColumn[] = [
-    { data: 'id', title: 'Id', className: 'dt-body-right' },
-    { data: 'nombre', title: 'Nombre' },
-    { data: 'apellido', title: 'Apellido' },
-    { data: 'telefono', title: 'Teléfono' },
-    { data: 'celular', title: 'Celular' },
-    { data: 'email', title: 'Email' },
-    { data: 'sociosCount', title: 'Socios', className: 'dt-body-right' },
-    { data: 'tieneUsuario', title: 'Usuario', render: (value: boolean) => value ? 'Si' : 'No' }
+    { data: 'id', title: 'cajas.id', className: 'dt-body-right' },
+    { data: 'nombre', title: 'cobradores.nombre' },
+    { data: 'apellido', title: 'cobradores.apellido' },
+    { data: 'telefono', title: 'cobradores.telefono' },
+    { data: 'celular', title: 'cobradores.celular' },
+    { data: 'email', title: 'cobradores.email' },
+    { data: 'sociosCount', title: 'cobradores.socios', className: 'dt-body-right' },
+    { data: 'tieneUsuario', title: 'cobradores.usuario', render: (value: boolean) => this.translate.instant(value ? 'comun.si' : 'comun.no') }
   ];
   actions: DataTableAction[] = [
     {
       name: 'cuotas',
-      label: 'Cuotas',
+      label: 'cuotas.menu',
       icon: 'tasks',
       visible: (row: CobradorDto) => row.sociosCount > 0,
       menu: (row: CobradorDto) => this.menuCuotas(row)
     },
-    ...(this.authService.hasPermission(Permissions.ManageSecurity) ? [{ name: 'usuario', label: 'Crear Usuario', icon: 'user-plus', visible: (row: CobradorDto) => !!row.email && !row.tieneUsuario } as DataTableAction] : []),
+    ...(this.authService.hasPermission(Permissions.ManageSecurity) ? [{ name: 'usuario', label: 'cobradores.crearUsuario', icon: 'user-plus', visible: (row: CobradorDto) => !!row.email && !row.tieneUsuario } as DataTableAction] : []),
     this.puedeEditar
-      ? { name: 'edit', label: 'Editar', icon: 'pencil' }
-      : { name: 'ver', label: 'Ver', icon: 'eye' },
-    ...(this.authService.hasPermission(Permissions.EliminarCobradores) ? [{ name: 'delete', label: 'Eliminar', icon: 'trash', visible: (row: CobradorDto) => row.cuotasCobradasCount === 0, disabled: (row: CobradorDto) => row.sociosCount > 0 } as DataTableAction] : [])
+      ? { name: 'edit', label: 'comun.editar', icon: 'pencil' }
+      : { name: 'ver', label: 'comun.ver', icon: 'eye' },
+    ...(this.authService.hasPermission(Permissions.EliminarCobradores) ? [{ name: 'delete', label: 'comun.eliminar', icon: 'trash', visible: (row: CobradorDto) => row.cuotasCobradasCount === 0, disabled: (row: CobradorDto) => row.sociosCount > 0 } as DataTableAction] : [])
   ];
   form = this.fb.group({
     id: [0],
@@ -77,7 +78,8 @@ export class CobradoresComponent implements OnInit {
     private fb: FormBuilder,
     private formErrors: FormErrorsService,
     private router: Router,
-    private toast: ToastService
+    private toast: ToastService,
+    private translate: TranslateService
   ) {}
 
   get isEditing(): boolean {
@@ -94,7 +96,7 @@ export class CobradoresComponent implements OnInit {
         this.initialYear = result.initialYear;
         this.cobradores.set(result.cobradores);
       },
-      error: () => this.toast.show('Error al cargar los cobradores.', 'danger')
+      error: () => this.toast.show(this.translate.instant('cobradores.errorCargar'), 'danger')
     });
   }
 
@@ -141,18 +143,18 @@ export class CobradoresComponent implements OnInit {
 
   private menuCuotas(row: CobradorDto): DataTableMenuItem[] {
     const items: DataTableMenuItem[] = [
-      { name: 'cobradas', label: 'Cobradas' },
-      { name: 'impagas', label: 'Impagas' },
+      { name: 'cobradas', label: 'cobradores.cobradas' },
+      { name: 'impagas', label: 'cobradores.impagas' },
       { name: 'd1', label: '', divider: true }
     ];
     if (this.puedeAdministrarCuotas) {
       for (let i = 1; i <= Math.max(1, row.cantidadBotones); i++) {
-        items.push({ name: `generar-${i}`, label: row.cantidadBotones > 1 ? `Generar cuotas - Parte ${i}` : 'Generar cuotas' });
+        items.push({ name: `generar-${i}`, label: row.cantidadBotones > 1 ? this.translate.instant('cuotas.generarParte', { parte: i }) : 'cuotas.generarCuotas' });
       }
-      items.push({ name: 'bonificar', label: 'Bonificar año pasado' });
+      items.push({ name: 'bonificar', label: 'cuotas.bonificarAnoPasado' });
       items.push({ name: 'd2', label: '', divider: true });
     }
-    items.push({ name: 'descargar', label: 'Descargar reporte cuotas' });
+    items.push({ name: 'descargar', label: 'cuotas.descargarReporte' });
     return items;
   }
 
@@ -174,35 +176,35 @@ export class CobradoresComponent implements OnInit {
 
   openYearSelectorForGenerate(cobrador: CobradorDto, parte: number): void {
     this.pendingYearAction = result => this.generateCuotas(cobrador, result.year, result.checkValue, parte);
-    this.yearSelector.open({ initialYear: this.initialYear, showCheck: true, checkText: 'Forzar regeneración' });
+    this.yearSelector.open({ initialYear: this.initialYear, showCheck: true, checkText: this.translate.instant('cuotas.forzarRegeneracion') });
   }
 
   generateCuotas(cobrador: CobradorDto, year: number, forceRecreate: boolean, parte: number): void {
     this.cuotasClient.generate({ cobradorId: cobrador.id, year, forceRecreate, parte } as GenerarCuotasCommand).subscribe({
       next: count => {
         if (count === 0) {
-          this.toast.show('No hay mas cuotas que generar.');
+          this.toast.show(this.translate.instant('cuotas.sinCuotasQueGenerar'));
         } else {
-          this.toast.show(`Se han generado ${count} cuotas.`, 'success');
+          this.toast.show(this.translate.instant('cuotas.generadas', { cantidad: count }), 'success');
         }
       },
-      error: () => this.toast.show('Se produjo un error al generar las cuotas.', 'danger', 10000)
+      error: () => this.toast.show(this.translate.instant('cuotas.errorGenerar'), 'danger', 10000)
     });
   }
 
   confirmSetOldCuotasAsBonificadas(cobrador: CobradorDto): void {
-    if (!confirm(`¿Está seguro que desea bonificar todas las cuotas de los socios del cobrador ${cobrador.apellido}, ${cobrador.nombre}?`)) {
+    if (!confirm(this.translate.instant('cobradores.confirmarBonificar', { nombre: `${cobrador.apellido}, ${cobrador.nombre}` }))) {
       return;
     }
     this.cuotasClient.setOldCuotasAsBonificada({ cobradorId: cobrador.id } as BonificarCuotasViejasCommand).subscribe({
       next: result => {
         if (result.cuotasModifiedCount === 0) {
-          this.toast.show('No hay mas cuotas para bonificar.');
+          this.toast.show(this.translate.instant('cuotas.sinCuotasParaBonificar'));
         } else {
-          this.toast.show(`Se han bonificado ${result.cuotasModifiedCount} cuotas.`, 'success');
+          this.toast.show(this.translate.instant('cuotas.bonificadas', { cantidad: result.cuotasModifiedCount }), 'success');
         }
       },
-      error: error => this.toast.show(this.formErrors.firstMessage(error, 'Se produjo un error al bonificar las cuotas.'), 'danger')
+      error: error => this.toast.show(this.formErrors.firstMessage(error, this.translate.instant('cuotas.errorBonificar')), 'danger')
     });
   }
 
@@ -211,12 +213,12 @@ export class CobradoresComponent implements OnInit {
       this.reportesClient.getReporteCuotasSocioByCobrador(cobrador.id, result.year).subscribe({
         next: file => {
           if (!file.data || file.data.size === 0) {
-            this.toast.show('Reporte no generado. Por favor, genérelo.', 'warning', 3000);
+            this.toast.show(this.translate.instant('cuotas.reporteNoGenerado'), 'warning', 3000);
           } else {
             saveBlob(file.data, file.fileName ?? `CuotasSocioByCobrador_${cobrador.id}_Ano_${result.year}.pdf`);
           }
         },
-        error: () => this.toast.show('Error desconocido al descargar el reporte de cuotas.', 'danger', 10000)
+        error: () => this.toast.show(this.translate.instant('cuotas.errorDescargarReporte'), 'danger', 10000)
       });
     };
     this.yearSelector.open({ initialYear: this.initialYear });
@@ -246,7 +248,7 @@ export class CobradoresComponent implements OnInit {
   showUsuarioDialog(cobrador: CobradorDto): void {
     this.selected.set(cobrador);
     this.usuarioForm.reset({ password: '' });
-    this.generalErrors.set(cobrador.email ? [] : ['El cobrador no tiene email cargado; es necesario para crear el usuario.']);
+    this.generalErrors.set(cobrador.email ? [] : [this.translate.instant('cobradores.sinEmail')]);
     this.usuarioOpen.set(true);
     this.usuarioDialogRef.nativeElement.showModal();
     setTimeout(() => document.getElementById('password')?.focus(), 50);
@@ -272,7 +274,7 @@ export class CobradoresComponent implements OnInit {
     this.client.crearUsuarioCobrador(command.id, command).subscribe({
       next: () => {
         this.cobradores.update(cs => cs!.map(c => c.id === command.id ? { ...c, tieneUsuario: true } as CobradorDto : c));
-        this.toast.show(`Se ha creado con éxito el usuario '${cobrador.email}' para el cobrador ${cobrador.id}.`, 'success');
+        this.toast.show(this.translate.instant('cobradores.usuarioCreado', { email: cobrador.email, id: cobrador.id }), 'success');
         this.closeUsuarioDialog();
       },
       error: error => this.generalErrors.set(this.formErrors.apply(error, this.usuarioForm).general)
@@ -313,7 +315,7 @@ export class CobradoresComponent implements OnInit {
       },
       error: error => {
         this.closeDeleteDialog();
-        this.toast.show(this.formErrors.firstMessage(error, 'No se pudo eliminar el cobrador.'), 'danger');
+        this.toast.show(this.formErrors.firstMessage(error, this.translate.instant('cobradores.errorEliminar')), 'danger');
       }
     });
   }

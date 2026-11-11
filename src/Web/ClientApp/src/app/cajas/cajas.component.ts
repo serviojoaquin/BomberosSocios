@@ -1,4 +1,5 @@
 import { Component, OnInit, signal } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { CajasClient, CajaDto } from '../web-api-client';
 import { AuthService } from 'src/api-authorization/auth.service';
 import { Permissions } from '../permissions';
@@ -16,23 +17,24 @@ export class CajasComponent implements OnInit {
   existeCajaPrincipal = signal(true);
   puedeAdministrar = this.authService.hasPermission(Permissions.AdministrarMercadoPago);
   columns: DataTableColumn[] = [
-    { data: 'id', title: 'Id', className: 'dt-body-right' },
-    { data: 'name', title: 'Nombre' },
-    { data: 'fixed_amount', title: 'Monto Fijo', render: (v: boolean) => v ? 'Si' : 'No' },
-    { data: 'status', title: 'Estado' },
-    { data: 'store_id', title: 'Store Id' },
-    { data: 'external_id', title: 'Id externo' },
-    { data: 'external_store_id', title: 'Id externo sucursal' }
+    { data: 'id', title: 'cajas.id', className: 'dt-body-right' },
+    { data: 'name', title: 'cajas.nombre' },
+    { data: 'fixed_amount', title: 'cajas.montoFijo', render: (v: boolean) => this.translate.instant(v ? 'comun.si' : 'comun.no') },
+    { data: 'status', title: 'cajas.estado' },
+    { data: 'store_id', title: 'cajas.storeId' },
+    { data: 'external_id', title: 'cajas.idExterno' },
+    { data: 'external_store_id', title: 'cajas.idExternoSucursal' }
   ];
   actions: DataTableAction[] = this.puedeAdministrar
-    ? [{ name: 'delete', label: 'Eliminar', icon: 'trash' }]
+    ? [{ name: 'delete', label: 'comun.eliminar', icon: 'trash' }]
     : [];
 
   constructor(
     private client: CajasClient,
     private authService: AuthService,
     private toast: ToastService,
-    private formErrors: FormErrorsService
+    private formErrors: FormErrorsService,
+    private translate: TranslateService
   ) {}
 
   ngOnInit(): void {
@@ -47,7 +49,7 @@ export class CajasComponent implements OnInit {
       },
       error: error => {
         this.cajas.set([]);
-        this.toast.show(this.formErrors.firstMessage(error, 'No se pudieron cargar las cajas de Mercado Pago.'), 'danger');
+        this.toast.show(this.formErrors.firstMessage(error, this.translate.instant('cajas.errorCargar')), 'danger');
       }
     });
   }
@@ -58,16 +60,16 @@ export class CajasComponent implements OnInit {
         if (caja) {
           this.existeCajaPrincipal.set(true);
           this.cajas.update(list => [...(list ?? []), caja]);
-          this.toast.show('Se ha creado con éxito la caja principal', 'success');
+          this.toast.show(this.translate.instant('cajas.creada'), 'success');
         }
       },
-      error: error => this.toast.show(this.formErrors.firstMessage(error, 'No se pudo crear la caja principal.'), 'danger')
+      error: error => this.toast.show(this.formErrors.firstMessage(error, this.translate.instant('cajas.errorCrear')), 'danger')
     });
   }
 
   onAction(event: DataTableActionEvent): void {
     const caja = event.row as CajaDto;
-    if (event.action !== 'delete' || !confirm('Está seguro que desea eliminar la caja?')) {
+    if (event.action !== 'delete' || !confirm(this.translate.instant('cajas.confirmarEliminar'))) {
       return;
     }
     this.client.deleteCaja(caja.id).subscribe({
@@ -77,7 +79,7 @@ export class CajasComponent implements OnInit {
           this.existeCajaPrincipal.set(false);
         }
       },
-      error: error => this.toast.show(this.formErrors.firstMessage(error, 'No se pudo eliminar la caja.'), 'danger')
+      error: error => this.toast.show(this.formErrors.firstMessage(error, this.translate.instant('cajas.errorEliminar')), 'danger')
     });
   }
 }

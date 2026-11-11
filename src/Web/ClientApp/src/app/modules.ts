@@ -10,13 +10,13 @@ export interface AppModule {
 }
 
 export const APP_MODULES: AppModule[] = [
-  { title: 'Inicio', path: '/', icon: 'house', section: 'General' },
-  { title: 'Socios', path: '/socios', icon: 'contact', section: 'Gestión', permission: Permissions.VerSocios },
-  { title: 'Cobradores', path: '/cobradores', icon: 'wallet', section: 'Gestión', permission: Permissions.VerCobradores },
-  { title: 'Categorías', path: '/categorias', icon: 'tags', section: 'Gestión', permission: Permissions.VerCategorias },
-  { title: 'Estadísticas', path: '/dashboard', icon: 'chart-column', section: 'Gestión', permission: Permissions.VerEstadisticas },
-  { title: 'Usuarios', path: '/users', icon: 'users', section: 'Seguridad', permission: Permissions.ManageSecurity },
-  { title: 'Roles', path: '/roles', icon: 'shield', section: 'Seguridad', permission: Permissions.ManageSecurity },
-  { title: 'Control de acceso', path: '/control-de-acceso', icon: 'lock-keyhole', section: 'Seguridad', permission: Permissions.ManageSecurity },
-  { title: 'Cajas', path: '/cajas', icon: 'qr-code', section: 'Seguridad', permission: Permissions.ManageSecurity }
+  { title: 'menu.inicio', path: '/', icon: 'house', section: 'secciones.general' },
+  { title: 'menu.socios', path: '/socios', icon: 'contact', section: 'secciones.gestion', permission: Permissions.VerSocios },
+  { title: 'menu.cobradores', path: '/cobradores', icon: 'wallet', section: 'secciones.gestion', permission: Permissions.VerCobradores },
+  { title: 'menu.categorias', path: '/categorias', icon: 'tags', section: 'secciones.gestion', permission: Permissions.VerCategorias },
+  { title: 'menu.estadisticas', path: '/dashboard', icon: 'chart-column', section: 'secciones.gestion', permission: Permissions.VerEstadisticas },
+  { title: 'menu.usuarios', path: '/users', icon: 'users', section: 'secciones.seguridad', permission: Permissions.ManageSecurity },
+  { title: 'menu.roles', path: '/roles', icon: 'shield', section: 'secciones.seguridad', permission: Permissions.ManageSecurity },
+  { title: 'menu.controlDeAcceso', path: '/control-de-acceso', icon: 'lock-keyhole', section: 'secciones.seguridad', permission: Permissions.ManageSecurity },
+  { title: 'menu.cajas', path: '/cajas', icon: 'qr-code', section: 'secciones.seguridad', permission: Permissions.ManageSecurity }
 ];

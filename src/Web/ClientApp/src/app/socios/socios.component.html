@@ -1,18 +1,18 @@
 <div class="page-header">
   <hgroup>
-    <h1>Socios</h1>
-    <p>Padrón de socios de la asociación.</p>
+    <h1>{{ 'socios.titulo' | translate }}</h1>
+    <p>{{ 'socios.descripcion' | translate }}</p>
   </hgroup>
   <div class="toolbar">
     @if (puedeEditar) {
       <button type="button" class="icon-btn" [disabled]="seleccionados().length === 0" (click)="showAfiliacionDialog()"
-        title="Datos de afiliación" aria-label="Datos de afiliación">
+        [attr.title]="'socios.datosAfiliacion' | translate" [attr.aria-label]="'socios.datosAfiliacion' | translate">
         <lucide-icon name="users" [size]="20" [strokeWidth]="2" />
         <span class="badge">{{ seleccionados().length }}</span>
       </button>
     }
     @if (puedeCrear) {
-      <button class="icon-btn" aria-label="Nuevo socio" title="Nuevo socio" (click)="showNewDialog()"><lucide-icon name="plus" [size]="20" [strokeWidth]="2" /></button>
+      <button class="icon-btn" [attr.aria-label]="'socios.nuevo' | translate" [attr.title]="'socios.nuevo' | translate" (click)="showNewDialog()"><lucide-icon name="plus" [size]="20" [strokeWidth]="2" /></button>
     }
   </div>
 </div>
@@ -23,7 +23,7 @@
   [actions]="actions"
   [selectable]="puedeEditar"
   [columnFilters]="true"
-  exportTitle="Socios"
+  [exportTitle]="'socios.titulo' | translate"
   (action)="onAction($event)"
   (selectionChange)="onSelectionChange($event)" />
 
@@ -32,25 +32,25 @@
 <dialog #editDialog>
   <article class="dialog-wide">
     <header>
-      <h3>{{ soloLectura() ? 'Ver socio' : (isEditing ? 'Modificar socio' : 'Nuevo socio') }}</h3>
-      <button rel="prev" aria-label="Cerrar" (click)="closeEditDialog()"></button>
+      <h3>{{ (soloLectura() ? 'socios.ver' : (isEditing ? 'socios.modificar' : 'socios.nuevo')) | translate }}</h3>
+      <button rel="prev" [attr.aria-label]="'common.close' | translate" (click)="closeEditDialog()"></button>
     </header>
     <form [formGroup]="form" (ngSubmit)="save()" novalidate>
       <div class="form-grid">
         <label>
-          Nombre y/o razón social
+          {{ 'socios.nombreRazonSocial' | translate }}
           <input type="text" id="nombre" formControlName="nombre" [appInvalid]="form.get('nombre')" maxlength="200" />
           <app-field-error [control]="form.get('nombre')" />
         </label>
         <label>
-          Número de documento
+          {{ 'socios.numeroDocumento' | translate }}
           <input type="number" id="numeroDocumento" formControlName="numeroDocumento" [appInvalid]="form.get('numeroDocumento')" min="1" />
           <app-field-error [control]="form.get('numeroDocumento')" />
         </label>
         <label>
-          Categoría
+          {{ 'socios.categoria' | translate }}
           <select id="categoriaId" formControlName="categoriaId" [appInvalid]="form.get('categoriaId')">
-            <option [ngValue]="null">Seleccioná una categoría</option>
+            <option [ngValue]="null">{{ 'socios.seleccionaCategoria' | translate }}</option>
             @for (c of categorias(); track c.id) {
               <option [ngValue]="c.id">{{ c.title }}</option>
             }
@@ -58,9 +58,9 @@
           <app-field-error [control]="form.get('categoriaId')" />
         </label>
         <label>
-          Cobrador
+          {{ 'socios.cobrador' | translate }}
           <select id="cobradorId" formControlName="cobradorId" [appInvalid]="form.get('cobradorId')">
-            <option [ngValue]="null">Seleccioná un cobrador</option>
+            <option [ngValue]="null">{{ 'socios.seleccionaCobrador' | translate }}</option>
             @for (c of cobradores(); track c.id) {
               <option [ngValue]="c.id">{{ c.title }}</option>
             }
@@ -68,52 +68,52 @@
           <app-field-error [control]="form.get('cobradorId')" />
         </label>
         <label>
-          Domicilio
+          {{ 'socios.domicilio' | translate }}
           <input type="text" id="domicilio" formControlName="domicilio" [appInvalid]="form.get('domicilio')" maxlength="300" />
           <app-field-error [control]="form.get('domicilio')" />
         </label>
         <label>
-          Domicilio de cobro
+          {{ 'socios.domicilioDeCobro' | translate }}
           <input type="text" id="domicilioDeCobro" formControlName="domicilioDeCobro" [appInvalid]="form.get('domicilioDeCobro')" maxlength="300" />
           <app-field-error [control]="form.get('domicilioDeCobro')" />
         </label>
         <label>
-          Teléfono
+          {{ 'socios.telefono' | translate }}
           <input type="text" id="telefono" formControlName="telefono" [appInvalid]="form.get('telefono')" maxlength="50" />
           <app-field-error [control]="form.get('telefono')" />
         </label>
         <label>
-          Celular
+          {{ 'socios.celular' | translate }}
           <input type="text" id="celular" formControlName="celular" [appInvalid]="form.get('celular')" maxlength="50" />
           <app-field-error [control]="form.get('celular')" />
         </label>
         <label>
-          Email
+          {{ 'socios.email' | translate }}
           <input type="email" id="email" formControlName="email" [appInvalid]="form.get('email')" maxlength="200" autocomplete="off" />
           <app-field-error [control]="form.get('email')" />
         </label>
         <label>
-          Web
+          {{ 'socios.web' | translate }}
           <input type="text" id="web" formControlName="web" [appInvalid]="form.get('web')" maxlength="200" />
           <app-field-error [control]="form.get('web')" />
         </label>
         <label>
-          Fecha de afiliación
+          {{ 'socios.fechaAfiliacion' | translate }}
           <input type="date" id="fechaAfiliacion" formControlName="fechaAfiliacion" [appInvalid]="form.get('fechaAfiliacion')" />
           <app-field-error [control]="form.get('fechaAfiliacion')" />
         </label>
         <label class="checkbox-inline">
           <input type="checkbox" id="pasivo" formControlName="pasivo" />
-          Socio pasivo
+          {{ 'socios.socioPasivo' | translate }}
         </label>
       </div>
       @for (message of generalErrors(); track message) {
         <small class="field-error">{{ message }}</small>
       }
       <footer>
-        <button type="button" class="secondary" (click)="closeEditDialog()">{{ soloLectura() ? 'Volver' : 'Cancelar' }}</button>
+        <button type="button" class="secondary" (click)="closeEditDialog()">{{ (soloLectura() ? 'comun.volver' : 'common.cancel') | translate }}</button>
         @if (!soloLectura()) {
-          <button type="submit">{{ isEditing ? 'Guardar' : 'Crear' }}</button>
+          <button type="submit">{{ (isEditing ? 'common.update' : 'common.create') | translate }}</button>
         }
       </footer>
     </form>
@@ -123,43 +123,43 @@
 <dialog #afiliacionDialog>
   <article>
     <header>
-      <h3>Datos de afiliación de {{ seleccionados().length }} socio(s)</h3>
-      <button rel="prev" aria-label="Cerrar" (click)="closeAfiliacionDialog()"></button>
+      <h3>{{ 'socios.datosAfiliacionDe' | translate: { cantidad: seleccionados().length } }}</h3>
+      <button rel="prev" [attr.aria-label]="'common.close' | translate" (click)="closeAfiliacionDialog()"></button>
     </header>
-    <p>Solo se modifican los datos que elijas; los demás quedan como están.</p>
+    <p>{{ 'socios.datosAfiliacionAyuda' | translate }}</p>
     <form [formGroup]="afiliacionForm" (ngSubmit)="saveAfiliacion()" novalidate>
       <label>
-        Categoría
+        {{ 'socios.categoria' | translate }}
         <select formControlName="categoriaId">
-          <option [ngValue]="null">Sin cambios</option>
+          <option [ngValue]="null">{{ 'comun.sinCambios' | translate }}</option>
           @for (c of categorias(); track c.id) {
             <option [ngValue]="c.id">{{ c.title }}</option>
           }
         </select>
       </label>
       <label>
-        Cobrador
+        {{ 'socios.cobrador' | translate }}
         <select formControlName="cobradorId">
-          <option [ngValue]="null">Sin cambios</option>
+          <option [ngValue]="null">{{ 'comun.sinCambios' | translate }}</option>
           @for (c of cobradores(); track c.id) {
             <option [ngValue]="c.id">{{ c.title }}</option>
           }
         </select>
       </label>
       <label>
-        Estado
+        {{ 'socios.estado' | translate }}
         <select formControlName="estado">
-          <option value="">Sin cambios</option>
-          <option value="activo">Activo</option>
-          <option value="pasivo">Pasivo</option>
+          <option value="">{{ 'comun.sinCambios' | translate }}</option>
+          <option value="activo">{{ 'comun.activo' | translate }}</option>
+          <option value="pasivo">{{ 'comun.pasivo' | translate }}</option>
         </select>
       </label>
       @for (message of generalErrors(); track message) {
         <small class="field-error">{{ message }}</small>
       }
       <footer>
-        <button type="button" class="secondary" (click)="closeAfiliacionDialog()">Cancelar</button>
-        <button type="submit">Aplicar</button>
+        <button type="button" class="secondary" (click)="closeAfiliacionDialog()">{{ 'common.cancel' | translate }}</button>
+        <button type="submit">{{ 'comun.aplicar' | translate }}</button>
       </footer>
     </form>
   </article>

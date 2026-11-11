@@ -5,9 +5,10 @@ import { AuthService } from 'src/api-authorization/auth.service';
 import { Permissions } from '../permissions';
 import { DataTableAction, DataTableActionEvent, DataTableColumn } from '../shared/data-table/data-table.component';
 import { FormErrorsService } from '../shared/forms/form-errors.service';
+import { TranslateService } from '@ngx-translate/core';
 
-export const MESES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-const MESES_CORTOS = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+export const MESES = Array.from({ length: 12 }, (_, i) => `meses.l`);
+const MESES_CORTOS = Array.from({ length: 12 }, (_, i) => `meses.c`);
 
 @Component({
   standalone: false,
@@ -22,8 +23,8 @@ export class CategoriasComponent implements OnInit {
   categorias = signal<CategoriaDto[] | null>(null);
   puedeCrear = this.authService.hasPermission(Permissions.CrearCategorias);
   columns: DataTableColumn[] = [
-    { data: 'id', title: 'Id', className: 'dt-body-right' },
-    { data: 'descripcion', title: 'Descripcion' },
+    { data: 'id', title: 'cajas.id', className: 'dt-body-right' },
+    { data: 'descripcion', title: 'categorias.campoDescripcion' },
     ...MESES_CORTOS.map((mes, i) => ({
       data: `importes.${i}`,
       title: mes,
@@ -32,8 +33,8 @@ export class CategoriasComponent implements OnInit {
     } as DataTableColumn))
   ];
   actions: DataTableAction[] = [
-    ...(this.authService.hasPermission(Permissions.EditarCategorias) ? [{ name: 'edit', label: 'Modificar', icon: 'pencil' } as DataTableAction] : []),
-    ...(this.authService.hasPermission(Permissions.EliminarCategorias) ? [{ name: 'delete', label: 'Eliminar', icon: 'trash', disabled: (row: CategoriaDto) => row.sociosCount > 0 } as DataTableAction] : [])
+    ...(this.authService.hasPermission(Permissions.EditarCategorias) ? [{ name: 'edit', label: 'comun.modificar', icon: 'pencil' } as DataTableAction] : []),
+    ...(this.authService.hasPermission(Permissions.EliminarCategorias) ? [{ name: 'delete', label: 'comun.eliminar', icon: 'trash', disabled: (row: CategoriaDto) => row.sociosCount > 0 } as DataTableAction] : [])
   ];
   form = this.fb.group({
     id: [0],
@@ -47,7 +48,8 @@ export class CategoriasComponent implements OnInit {
     private client: CategoriasClient,
     private authService: AuthService,
     private fb: FormBuilder,
-    private formErrors: FormErrorsService
+    private formErrors: FormErrorsService,
+    private translate: TranslateService
   ) {}
 
   get isEditing(): boolean {
@@ -123,7 +125,7 @@ export class CategoriasComponent implements OnInit {
       },
       error: error => {
         this.closeDeleteDialog();
-        alert(this.formErrors.firstMessage(error, 'No se pudo eliminar la categoría.'));
+        alert(this.formErrors.firstMessage(error, this.translate.instant('categorias.errorEliminar')));
       }
     });
   }

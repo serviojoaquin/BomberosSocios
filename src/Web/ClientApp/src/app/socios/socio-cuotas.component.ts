@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 import { CuotasClient, CuotasSocioVm, CuotaDto, CobrarCuotasCommand, BonificarCuotasCommand, MarcarCuotaImpagaCommand, ChangeStatusCuotaResponse, CajasClient, OrdenesPresencialesClient, CrearOrdenCommand } from '../web-api-client';
 import { AuthService } from 'src/api-authorization/auth.service';
 import { Permissions } from '../permissions';
@@ -34,14 +35,14 @@ export class SocioCuotasComponent implements OnInit {
     layout: { topStart: null, topEnd: null, bottomStart: null, bottomEnd: null }
   };
   columns: DataTableColumn[] = [
-    { data: 'ano', title: 'Año' },
-    { data: 'mes', title: 'Mes', render: (_v, type, row: CuotaDto) => type === 'display' ? row.mesNombre : String(row.mes) },
-    { data: 'importe', title: 'Importe', render: (v: number, type) => type === 'display' ? this.formatImporte(v) : String(v) },
-    { data: 'estado', title: 'Estado', render: (v: number, type, row: CuotaDto) => type === 'display' ? `<span class="badge-estado estado-${v}">${row.estadoNombre}</span>` : row.estadoNombre },
-    { data: 'fechaDeCobro', title: 'Fecha de pago', render: (_v, type, row: CuotaDto) => type === 'display' ? this.formatFecha(row.fechaDeCobro ?? row.fechaBonificada) : String(row.fechaDeCobro ?? row.fechaBonificada ?? '') }
+    { data: 'ano', title: 'cuotas.ano' },
+    { data: 'mes', title: 'cuotas.mes', render: (_v, type, row: CuotaDto) => type === 'display' ? this.translate.instant(`meses.l${row.mes}`) : String(row.mes) },
+    { data: 'importe', title: 'cuotas.importe', render: (v: number, type) => type === 'display' ? this.formatImporte(v) : String(v) },
+    { data: 'estado', title: 'cuotas.estado', render: (v: number, type) => type === 'display' ? `<span class="badge-estado estado-${v}">${this.nombreEstado(v)}</span>` : this.nombreEstado(v) },
+    { data: 'fechaDeCobro', title: 'cuotas.fechaDePago', render: (_v, type, row: CuotaDto) => type === 'display' ? this.formatFecha(row.fechaDeCobro ?? row.fechaBonificada) : String(row.fechaDeCobro ?? row.fechaBonificada ?? '') }
   ];
   actions: DataTableAction[] = this.puedePagar
-    ? [{ name: 'impaga', label: 'Marcar como impaga', icon: 'circle-check', visible: (row: CuotaDto) => row.estado !== ESTADO_IMPAGA }]
+    ? [{ name: 'impaga', label: 'cuotas.marcarImpaga', icon: 'circle-check', visible: (row: CuotaDto) => row.estado !== ESTADO_IMPAGA }]
     : [];
 
   private socioId = 0;
@@ -54,7 +55,8 @@ export class SocioCuotasComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private formErrors: FormErrorsService,
-    private toast: ToastService
+    private toast: ToastService,
+    private translate: TranslateService
   ) {}
 
   ngOnInit(): void {
@@ -78,7 +80,7 @@ export class SocioCuotasComponent implements OnInit {
         this.years.set(years);
         this.setYear(this.year() && years.includes(this.year()!) ? this.year()! : years[0] ?? null);
       },
-      error: error => this.toast.show(this.formErrors.firstMessage(error, 'No se pudieron cargar las cuotas.'), 'danger')
+      error: error => this.toast.show(this.formErrors.firstMessage(error, this.translate.instant('cuotas.errorCargar')), 'danger')
     });
   }
 
@@ -93,7 +95,7 @@ export class SocioCuotasComponent implements OnInit {
     const cuota = event.row as CuotaDto;
     this.client.setCuotaAsImpaga({ cuotaId: cuota.id } as MarcarCuotaImpagaCommand).subscribe({
       next: result => this.applyChange([cuota.id], result),
-      error: error => this.toast.show(this.formErrors.firstMessage(error, 'No se pudo modificar la cuota.'), 'danger')
+      error: error => this.toast.show(this.formErrors.firstMessage(error, this.translate.instant('cuotas.errorModificar')), 'danger')
     });
   }
 
@@ -101,7 +103,7 @@ export class SocioCuotasComponent implements OnInit {
     const ids = this.getCuotasToSet();
     this.client.setCuotasAsCobrada({ cuotasIds: ids } as CobrarCuotasCommand).subscribe({
       next: result => this.applyChange(ids, result),
-      error: error => this.toast.show(this.formErrors.firstMessage(error, 'No se pudieron cobrar las cuotas.'), 'danger')
+      error: error => this.toast.show(this.formErrors.firstMessage(error, this.translate.instant('cuotas.errorCobrar')), 'danger')
     });
   }
 
@@ -109,7 +111,7 @@ export class SocioCuotasComponent implements OnInit {
     const ids = this.getCuotasToSet();
     this.client.setCuotasAsBonificada({ cuotasIds: ids } as BonificarCuotasCommand).subscribe({
       next: result => this.applyChange(ids, result),
-      error: error => this.toast.show(this.formErrors.firstMessage(error, 'No se pudieron bonificar las cuotas.'), 'danger')
+      error: error => this.toast.show(this.formErrors.firstMessage(error, this.translate.instant('cuotas.errorBonificarCuotas')), 'danger')
     });
   }
 
@@ -121,7 +123,7 @@ export class SocioCuotasComponent implements OnInit {
           this.qrDialogRef.nativeElement.showModal();
         }
       },
-      error: error => this.toast.show(this.formErrors.firstMessage(error, 'No se pudo generar la orden de pago.'), 'danger')
+      error: error => this.toast.show(this.formErrors.firstMessage(error, this.translate.instant('cuotas.errorOrden')), 'danger')
     });
   }
 
@@ -136,6 +138,12 @@ export class SocioCuotasComponent implements OnInit {
 
   formatImporte(value: number): string {
     return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(value ?? 0);
+  }
+
+  nombreEstado(estado: number): string {
+    const key = `cuotas.estados.${estado}`;
+    const value = this.translate.instant(key);
+    return value === key ? String(estado) : value;
   }
 
   private setYear(year: number | null): void {
@@ -163,24 +171,11 @@ export class SocioCuotasComponent implements OnInit {
     if (!vm) {
       return;
     }
-    const estadoNombre = this.nombreEstado(result.cuotaEstadoId);
     const cuotas = vm.cuotas.map(c => ids.includes(c.id)
-      ? Object.assign(c, { estado: result.cuotaEstadoId, estadoNombre, fechaDeCobro: result.fechaDeCobro, fechaBonificada: result.fechaBonificada })
+      ? Object.assign(c, { estado: result.cuotaEstadoId, estadoNombre: this.nombreEstado(result.cuotaEstadoId), fechaDeCobro: result.fechaDeCobro, fechaBonificada: result.fechaBonificada })
       : c);
     this.vm.set({ ...vm, cuotas } as CuotasSocioVm);
     this.setYear(this.year());
-  }
-
-  private nombreEstado(estado: number): string {
-    switch (estado) {
-      case 1: return 'Impaga';
-      case 2: return 'Cobrada';
-      case 3: return 'Bonificada';
-      case 4: return 'Inválida';
-      case 5: return 'QR generado';
-      case 6: return 'Cobrada por QR';
-      default: return String(estado);
-    }
   }
 
   private generateArrayOfYears(cuotas: CuotaDto[]): number[] {

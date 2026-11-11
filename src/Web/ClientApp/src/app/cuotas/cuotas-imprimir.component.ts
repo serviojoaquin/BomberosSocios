@@ -1,4 +1,5 @@
 import { Component, Input, signal } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import * as htmlToImage from 'html-to-image';
 import pdfMake from 'pdfmake/build/pdfmake';
 import { CuotasImprimirVm, ReportesClient, SaveCuotaSocioCommand, SocioImprimirDto } from '../web-api-client';
@@ -15,7 +16,7 @@ export class CuotasImprimirComponent {
 
   generando = signal(false);
 
-  constructor(private reportesClient: ReportesClient, private toast: ToastService) {}
+  constructor(private reportesClient: ReportesClient, private toast: ToastService, private translate: TranslateService) {}
 
   formatImporte(value: number): string {
     return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(value ?? 0);
@@ -44,7 +45,7 @@ export class CuotasImprimirComponent {
         const base64 = await new Promise<string>(resolve => pdfMake.createPdf(docDefinition).getBase64(resolve));
         await this.guardar(socioId, base64);
       } catch {
-        this.toast.show(`Error al generar el reporte del socio N° ${socioId}.`, 'danger', 10000);
+        this.toast.show(this.translate.instant('cuotas.errorGenerarReporte', { socioId }), 'danger', 10000);
       }
     }
     this.generando.set(false);
@@ -55,11 +56,11 @@ export class CuotasImprimirComponent {
       this.reportesClient.saveCuotaSocio({ socioId, reporte: base64, ano: this.year } as SaveCuotaSocioCommand).subscribe({
         next: () => {
           this.removeSocio(socioId);
-          this.toast.show(`Reporte de cuotas para Socio N° ${socioId} y año ${this.year} creado.`, 'success');
+          this.toast.show(this.translate.instant('cuotas.reporteCreado', { socioId, ano: this.year }), 'success');
           resolve();
         },
         error: () => {
-          this.toast.show('Error al guardar el reporte.', 'danger', 10000);
+          this.toast.show(this.translate.instant('cuotas.errorGuardarReporte'), 'danger', 10000);
           resolve();
         }
       });

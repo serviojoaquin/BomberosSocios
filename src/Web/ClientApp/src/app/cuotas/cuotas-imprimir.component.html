@@ -1,8 +1,8 @@
 @if (vm && vm.socios.length > 0) {
-  <button type="button" (click)="download()" [disabled]="generando()" [attr.aria-busy]="generando() ? 'true' : null" style="width: auto;">Generar PDF</button>
+  <button type="button" (click)="download()" [disabled]="generando()" [attr.aria-busy]="generando() ? 'true' : null" style="width: auto;">{{ 'cuotas.generarPdf' | translate }}</button>
 }
 @if (vm && vm.socios.length === 0) {
-  <p>No hay reportes pendientes de generar.</p>
+  <p>{{ 'cuotas.sinReportesPendientes' | translate }}</p>
 }
 @for (socio of vm?.socios ?? []; track socio.id) {
   <div class="imprimir-socio htmlToPdfContainer" [attr.data-socio-id]="socio.id">

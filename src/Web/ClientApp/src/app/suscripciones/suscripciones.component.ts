@@ -1,4 +1,5 @@
 import { Component, OnInit, signal } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { SuscripcionesClient, SuscripcionDto } from '../web-api-client';
 import { DataTableColumn } from '../shared/data-table/data-table.component';
 import { ToastService } from '../shared/toast/toast.service';
@@ -12,18 +13,19 @@ import { FormErrorsService } from '../shared/forms/form-errors.service';
 export class SuscripcionesComponent implements OnInit {
   suscripciones = signal<SuscripcionDto[] | null>(null);
   columns: DataTableColumn[] = [
-    { data: 'id', title: 'Id' },
-    { data: 'payer_id', title: 'N° Usuario', className: 'dt-body-right' },
-    { data: 'payer_first_name', title: 'Nombre' },
-    { data: 'payer_last_name', title: 'Apellido' },
-    { data: 'payment_method_id', title: 'Método de Pago' },
-    { data: 'status', title: 'Estado' }
+    { data: 'id', title: 'suscripciones.id' },
+    { data: 'payer_id', title: 'suscripciones.numeroUsuario', className: 'dt-body-right' },
+    { data: 'payer_first_name', title: 'suscripciones.nombre' },
+    { data: 'payer_last_name', title: 'suscripciones.apellido' },
+    { data: 'payment_method_id', title: 'suscripciones.metodoDePago' },
+    { data: 'status', title: 'suscripciones.estado' }
   ];
 
   constructor(
     private client: SuscripcionesClient,
     private toast: ToastService,
-    private formErrors: FormErrorsService
+    private formErrors: FormErrorsService,
+    private translate: TranslateService
   ) {}
 
   ngOnInit(): void {
@@ -31,7 +33,7 @@ export class SuscripcionesComponent implements OnInit {
       next: result => this.suscripciones.set(result.suscripciones),
       error: error => {
         this.suscripciones.set([]);
-        this.toast.show(this.formErrors.firstMessage(error, 'No se pudieron cargar las suscripciones.'), 'danger');
+        this.toast.show(this.formErrors.firstMessage(error, this.translate.instant('suscripciones.errorCargar')), 'danger');
       }
     });
   }
